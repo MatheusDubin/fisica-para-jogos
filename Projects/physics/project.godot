@@ -1,0 +1,38 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Physics"
+run/main_scene="res://scenes/tower.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+RunManager="*res://scripts/run_manager.gd"
+
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/vsync/vsync_mode=0
+
+[physics]
+
+common/physics_ticks_per_second=50
+3d/physics_engine="Jolt Physics"
+jolt_physics_3d/limits/temporary_memory_buffer_size=256
+jolt_physics_3d/limits/max_body_pairs=262144
+jolt_physics_3d/limits/max_contact_constraints=262144
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
