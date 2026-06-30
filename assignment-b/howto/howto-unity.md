@@ -33,12 +33,14 @@ Confirmar que ficou `0.02` — é o que garante comparação justa com as outras
 
 Antes de qualquer coisa, **anotar e salvar** os valores padrão:
 
-| Configuração | Valor padrão (anotar aqui) |
-|---|---|
-| Default Solver Iterations | ___ |
-| Default Solver Velocity Iterations | ___ |
-| Sleep Threshold | ___ |
-| Default Contact Offset | ___ |
+
+| Configuração                       | Valor padrão (anotar aqui) |
+| ---------------------------------- | -------------------------- |
+| Default Solver Iterations          | 6                          |
+| Default Solver Velocity Iterations | 1                          |
+| Sleep Threshold                    | 0.005                      |
+| Default Contact Offset             | 0.01                       |
+
 
 > **Não alterar nenhum desses valores.** Estamos medindo o comportamento padrão da engine.
 
@@ -262,6 +264,7 @@ Chamar `RunManager.Instance.ProximaRun()` ao final de cada medição.
 ### Cubo (Cenário 1 — Torre)
 
 Criar um Prefab com:
+
 - `GameObject > 3D Object > Cube` (scale = 1,1,1 = 1m³)
 - Adicionar componente `Rigidbody`
   - Mass: `1`
@@ -296,28 +299,31 @@ Criar um Prefab com:
 
 ## 11. Checklist antes de Rodar
 
-- [ ] Fixed Timestep = 0.02 confirmado
-- [ ] V-Sync desativado (`QualitySettings.vSyncCount = 0` no código)
-- [ ] Frame Rate cap removido (`Application.targetFrameRate = -1`)
-- [ ] Bounciness = 0.0 no PhysicMaterial dos cubos (Torre)
-- [ ] Valores padrão do solver anotados (não alterados)
-- [ ] ProfilerRecorder inicializado no `OnEnable()`
-- [ ] RunManager criado e presente na cena
-- [ ] CSV sendo gravado com header na primeira run
-- [ ] Build em **Release** (não Debug) — `File > Build Settings > Development Build` **desmarcado**
+- Fixed Timestep = 0.02 confirmado
+- V-Sync desativado (`QualitySettings.vSyncCount = 0` no código)
+- Frame Rate cap removido (`Application.targetFrameRate = -1`)
+- Bounciness = 0.0 no PhysicMaterial dos cubos (Torre)
+- Valores padrão do solver anotados (não alterados)
+- ProfilerRecorder inicializado no `OnEnable()`
+- RunManager criado e presente na cena
+- CSV sendo gravado com header na primeira run
+- Build em **Release** (não Debug) — `File > Build Settings > Development Build` **desmarcado**
 
 ---
 
 ## 12. Referência Rápida de APIs
 
-| O que fazer | API |
-|---|---|
-| Tempo de física (ms) | `ProfilerRecorder.LastValue / 1_000_000f` |
-| FPS | `1f / Time.unscaledDeltaTime` |
-| Corpo está dormindo? | `rigidbody.IsSleeping()` |
-| Acordar corpo manualmente | `rigidbody.WakeUp()` |
-| Tempo de simulação | `Time.time` (segundos desde o início) |
-| Recarregar cena | `SceneManager.LoadScene(SceneManager.GetActiveScene().name)` |
-| Salvar arquivo | `System.IO.StreamWriter` com `append: true` |
-| Desativar V-Sync | `QualitySettings.vSyncCount = 0` |
-| Remover frame cap | `Application.targetFrameRate = -1` |
+
+| O que fazer               | API                                                          |
+| ------------------------- | ------------------------------------------------------------ |
+| Tempo de física (ms)      | `ProfilerRecorder.LastValue / 1_000_000f`                    |
+| FPS                       | `1f / Time.unscaledDeltaTime`                                |
+| Corpo está dormindo?      | `rigidbody.IsSleeping()`                                     |
+| Acordar corpo manualmente | `rigidbody.WakeUp()`                                         |
+| Tempo de simulação        | `Time.time` (segundos desde o início)                        |
+| Recarregar cena           | `SceneManager.LoadScene(SceneManager.GetActiveScene().name)` |
+| Salvar arquivo            | `System.IO.StreamWriter` com `append: true`                  |
+| Desativar V-Sync          | `QualitySettings.vSyncCount = 0`                             |
+| Remover frame cap         | `Application.targetFrameRate = -1`                           |
+
+

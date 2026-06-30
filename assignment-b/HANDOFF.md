@@ -1,9 +1,14 @@
-# HANDOFF — Godot pronto, próximo: Unity
+# HANDOFF — Godot ✅ e Unity ✅, próximo: Unreal
 
-> **Você é o agente que vai implementar o assignment-B em Unity.** Este
-> documento é seu briefing completo. Godot já foi feito (Cenários 1 e 2).
-> Sua missão: replicar a mesma metodologia em Unity para que os três engines
-> sejam comparáveis no relatório final.
+> **AGENTE UNREAL: comece pela seção [Status Unity](#status-unity-snapshot--implementação-pronta-dataset-final-pendente)
+> no fim deste arquivo** — ela tem os achados (PGS≠TGS, limiar de colapso,
+> métrica de step time) e as decisões de implementação a replicar. Depois leia
+> `results/godot/NOTES.md` + `results/unity/NOTES.md` e os `scenarios/*-unreal.md`.
+> Sua missão: replicar a MESMA metodologia em Unreal (Chaos Physics) para os três
+> engines serem comparáveis 1-pra-1 no relatório final.
+
+> _(Histórico: este doc nasceu como o briefing Godot→Unity. Unity está
+> implementado e validado; dataset final de 30 ciclos roda depois do Unreal.)_
 
 ---
 
@@ -115,7 +120,7 @@ exatamente em Unity:**
 | 9  | 8.217s  | ✓ sleep | 35.47 m/s |
 | 10 | 8.717s  | ✓ sleep | 35.58 m/s |
 
-**Estatísticas:** mean = 8.892s, σ = 0.496s (CV 5.6%), filtered mean = 8.827s.
+**Estatísticas:** M = 8.888s, σ = 0.486s (CV 5.5%), **filtered mean = 8.743s** (7/10 mantidos).
 
 **Síntese Godot/Jolt no Torre:**
 - **10/10 colapsam** (max_v ~36 m/s reproduzível em todas as runs). Jolt
@@ -134,16 +139,23 @@ curto (~poucos segundos) e jitter mínimo. **Se Unity também colapsar como
 o Jolt, isso seria um achado significativo** — sugeriria que N=100 estoura
 mesmo o solver com warm starting.
 
-### Chuva (Godot/Jolt)
+### Chuva (Godot/Jolt) — números filtrados M±σ
 
 `results/godot/chuva-default-buffer/chuva_godot.csv` (1k, 5k) +
 `results/godot/chuva-tuned-buffer/chuva_godot.csv` (10k):
 
-| N esferas | Step Time médio | FPS médio | Notas |
+| N esferas | Step time filtered (ms) | FPS filtered | Notas |
 |---|---|---|---|
-| 1.000 | ~2 ms | ~144 | Defaults OK |
-| 5.000 | ~10 ms | ~60 | Defaults OK |
-| 10.000 | ~32 ms | ~9–46 (instável) | Precisou bumpar buffers internos do Jolt |
+| 1.000  | **2.620** (σ 0.130, 8/10) | **1558.87** (σ 23.7, 9/10) | Defaults OK |
+| 5.000  | **13.391** (σ 0.628, 7/10) | **357.28** (σ 22.4, 8/10) | Defaults OK |
+| 10.000 | **31.657** (σ 3.60, 6/10) | 16.63 ⚠️ FPS bimodal (σ 13.5) | Precisou bumpar buffers Jolt (contact constraints + body pairs + temp memory) |
+
+**Caveat 10k FPS:** distribuição bimodal — 6 runs em ~10 FPS, 4 runs em
+~37 FPS. M±σ não captura isso. Tratar step_time como métrica primária.
+Detalhes em `results/godot/ANALYSIS.md`.
+
+**Escalonamento Jolt:** 1k → 5k = 5.11× (linear); 5k → 10k = 2.37× (sublinear).
+Se Unity for linear puro, é um achado a destacar.
 
 **O que esperar de Unity (PhysX):** números na mesma ordem de grandeza. PhysX
 e Jolt são ambos impulse-based; a diferença vai estar em onde cada um aloca
@@ -266,9 +278,8 @@ run,variacao,physics_step_ms_medio,physics_step_ms_max,fps_medio,amostras
 
 ## 8. Implementações Godot como referência
 
-Os scripts Godot **não estão dentro de `fisica-para-jogos/`**. Eles vivem em
-um diretório irmão: **`C:\Users\mathe\Documents\physics\Projects\physics\`**
-(o projeto Godot abre essa pasta). Caminhos:
+Os scripts Godot estão **dentro do repo**, em `Projects/physics/` (relativo
+à raiz de `fisica-para-jogos/`). Caminhos:
 
 - `Projects/physics/scripts/run_manager.gd` — singleton autoload, gerencia
   contadores de run, escreve CSV, controla quando recarregar cena
@@ -284,9 +295,9 @@ Use **apenas para inspiração estrutural** — NÃO copie 1-pra-1. Unity tem AP
 diferentes. O `howto-unity.md` já tem snippets em C# para todas as operações
 equivalentes (ProfilerRecorder, IsSleeping, RunManager singleton).
 
-Para o projeto Unity, sugere-se criar um diretório irmão também:
-`C:\Users\mathe\Documents\physics\Projects\unity\` (ou nome equivalente).
-Manter o repo `fisica-para-jogos/` para spec, results e handoffs.
+**Para o projeto Unity:** a pasta `Projects/physics-unity/` já foi criada na
+raiz do repo. Coloque o projeto Unity lá. Os CSVs de saída devem ir em
+`assignment-b/results/unity/` (espelhando a estrutura `results/godot/`).
 
 ---
 
@@ -331,3 +342,62 @@ Manter o repo `fisica-para-jogos/` para spec, results e handoffs.
 | Bonus stress-test 5→50 | ❌ Iniciado, interrompido em N=15 (colapso visual confirmou hipótese) |
 | Slides Considerações Críticas | ⏳ Pendente — depois das 3 engines |
 | Relatório final comparativo | ⏳ Pendente — depois das 3 engines |
+
+---
+
+## Status Unity (snapshot — implementação pronta, dataset final pendente)
+
+> **Próximo: Unreal.** Unity está **implementado e validado**, com dados
+> **preliminares** coletados. O dataset final (30 ciclos) será rodado pelo dono
+> do projeto DEPOIS do Unreal, junto com a gravação dos vídeos. Detalhes
+> completos em `results/unity/NOTES.md`.
+
+### Ambiente
+- Unity **6000.5.1f1** (Unity 6 LTS), URP, **PhysX** path clássico (GameObject + Rigidbody).
+- Projeto em `Projects/physics-unity/` (irmão, fora do repo de spec — igual ao Godot).
+- Scripts em `Projects/physics-unity/Assets/Benchmark/` (tudo gerado em código,
+  zero ligação de Inspector). Menu **Benchmark** numerado (1..5) controla tudo.
+
+### Achados de física (importantes para o relatório e para o Unreal)
+1. **O solver default do Unity é PGS, não TGS.** O Grau A assumiu TGS — está
+   errado para o default (`DynamicsManager.asset → m_SolverType: 0`). TGS existe
+   mas só liga via Project Settings (sem API de runtime).
+2. **Torre N=100 colapsa (pancaking), igual ao Godot/Jolt.** PGS default:
+   mean **9.94s**, σ 0.46, max_v ~40, 0 timeouts, 10/10 colapsam (Godot: 8.89s,
+   ~36 m/s). O `top_y` cai monotônico 99.5→1.5m: falha de sustentação de carga,
+   não explosão.
+3. **Limiar de colapso (defaults):** PGS sustenta ≤N=10, colapsa em N=15;
+   TGS sustenta ≤N=15, colapsa em N=20. **Nenhum dos dois sustenta pilha alta
+   com iterações padrão.** Subir iterações 6→20 melhora jitter/convergência mas
+   **não move o limiar** — é arquitetura de solver, não contagem de iterações.
+
+### Decisões de implementação (replicar no Unreal p/ comparação justa)
+- **Duas variantes da Torre:** DEFAULT (out-of-the-box) e TUNED (mexe no solver).
+  O assignment do professor só obriga malha/massa/atrito/timestep — mexer no
+  solver é permitido como análise crítica, desde que igual nas 3 engines e
+  documentado. (O "não mexer" do §2.1 do doc genérico é decisão nossa, não do
+  professor.) Mostrar "onde a física quebra" é entregável explícito do professor.
+- **Paredes collision-only** (só o chão é renderizado), espelhando o Godot — para
+  o FPS da Chuva ser comparável (mesmo conjunto renderizado) e a câmera ver os corpos.
+- **30 ciclos** por configuração no dataset final (excede o mínimo de 10).
+- **Step time da Chuva via stepping manual** (`SimulationMode.Script` +
+  `Stopwatch` em volta de `Physics.Simulate`). **ProfilerRecorder("Physics.Processing")
+  retorna 0 no Unity 6** — não usar. **Unreal: garanta uma fonte de step time
+  confiável** (ex.: `STAT` / `FPhysScene` timing) e valide que não vem 0.
+- Arena/caixa, materiais, spawn, jitter, warmup/janela: já travados nos
+  `scenarios/scenario-1|2-*-unity.md` (idênticos ao Godot).
+
+### Estado dos dados (preliminares — serão substituídos por 30 ciclos)
+| Config | Pasta | Estado |
+|---|---|---|
+| Torre N=100 PGS | `results/unity/torre-N100-arena/` | 10 runs (preliminar → 30) |
+| Torre N=100 +iter20 | `results/unity/torre-N100-tuned/` | exploratório (Archived) |
+| Torre N=100 TGS | `results/unity/torre-N100-tgs/` | a rodar (item 4) |
+| Sweeps PGS/TGS/+iter | `results/unity/torre-sweep-*/` | 3 runs/N (preliminar → 30) |
+| Chuva | `results/unity/chuva-default/` | **inválida (step 0.0) — re-rodar** |
+
+### Pendências Unity (quando o dono voltar, pós-Unreal)
+1. Rodar menu **1→5** (30 ciclos). Itens 1–3 em PGS; 4–5 trocando p/ TGS antes;
+   depois voltar p/ PGS. (ver `results/unity/NOTES.md` §2.)
+2. Gravar vídeos curtos (colapso da Torre, Chuva 10k).
+3. Próximo turno meu: calcular M±σ filtrado e preencher tabelas finais.

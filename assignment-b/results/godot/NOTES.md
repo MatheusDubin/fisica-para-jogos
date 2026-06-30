@@ -156,15 +156,19 @@ queremos quantificar de forma uniforme.
 | 9  | 8.217  | ✗ | 35.47 |
 | 10 | 8.717  | ✗ | 35.58 |
 
-**Estatísticas:**
-- Mean: **8.892s**
-- Desvio padrão (σ): **0.496s**
-- Coeficiente de variação: 5.6% (distribuição apertada)
-- Faixa [M ± σ]: [8.396, 9.388]
-- Dentro da faixa: runs 2, 3, 4, 5, 6, 7, 8, 10 (8 runs)
-- Fora: run 1 (10.049 — high), run 9 (8.217 — low)
-- **Filtered mean: 8.827s**
+**Estatísticas** (verificadas via cálculo em `ANALYSIS.md`):
+- Mean: **8.888s**
+- Desvio padrão (σ, população): **0.486s**
+- Coeficiente de variação: 5.5% (distribuição apertada)
+- Faixa [M ± σ]: [8.403, 9.374]
+- Mantidos: runs 2, 3, 4, 5, 6, 7, 10 (7 runs)
+- Excluídos: run 1 (10.049, alto), run 8 (9.417, alto), run 9 (8.217, baixo)
+- **Filtered mean: 8.743s** ← número canônico para o comparativo
 - Max velocity uniforme em 35.47–36.62 m/s
+
+> Análise estatística completa de todos os datasets em
+> `assignment-b/results/godot/ANALYSIS.md` (Torre + Chuva, com filtragem
+> M±σ aplicada por configuração).
 
 **O que os dados revelam:**
 

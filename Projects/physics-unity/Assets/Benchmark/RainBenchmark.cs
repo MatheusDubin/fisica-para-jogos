@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Profiling;
 using UnityEngine;
 
 namespace Benchmark
@@ -12,9 +11,9 @@ namespace Benchmark
     // Para cada variacao (1000, 5000, 10000) e cada run (1..10):
     //   1. Spawna N esferas num grid 3D com jitter +-3cm (seed = 0xBEEF + run).
     //   2. Aquecimento de 0.5s (descartado).
-    //   3. Janela de coleta de 10s (wall-clock): a cada FixedUpdate grava o
-    //      Physics Step Time via ProfilerRecorder("Physics.Processing"); a cada
-    //      Update grava FPS (1/unscaledDeltaTime).
+    //   3. Janela de coleta de 10s (wall-clock): a cada FixedUpdate cronometra
+    //      Physics.Simulate() (SimulationMode.Script) com Stopwatch = Physics
+    //      Step Time; a cada Update grava FPS (1/unscaledDeltaTime).
     //   4. Calcula media/max do step e media do FPS, grava no CSV.
     //   5. Reset in-place (destroi esferas, espera frames) e proxima run.
     //
@@ -28,7 +27,7 @@ namespace Benchmark
         const float SPHERE_SCALE = 1.0f;  // esfera primitiva Unity tem diametro 1 (raio 0.5)
         const float SPACING = 1.15f;      // > diametro, evita overlap inicial
         const float SPAWN_Y = 25.0f;      // altura de spawn acima do chao da caixa
-        const int TOTAL_RUNS = 10;
+        int _totalRuns = 10;              // configuravel via bench_rain_runs / BENCH_RAIN_RUNS
         const float WARMUP_S = 0.5f;
         const float WINDOW_S = 10.0f;
 
@@ -41,8 +40,6 @@ namespace Benchmark
         PhysicsMaterial _sharedMat;
         readonly List<Rigidbody> _spheres = new List<Rigidbody>();
 
-        ProfilerRecorder _physRecorder;
-
         int _varIdx = 0;
         int _run = 0;      // 0-based dentro da variacao
         int _numObjetos = 0;
@@ -54,19 +51,18 @@ namespace Benchmark
 
         string _csvPath;
 
-        void OnEnable()
-        {
-            // Marcador interno do passo do PhysX. Iniciado cedo conforme howto.
-            _physRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Physics, "Physics.Processing");
-        }
-
         void OnDisable()
         {
-            if (_physRecorder.Valid) _physRecorder.Dispose();
+            // Restaura o modo automatico (resetaria sozinho ao sair do Play, mas
+            // explicito e mais seguro).
+            Physics.simulationMode = SimulationMode.FixedUpdate;
         }
 
         void Start()
         {
+            // Stepping manual para cronometrar o passo de fisica com precisao.
+            Physics.simulationMode = SimulationMode.Script;
+
             // Permite rodar uma unica variacao via env (ex: BENCH_RAIN_VARIATIONS=10000).
             string ov = Environment.GetEnvironmentVariable("BENCH_RAIN_VARIATIONS");
             if (!string.IsNullOrEmpty(ov))
@@ -77,6 +73,10 @@ namespace Benchmark
                     if (int.TryParse(p.Trim(), out int v) && v > 0) list.Add(v);
                 if (list.Count > 0) _variacoes = list.ToArray();
             }
+
+            string runsRaw = Environment.GetEnvironmentVariable("BENCH_RAIN_RUNS");
+            if (string.IsNullOrEmpty(runsRaw)) runsRaw = PlayerPrefs.GetString("bench_rain_runs", "10");
+            if (int.TryParse(runsRaw, out int rr) && rr > 0) _totalRuns = rr;
 
             _csvPath = BenchmarkCommon.PrepareFile(SUBDIR, CSV);
             BenchmarkCommon.WriteHeader(_csvPath, CSV_HEADER);
@@ -94,7 +94,7 @@ namespace Benchmark
             BenchmarkCommon.CreateViewer("ChuvaViewer", new Vector3(55, 35, 55), new Vector3(0, 18, 0), 1000f);
 
             Debug.Log($"[Chuva] Unity {Application.unityVersion}, solverIter={Physics.defaultSolverIterations}, " +
-                      $"recorderValido={_physRecorder.Valid}, variacoes=[{string.Join(",", _variacoes)}]");
+                      $"simulationMode={Physics.simulationMode}, runs={_totalRuns}, variacoes=[{string.Join(",", _variacoes)}]");
 
             IniciarProximaRun();
         }
@@ -105,15 +105,18 @@ namespace Benchmark
             float meioY = altura * 0.5f;
             var root = new GameObject("Caixa");
 
-            Parede(root, new Vector3(0, -esp * 0.5f, 0), new Vector3(largura, esp, profundidade));
-            Parede(root, new Vector3(0, altura + esp * 0.5f, 0), new Vector3(largura, esp, profundidade));
-            Parede(root, new Vector3(largura * 0.5f + esp * 0.5f, meioY, 0), new Vector3(esp, altura, profundidade));
-            Parede(root, new Vector3(-largura * 0.5f - esp * 0.5f, meioY, 0), new Vector3(esp, altura, profundidade));
-            Parede(root, new Vector3(0, meioY, profundidade * 0.5f + esp * 0.5f), new Vector3(largura, altura, esp));
-            Parede(root, new Vector3(0, meioY, -profundidade * 0.5f - esp * 0.5f), new Vector3(largura, altura, esp));
+            // So o chao e visivel; paredes e teto sao collision-only (igual ao
+            // Godot), para a camera externa ver as esferas e o FPS refletir
+            // "chao + esferas" - o mesmo conjunto renderizado pelo Godot.
+            Parede(root, new Vector3(0, -esp * 0.5f, 0), new Vector3(largura, esp, profundidade), true);
+            Parede(root, new Vector3(0, altura + esp * 0.5f, 0), new Vector3(largura, esp, profundidade), false);
+            Parede(root, new Vector3(largura * 0.5f + esp * 0.5f, meioY, 0), new Vector3(esp, altura, profundidade), false);
+            Parede(root, new Vector3(-largura * 0.5f - esp * 0.5f, meioY, 0), new Vector3(esp, altura, profundidade), false);
+            Parede(root, new Vector3(0, meioY, profundidade * 0.5f + esp * 0.5f), new Vector3(largura, altura, esp), false);
+            Parede(root, new Vector3(0, meioY, -profundidade * 0.5f - esp * 0.5f), new Vector3(largura, altura, esp), false);
         }
 
-        void Parede(GameObject parent, Vector3 pos, Vector3 size)
+        void Parede(GameObject parent, Vector3 pos, Vector3 size, bool visible)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = "Parede";
@@ -122,6 +125,11 @@ namespace Benchmark
             go.transform.localScale = size;
             go.GetComponent<Collider>().sharedMaterial = _sharedMat;
             go.isStatic = true;
+            if (!visible)
+            {
+                var mr = go.GetComponent<MeshRenderer>();
+                if (mr != null) Destroy(mr);
+            }
         }
 
         void IniciarProximaRun()
@@ -137,7 +145,7 @@ namespace Benchmark
             SpawnEsferas();
             _tStart = Time.unscaledTimeAsDouble;
 
-            Debug.Log($"[Chuva] Variacao={_numObjetos}, Run {_run + 1}/{TOTAL_RUNS} " +
+            Debug.Log($"[Chuva] Variacao={_numObjetos}, Run {_run + 1}/{_totalRuns} " +
                       $"(spawn {_numObjetos} esferas em {(Time.realtimeSinceStartup - tSpawn) * 1000f:F0}ms)");
         }
 
@@ -199,6 +207,17 @@ namespace Benchmark
         {
             if (!_running) return;
 
+            // Passo de fisica MANUAL e cronometrado. Em SimulationMode.Script o
+            // Unity nao avanca a fisica sozinho - nos chamamos Physics.Simulate
+            // a cada FixedUpdate e medimos o tempo com Stopwatch (alta resolucao).
+            // Isso e o "Physics Step Time" do spec, equivalente ao
+            // TIME_PHYSICS_PROCESS do Godot, e NUNCA retorna 0 (ao contrario do
+            // ProfilerRecorder("Physics.Processing"), que nao existe no Unity 6).
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            Physics.Simulate(Time.fixedDeltaTime);
+            sw.Stop();
+            float stepMs = (float)sw.Elapsed.TotalMilliseconds;
+
             double now = Time.unscaledTimeAsDouble;
             double elapsed = now - _tStart;
 
@@ -215,7 +234,6 @@ namespace Benchmark
 
             if (_coletando)
             {
-                float stepMs = _physRecorder.Valid ? _physRecorder.LastValue / 1_000_000f : 0f;
                 _stepMs.Add(stepMs);
 
                 double elapsedCol = now - _tColeta;
@@ -241,7 +259,7 @@ namespace Benchmark
                 "{0},{1},{2:F4},{3:F4},{4:F2},{5}",
                 _run + 1, _numObjetos, stepMedio, stepMax, fpsMedio, amostras));
 
-            Debug.Log($"[Chuva {_numObjetos}] Run {_run + 1}/{TOTAL_RUNS} step={stepMedio:F3}ms " +
+            Debug.Log($"[Chuva {_numObjetos}] Run {_run + 1}/{_totalRuns} step={stepMedio:F3}ms " +
                       $"(max {stepMax:F3}) fps={fpsMedio:F1} amostras={amostras}");
 
             StartCoroutine(CiclarProximaRun());
@@ -260,7 +278,7 @@ namespace Benchmark
             yield return new WaitForSeconds(0.3f);
 
             _run++;
-            if (_run >= TOTAL_RUNS)
+            if (_run >= _totalRuns)
             {
                 _run = 0;
                 _varIdx++;
