@@ -28,6 +28,43 @@ O Grau A identificou que Unity usa **PhysX 4.x** no path clássico de GameObject
 
 ---
 
+## Implementation locks (cross-engine)
+
+> Decisões de implementação fixadas durante a implementação Godot. Replicar
+> exatamente para que os números sejam comparáveis 1-pra-1 entre engines.
+> Estes não são valores do spec — são padronizações de **como** implementar
+> dentro da liberdade que o spec deixa.
+
+| Item | Valor | Razão |
+|---|---|---|
+| **Arena** | Caixa fechada: chão 60m × 60m + 4 paredes + teto, altura 150m, espessura 2m | Quando o solver falha em sustentar a pilha, cubos podem ser ejetados a >50 m/s. Sem paredes, escapam do chão e nunca dormem (timeout sem informação). Com paredes, são contidos e a métrica continua válida. |
+| **Material das paredes** | Mesmo dos cubos (friction 0.5, bounce 0.0) | Sem energia adicional vindo das paredes. |
+| **Espaçamento entre cubos** | **1.0** (faces tocando exatamente, sem gap) | "Perfeitamente empilhadas" per spec. Sem gap. |
+| **Offset inicial** | base do cubo mais baixo coincide com o topo do chão | Sem flutuação inicial. Com cubo de 1m e centro em y=0.5, chão em y=0. |
+| **Spawn** | Em código (não na cena via prefab manual). 100 cubos em coluna vertical centrada em (0, 0). | Reprodutibilidade. |
+| **Sleep check** | Em `FixedUpdate`, iterando todos os Rigidbodies | Sincronizado com passo de física. |
+| **Recursos compartilhados** | 1 mesh + 1 collider + 1 PhysicMaterial reusados em todos os cubos | Reduz custo de instanciação. |
+
+### CSV de saída (formato cross-engine)
+
+Cabeçalho exato (matches `results/godot/torre-N100/torre_godot.csv`):
+
+```
+run,num_cubos,tempo_ate_sleep_s,timeout,phys_frames,max_v,t_primeiro_sleep,t_metade_sleep
+```
+
+Adicionalmente, gravar um debug CSV per-physics-frame para análise de
+colapso vs jitter:
+
+```
+run,num_cubos,t_s,phys_frame,asleep,active_objs,max_v,mean_v,top_y
+```
+
+Onde `top_y` é a posição Y do cubo mais alto (detecta colapso) e `max_v` é
+a maior velocidade observada (detecta jitter).
+
+---
+
 ## API de Sleep State
 
 Como detectar que um `Rigidbody` dormiu:

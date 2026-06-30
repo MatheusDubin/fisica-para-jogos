@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk -F',' '$1==\"2\"' \"C:\\\\Users\\\\mathe\\\\AppData\\\\Roaming\\\\Godot\\\\app_userdata\\\\Physics\\\\torre_godot_debug.csv\")",
+      "Bash(awk 'NR%10==1')",
+      "Bash(awk -F',' '$1==\"8\"' \"C:\\\\Users\\\\mathe\\\\AppData\\\\Roaming\\\\Godot\\\\app_userdata\\\\Physics\\\\torre_godot_debug.csv\")",
+      "Bash(awk 'NR%50==1')",
+      "Bash(cp \"C:\\\\Users\\\\mathe\\\\AppData\\\\Roaming\\\\Godot\\\\app_userdata\\\\Physics\\\\torre_godot.csv\" \"C:\\\\Users\\\\mathe\\\\Documents\\\\physics\\\\fisica-para-jogos\\\\assignment-b\\\\results\\\\godot\\\\torre-N10\\\\torre_godot.csv\")",
+      "Bash(cp \"C:\\\\Users\\\\mathe\\\\AppData\\\\Roaming\\\\Godot\\\\app_userdata\\\\Physics\\\\torre_godot_debug.csv\" \"C:\\\\Users\\\\mathe\\\\Documents\\\\physics\\\\fisica-para-jogos\\\\assignment-b\\\\results\\\\godot\\\\torre-N10\\\\torre_godot_debug.csv\")",
+      "PowerShell(New-Item *)",
+      "PowerShell(Rename-Item *)",
+      "PowerShell(Copy-Item *)"
+    ]
+  }
+}

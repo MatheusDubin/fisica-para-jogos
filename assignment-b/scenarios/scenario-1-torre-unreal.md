@@ -28,6 +28,43 @@ O Grau A identificou que Unreal usa **Chaos Physics** com solver **XPBD (Extende
 
 ---
 
+## Implementation locks (cross-engine)
+
+> Decisões de implementação fixadas durante a implementação Godot. Replicar
+> exatamente para que os números sejam comparáveis 1-pra-1 entre engines.
+> **Lembrete crítico:** Unreal usa cm, então todos os valores em metros
+> abaixo devem ser multiplicados por 100.
+
+| Item | Valor (m, escala Godot/Unity) | Valor (cm, escala Unreal) | Razão |
+|---|---|---|---|
+| **Arena** | Chão 60×60 + 4 paredes + teto, altura 150, espessura 2 | Chão 6000×6000 + 4 paredes + teto, altura 15000, espessura 200 | Cubos ejetados pelo solver precisam ficar contidos no volume de medição. |
+| **Material das paredes** | friction 0.5, restitution 0.0 | idem | Sem energia adicional. |
+| **Espaçamento entre cubos** | 1.0 exato (faces tocando) | 100.0 exato | "Perfeitamente empilhadas" per spec. |
+| **Offset inicial** | base do cubo coincide com topo do chão | idem | Sem flutuação inicial. |
+| **Spawn** | 100 StaticMesh em coluna centrada em (0,0) | idem | Reprodutibilidade. |
+| **Sleep check** | A cada physics tick, iterando todos os componentes | idem | Sincronizado com passo de física. |
+| **Shock Propagation** | **N/A em Godot/Unity** | **Documentar valor padrão; NÃO alterar** | Spec proíbe mudar config de solver. |
+
+### CSV de saída (formato cross-engine)
+
+Cabeçalho exato (matches `results/godot/torre-N100/torre_godot.csv`):
+
+```
+run,num_cubos,tempo_ate_sleep_s,timeout,phys_frames,max_v,t_primeiro_sleep,t_metade_sleep
+```
+
+Adicionalmente, gravar um debug CSV per-physics-frame:
+
+```
+run,num_cubos,t_s,phys_frame,asleep,active_objs,max_v,mean_v,top_y
+```
+
+`top_y` é a posição Z mais alta (em Unreal, Z é "up", não Y — ajustar) do
+componente mais alto da pilha. Detecta colapso (top_y caindo) vs jitter
+(max_v oscilando sem queda).
+
+---
+
 ## API de Sleep State
 
 Como detectar sleep em um `UPrimitiveComponent` com física simulada:

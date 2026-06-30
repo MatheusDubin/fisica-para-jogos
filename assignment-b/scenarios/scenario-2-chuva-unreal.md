@@ -28,6 +28,39 @@ O Grau A identificou que Unreal usa **Chaos Physics** com **islands resolvidos e
 
 ---
 
+## Implementation locks (cross-engine)
+
+> Decisões de implementação fixadas durante a implementação Godot. Replicar
+> exatamente para que os números sejam comparáveis 1-pra-1 entre engines.
+> **Lembrete:** Unreal em cm — multiplicar todos os valores em metros por 100.
+
+| Item | Valor (m) | Valor (cm — Unreal) | Razão |
+|---|---|---|---|
+| **Container** | Caixa fechada 35 × 80 × 35, espessura 2 | 3500 × 8000 × 3500, espessura 200 | Volume suficiente para 10k esferas + altura para queda livre. |
+| **Aquecimento (warmup)** | **0.5s descartados** | idem | Estabilizar sistema antes de medir. |
+| **Janela de coleta** | **10s** | idem | Spec: "primeiros segundos após o spawn". |
+| **Spawn** | Grid 3D pré-calculado dentro da caixa | idem | Determinístico, sem overlap. |
+| **Spawn jitter** | **±3cm por eixo, RNG seed baseado em run index** | ±3 cm idem (já é cm) | Evita simetria perfeita; reprodutível. |
+| **Spawn origem (acima do chão)** | 25 m | 2500 cm | Altura suficiente para acelerar. |
+| **Espaçamento no grid** | 1.15 entre centros | 115 entre centros | Evita overlap inicial (diâmetro = 1m / 100cm). |
+| **Esfera** | raio 0.5 | raio 50 | Spec. |
+| **Material** | friction 0.4, restitution 0.3 | idem | Spec. |
+| **Cycling entre runs** | Se UE crashar em N=10k com `OpenLevel`, fazer **in-place destruction + spawn** (mesma técnica usada em Godot/Jolt) | idem | Aprendido em Jolt — provavelmente NÃO necessário em Chaos (que tem async physics), mas se a 2ª run falhar, este é o fallback. |
+| **Coleta** | A cada physics tick: capturar Physics Step Time (via Insights ou stat parser) + FPS via `GAverageFPS` | idem | Sincronizado com passo de física. |
+
+### CSV de saída (formato cross-engine)
+
+Cabeçalho exato (matches `results/godot/chuva-tuned-buffer/chuva_godot.csv`):
+
+```
+run,variacao,physics_step_ms_medio,physics_step_ms_max,fps_medio,amostras
+```
+
+`amostras` = número de samples na janela. Se < 500, simulação rodando abaixo
+de 50Hz (esperado em UE 10k? Documentar).
+
+---
+
 ## API de Physics Step Time
 
 Em Unreal, a forma recomendada para medir o tempo do passo de física em runtime é via **console stats**:

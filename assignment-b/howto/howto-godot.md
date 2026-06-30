@@ -11,9 +11,9 @@
 1. Abrir **Godot 4.6**
 2. Clicar em **New Project**
 3. Configurações:
-   - Project Name: `project-f-godot`
-   - Renderer: **Forward+** (padrão para 3D)
-   - Version Control: None
+  - Project Name: `project-f-godot`
+  - Renderer: **Forward+** (padrão para 3D)
+  - Version Control: None
 4. **Create & Edit**
 
 ---
@@ -43,12 +43,14 @@ Na mesma tela (`Project Settings > Physics > 3D`):
 
 **Anotar e não alterar:**
 
-| Configuração | Valor padrão (anotar aqui) |
-|---|---|
-| Default Gravity | ___ |
-| Default Gravity Vector | ___ |
-| Sleep Linear Velocity | ___ |
-| Sleep Angular Velocity | ___ |
+
+| Configuração           | Valor padrão (anotar aqui)     |
+| ---------------------- | ------------------------------ |
+| Default Gravity        | 9.8 m/s2                       |
+| Default Gravity Vector | x 0.0 y-1.0 z0.0               |
+| Sleep Linear Velocity  | 0.1 (Sleep treshold linear)    |
+| Sleep Angular Velocity | 8.0 (Sleep Threshgold angular) |
+
 
 Gravity deve ser `9.8` (positivo — Godot inverte internamente; ou `-9.8` dependendo da versão).
 
@@ -150,7 +152,7 @@ func _physics_process(delta: float) -> void:
         _proxima_run()
 ```
 
-> **`Time.get_ticks_msec()`** retorna milissegundos desde o início do programa — dividir por 1000.0 para obter segundos. Mais preciso que `Time.get_time()` para medir intervalos.
+> `**Time.get_ticks_msec()**` retorna milissegundos desde o início do programa — dividir por 1000.0 para obter segundos. Mais preciso que `Time.get_time()` para medir intervalos.
 
 ---
 
@@ -174,6 +176,7 @@ func _salvar_csv(caminho: String, linha: String) -> void:
 ```
 
 O caminho `user://` é o diretório de dados do usuário da aplicação:
+
 - Windows: `%APPDATA%/Godot/app_userdata/project-f-godot/`
 - macOS: `~/Library/Application Support/Godot/app_userdata/project-f-godot/`
 
@@ -213,15 +216,14 @@ func _processar_resultados() -> void:
     pass
 ```
 
-2. Registrar como AutoLoad:
-   - `Project > Project Settings > AutoLoad`
-   - Clicar em **Add** (ícone de pasta)
-   - Selecionar `run_manager.gd`
-   - Name: `RunManager`
-   - **Enable** marcado
-   - OK
-
-3. Acessar em qualquer script:
+1. Registrar como AutoLoad:
+  - `Project > Project Settings > AutoLoad`
+  - Clicar em **Add** (ícone de pasta)
+  - Selecionar `run_manager.gd`
+  - Name: `RunManager`
+  - **Enable** marcado
+  - OK
+2. Acessar em qualquer script:
 
 ```gdscript
 RunManager.proxima_run(scene_file_path)
@@ -319,8 +321,8 @@ Durante o desenvolvimento (não para coleta de dados finais):
 3. Clicar em **Start** antes de dar play
 4. Dar play na cena
 5. Observar as barras:
-   - **Physics Process:** tempo do passo de física — é o que medimos via `TIME_PHYSICS_PROCESS`
-   - **Physics:** colisões e broadphase
+  - **Physics Process:** tempo do passo de física — é o que medimos via `TIME_PHYSICS_PROCESS`
+  - **Physics:** colisões e broadphase
 6. Clicar em qualquer frame para ver o breakdown detalhado
 
 > O Profiler do editor **não deve ser usado para os dados finais** — adiciona overhead. Usar apenas para desenvolvimento e debugging visual. Os dados finais vêm do `Performance.get_monitor()` em builds exportadas.
@@ -341,28 +343,31 @@ Os dados devem ser coletados em **build exportada**, não no editor (o editor ad
 
 ## 14. Checklist antes de Rodar
 
-- [ ] Physics Ticks Per Second = 50 confirmado
-- [ ] Physics Engine = JoltPhysics3D confirmado
-- [ ] V-Sync desativado
-- [ ] Gravity e sleep thresholds anotados (não alterados)
-- [ ] `PhysicsMaterial.bounce = 0.0` nos cubos (Torre)
-- [ ] AutoLoad `RunManager` registrado e funcionando
-- [ ] `_physics_process` usado para métricas (não `_process`)
-- [ ] CSV sendo gravado com `FileAccess` em `user://`
-- [ ] Build exportada (não rodar no editor para dados finais)
+- Physics Ticks Per Second = 50 confirmado
+- Physics Engine = JoltPhysics3D confirmado
+- V-Sync desativado
+- Gravity e sleep thresholds anotados (não alterados)
+- `PhysicsMaterial.bounce = 0.0` nos cubos (Torre)
+- AutoLoad `RunManager` registrado e funcionando
+- `_physics_process` usado para métricas (não `_process`)
+- CSV sendo gravado com `FileAccess` em `user://`
+- Build exportada (não rodar no editor para dados finais)
 
 ---
 
 ## 15. Referência Rápida de APIs
 
-| O que fazer | API |
-|---|---|
-| Physics Step Time | `Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0` |
-| Corpos ativos | `Performance.get_monitor(Performance.PHYSICS_3D_ACTIVE_OBJECTS)` |
-| FPS | `Engine.get_frames_per_second()` |
-| Corpo está dormindo? | `rigid_body.sleeping` |
-| Sinal de sleep | `rigid_body.sleeping_state_changed` |
-| Tempo atual (ms) | `Time.get_ticks_msec()` |
-| Recarregar cena | `get_tree().reload_current_scene()` |
-| Salvar arquivo | `FileAccess.open("user://arquivo.csv", FileAccess.WRITE)` |
-| Abrir pasta user:// | `Project > Open User Data Folder` no editor |
+
+| O que fazer          | API                                                                  |
+| -------------------- | -------------------------------------------------------------------- |
+| Physics Step Time    | `Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0` |
+| Corpos ativos        | `Performance.get_monitor(Performance.PHYSICS_3D_ACTIVE_OBJECTS)`     |
+| FPS                  | `Engine.get_frames_per_second()`                                     |
+| Corpo está dormindo? | `rigid_body.sleeping`                                                |
+| Sinal de sleep       | `rigid_body.sleeping_state_changed`                                  |
+| Tempo atual (ms)     | `Time.get_ticks_msec()`                                              |
+| Recarregar cena      | `get_tree().reload_current_scene()`                                  |
+| Salvar arquivo       | `FileAccess.open("user://arquivo.csv", FileAccess.WRITE)`            |
+| Abrir pasta user://  | `Project > Open User Data Folder` no editor                          |
+
+
