@@ -144,20 +144,63 @@ Engine: Unity | Cenário: 2 | Variação: 1.000 objetos
 
 ## Dicas Técnicas por Engine
 
+> All values below implement the spec in `SCENE_SPEC.md`. Apply every setting before running any benchmark run.
+
 ### Unity
-- Profiler API: `using UnityEngine.Profiling;` + `Profiler.GetCounter("Physics.Processing")`
-- Ou usar `Time.fixedDeltaTime` para medir o passo
-- Physics sleep threshold: `Physics.sleepThreshold`
+
+**Scene spec implementation**
+- Gravity: `Physics.gravity = new Vector3(0, -9.81f, 0);` (default — confirm it hasn't been changed in Project Settings → Physics)
+- Fixed timestep: Project Settings → Time → Fixed Timestep = `0.02`
+- Sleep thresholds: `Physics.sleepThreshold = 0.05f;` (this controls the velocity magnitude; Unity merges linear+angular into one scalar — set to `0.05`)
+- Box collider: Add `BoxCollider` with Size `(1, 1, 1)` on a GameObject scaled `(1, 1, 1)`
+- Rigidbody: Mass = `1`, Drag = `0`, Angular Drag = `0.05` (engine default — do not change)
+- Friction & bounciness: Create a `PhysicMaterial` with Static Friction `0.6`, Dynamic Friction `0.4`, Bounciness `0.0`, set on the collider
+- Tower spawn: `position = new Vector3(0, n - 0.5f, 0)` for box index `n` starting at 1
+- Rain spawn: random XZ in `[-17.5, 17.5]`, Y = `22 + Random.Range(0, 5)`
+
+**Profiling**
+- `using UnityEngine.Profiling;` + `Profiler.GetCounter("Physics.Processing")` for Physics Step Time
+- Sleep detection (Scenario 1): `Rigidbody.IsSleeping()` — poll every `FixedUpdate`, start 1 s countdown when all return true
+
+---
 
 ### Unreal Engine
-- Comando `stat physics` no console em runtime
-- `UPhysicsSettings::Get()->SimulateScratchMemorySize`
-- Blueprint node: `Get World Delta Seconds` dentro de `On Component Sleep`
+
+**Unit conversion reminder:** all meter values × 100 = centimeters; Up axis = Z (not Y).
+
+**Scene spec implementation**
+- Gravity: Project Settings → Physics → `Z = -981 cm/s²` (default — verify)
+- Fixed framerate: Project Settings → Engine → Fixed Frame Rate = `50` (or `bSmoothFrameRate = false`, `FixedFrameRate = 50.0` in `DefaultEngine.ini`)
+- Sleep threshold: Project Settings → Physics → `SleepThresholdMultiplier` — this multiplies the default; to get ~0.05 m/s set it to `1.0` and confirm `DefaultSleepLinearVelocityThreshold = 0.05` in `DefaultEngine.ini` under `[/Script/Engine.PhysicsSettings]`
+- Box collider: Static Mesh with Box Collision, scale `(1, 1, 1)` at 100 cm default cube
+- Physics material: Create `PhysicalMaterial` asset, set Friction `0.6`, Restitution `0.0`; Unreal uses one friction value — use `0.6` for both static and dynamic (or enable `bOverrideFrictionCombineMode`)
+- Mass: On the `StaticMeshComponent` → Physics → Mass = `1 kg` (override if auto-calculate gives a different value)
+- Tower spawn (Z-up): first box center at `Z = 50 cm`, each subsequent box at `Z = N × 100 cm - 50 cm`
+- Rain spawn: random XY in `[-1750, 1750] cm`, Z = `2200 + FMath::RandRange(0, 500) cm`
+
+**Profiling**
+- `stat physics` in the console — shows `PhysicsTime` per frame
+- Async Physics Tick (UE 5.4+): if enabled, FPS and PhysicsTime are decoupled — note this in results
+- Sleep detection (Scenario 1): bind to `OnComponentSleep` event on each mesh component; start 1 s countdown when all have fired
+
+---
 
 ### Godot
-- `Performance.get_monitor(Performance.PHYSICS_PROCESS_TIME)` retorna tempo em microssegundos
-- `Engine.get_frames_per_second()` para FPS
-- `RigidBody3D.sleeping` para detectar repouso
+
+**Scene spec implementation**
+- Gravity: Project Settings → Physics → 3D → `Default Gravity = 9.81`, `Default Gravity Vector = (0, -1, 0)` (default — confirm)
+- Fixed timestep: Project Settings → Physics → Common → `physics/common/physics_ticks_per_second = 50`
+- Sleep thresholds: Project Settings → Physics → 3D → `sleep_threshold_linear = 0.05`, `sleep_threshold_angular = 0.05`
+- Box shape: `BoxShape3D` with size `Vector3(1, 1, 1)` on a `RigidBody3D`
+- Mass: `RigidBody3D.mass = 1.0`
+- Physics material: `PhysicsMaterial` with Friction `0.6`, Rough = false, Bounce `0.0`; assign to `CollisionShape3D`
+- Tower spawn: `position = Vector3(0, n - 0.5, 0)` for box index `n` starting at 1
+- Rain spawn: `position = Vector3(randf_range(-17.5, 17.5), 22.0 + randf_range(0, 5), randf_range(-17.5, 17.5))`
+
+**Profiling**
+- Physics Step Time: `Performance.get_monitor(Performance.PHYSICS_PROCESS_TIME)` — returns microseconds, divide by 1000 for ms
+- FPS: `Engine.get_frames_per_second()`
+- Sleep detection (Scenario 1): `RigidBody3D.sleeping` property — poll in `_physics_process`, start 1 s countdown when all are `true`
 
 ---
 
