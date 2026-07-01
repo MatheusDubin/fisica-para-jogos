@@ -8,9 +8,13 @@
 
 | Engine | Motor de física | Solver |
 |---|---|---|
-| Godot 4.x | **Jolt** | impulse-based (Gauss-Seidel, sem warm-start de ilha) |
-| Unity 6 | **PhysX** | **PGS** (Projected Gauss-Seidel — default, NÃO TGS) |
-| Unreal 5.8 | **Chaos** | XPBD + **Shock Propagation** (default) |
+| Godot **4.7** | **Jolt** | impulse-based (Gauss-Seidel, sem warm-start de ilha) |
+| Unity **6000.5** | **PhysX** | **PGS** (Projected Gauss-Seidel — default, NÃO TGS) |
+| Unreal **5.8** | **Chaos** | XPBD + **Shock Propagation** (default) |
+
+> **Nota de versão (T10):** o benchmark rodou em **Godot 4.7**; o survey do Grau A
+> referencia **Godot 4.6** (versão vigente na pesquisa). Diferença de patch, sem
+> impacto no motor (Jolt em ambas). Unity `6000.5.1f1`, Unreal `5.8`.
 
 ---
 
@@ -220,6 +224,8 @@ por engine o tornam não comparável 1-pra-1.)*
 
 ## Caveats (para honestidade no relatório)
 - **Dataset = 10 runs** por config (mínimo do enunciado; é o dataset final, coletado 2026-06-30/07-01).
-- **Atrito:** Unity usa 0.5 estático / 0.4 dinâmico; Godot e Unreal usam 0.5 único (limitação de API do Jolt/Chaos). Efeito menor numa pilha vertical com restituição 0.
+- **Atrito:** Unity usa 0.5 estático / 0.4 dinâmico; Godot e Unreal usam 0.5 único (limitação de API do Jolt/Chaos). Efeito menor numa pilha vertical com restituição 0. **Nota:** o `SCENE_SPEC.md` original pedia 0.6/0.8 — usamos 0.5 (aplicado igual nas 3); ver desvios em `SCENE_SPEC.md` (T9).
+- **Gravidade (T10):** Unity −9.81, Unreal −9.80 (−980 cm/s²), Godot −9.8 (default). Diferença < 0.1% — desprezível, mas anotada para transparência.
+- **Desvios do spec (T9):** container (funil→caixa fechada), forma da Chuva (box→esfera), restituição Chuva (0→0.3) e sleep (0.05→defaults). Todos aplicados **identicamente nas 3 engines** → comparação cross-engine permanece justa.
 - **Timeouts (Unity N=10):** o filtro ±σ os descarta, mas por `howto-statistics.md` são resultado válido (instabilidade). A distribuição, não a média, é o achado.
 - **Métrica de step time:** cada engine usa seu mecanismo nativo (Godot `TIME_PHYSICS_PROCESS`, Unity `Stopwatch(Physics.Simulate)`, Unreal `TG_Pre→PostPhysics`). Medem "custo de avançar 1 passo" — comparável em significado.
