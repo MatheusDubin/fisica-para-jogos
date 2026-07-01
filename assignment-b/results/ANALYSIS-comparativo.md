@@ -1,6 +1,7 @@
 # Análise Comparativa — 3 Engines (Grau B)
 
-> Dataset **preliminar** de 10 iterações por config (final: 20, roda depois).
+> Dataset de **10 iterações** por config (coletado 2026-06-30/07-01). 10 é o
+> mínimo do enunciado — **este é o dataset final**, não preliminar.
 > Metodologia idêntica nas 3: timestep 0.02s, malhas primitivas, massa 1kg,
 > mesma cena. Chuva com janela **sim-time** (500 passos) nas três → comparável.
 > Tabelas puras + M±σ em `RESULTS.md` (gerado por `aggregate_stats.py`).
@@ -123,7 +124,13 @@ que cada um pode **comparar entre engines**:
 
 ## Cenário 1 — A Torre (estabilidade / colapso)
 
-**Veredito por N (kept% = altura final do topo ÷ altura intacta):**
+> **Métrica primária = COLAPSO/estabilidade** (`kept%` = altura final do topo ÷
+> altura intacta) — geométrica e **independente do limiar de sleep**. O
+> "tempo até sleep" é **secundário e NÃO comparável 1-pra-1** (cada engine dorme
+> a um limiar diferente — ver adiante). Setup idêntico nas 3 engines (arena
+> 60×60×150 m, spacing 1.00, massa 1 kg, restituição 0, N do sweep).
+
+**Veredito por N (sweep de 10 runs, N=10/15/20):**
 
 | N | Godot/Jolt | Unity/PGS | Unreal/Chaos |
 |---|---|---|---|
@@ -131,28 +138,44 @@ que cada um pode **comparar entre engines**:
 | 15 | 💥 COLAPSOU (14%) | 💥 COLAPSOU (8%) | ⚠️ **PARCIAL (38%)** |
 | 20 | 💥 COLAPSOU (4%) | 💥 COLAPSOU (8%) | 💥 COLAPSOU (8%) |
 
-**Achado principal — Shock Propagation do Chaos:** em **N=15**, mesma cena, mesmos
-parâmetros, apenas o Chaos **segura metade da pilha** (kept 38%) enquanto Jolt e
-PhysX-PGS **achatam até o chão**. É exatamente o mecanismo do Grau A: o Chaos
-distribui o impulso da base ao topo a cada passo. Mas o efeito é limitado — em
-**N=20 todos colapsam**. Conclusão honesta: **nenhum solver default sustenta
-pilhas rígidas altas.**
+**N=100 (o enunciado sugere):** medido em **Godot e Unity — ambos colapsam 10/10**
+(`kept ≈ 2%`, `top_y` cai monotônico 99.5→1.5 m = pancaking, não explosão).
+**Unreal N=100 não foi coletado**; como o Chaos já colapsa em N=20, N=100
+colapsaria também — tratamos isso como **inferência, não medição**
+(ver `PLANO-CORRECOES.md` → T4, decisão: reenquadrar no sweep).
 
-**Comportamento em N=10 (todas estáveis, mas MUITO diferentes) — tempo até dormir:**
-| Engine | tempo até sleep | comportamento |
+**Achado principal — o Chaos aguenta um degrau a mais (N=15):** na mesma cena, só
+o Chaos mantém `kept 38%` em N=15 enquanto Jolt e PhysX-PGS achatam para <15%. É
+**consistente com** o Shock Propagation do Chaos (Grau A), que redistribui o
+impulso da base ao topo. **Ressalva honesta (não é prova de causa):** (a) não
+desligamos o Shock Propagation para isolar o mecanismo; (b) `max_v ≈ 19.5 m/s` em
+N=15 mostra que é **colapso parcial** (a metade de cima cede), não "segurar" a
+pilha intacta. Efeito limitado: em **N=20 todos colapsam**. Conclusão:
+**nenhum solver default sustenta pilhas rígidas altas** — o diferencial do Chaos é
+de **um degrau de N**, não de ordem de grandeza.
+
+**Tempo até sleep — SECUNDÁRIO, NÃO comparável entre engines (⚠️):** cada engine
+declara "dormiu" a um limiar diferente — Unity `0.005 m/s`, Jolt `0.03 m/s` (6×
+mais frouxo), Chaos por **contagem de 5 frames** (nem é velocidade). Comparar o
+tempo-até-sleep entre engines mede **definição de sleep**, não física. Só como
+observação **por engine**, com essa ressalva:
+
+| Engine | tempo até sleep (N=10) | leitura (com ressalva do limiar) |
 |---|---|---|
-| Godot/Jolt | **0.51 s** | assenta rápido e decisivo (sleep agressivo) |
-| Unreal/Chaos | 21.1 s | convergência lenta mas **determinística** |
-| Unity/PGS | 26.7 s (σ=16.8, **2 timeouts**) | **jitter caótico**: de 9 a 60 s, 2 runs nunca dormem |
+| Godot/Jolt | ~0.51 s | limiar frouxo (0.03) + sleep agressivo → dorme cedo. **Bimodal:** 2/10 runs levaram ~11 s |
+| Unreal/Chaos | 21.1 s | determinístico (ver nota de σ abaixo) |
+| Unity/PGS | 26.7 s (2 timeouts) | limiar 6× mais estrito (0.005) → demora mais **por definição**; jitter real também presente |
 
-Isto é o "jitter excessivo" do enunciado: mesmo sem colapsar, o PGS treme por
-dezenas de segundos e às vezes não estabiliza; o Jolt é o mais limpo; o Chaos é
-lento porém repetível.
+O "jitter excessivo" do enunciado aparece (PGS treme, 2 runs não dormem em 60 s),
+mas **quanto é limiar vs física é indistinguível** com limiares diferentes — por
+isso a estabilidade é lida por **colapso**, não por tempo.
 
-**Determinismo (achado de método):** Chaos σ ≈ 0 (10 runs idênticas). A σ de
-Godot vem do `tempo_ate_sleep` em wall-clock (ruído do SO); a de Unity, do
-não-determinismo de threading do PhysX. O filtro ±σ do enunciado é quase trivial
-no Unreal e infla nas outras por **artefato de medição**, não física.
+**Nota sobre σ do Unreal (corrigido):** as 10 runs do Unreal são **bit-idênticas**
+(mesmo `top_y`, `max_v`, `phys_frames` até a 4ª casa) → σ=0 é *ausência de
+amostragem independente* (n efetivo = 1), **não** um "achado de determinismo"
+comparável ao σ das outras. Portanto **não comparamos σ entre engines**: o filtro
+±σ é vazio no Unreal, e nas outras reflete ruído de medição (Godot: `tempo` em
+wall-clock; Unity: threading do PhysX), não estabilidade física.
 
 ---
 
@@ -163,11 +186,14 @@ Na Chuva (custo de física), **Unity/PhysX vence com folga** (13 ms em 10k, ~11�
 mais rápido que Chaos). Ordem: PhysX > Jolt > Chaos. Todas aguentaram 10k.
 
 **2. Qual entregou a pilha mais estável?**
-Depende do critério:
-- **Aguenta mais peso:** **Chaos** (único a segurar N=15, via shock propagation).
-- **Assenta mais rápido/limpo:** **Jolt** (N=10 dorme em 0.5 s).
-- **Menos estável:** **PGS/PhysX** (jitter e timeouts já em N=10).
+Pelo critério primário (**colapso/`kept%`**, comparável entre engines):
+- **Aguenta mais peso:** **Chaos** — único ESTÁVEL→PARCIAL em N=15 (kept 38% vs
+  <15% dos outros), consistente com Shock Propagation (não isolado — ver ressalva
+  na seção Torre).
+- **Jolt e PhysX-PGS** colapsam já em N=15; PGS ainda com jitter/timeouts.
 Nenhuma sustenta N=20 → o limite de "física quebrando" está em N≈15–20 para todas.
+*(O tempo-até-sleep NÃO é usado como critério aqui — limiares de sleep diferentes
+por engine o tornam não comparável 1-pra-1.)*
 
 **3. Confirma o Grau A?**
 - ✅ **Shock Propagation do Chaos** existe e ajuda (N=15 parcial) — confirmado.
@@ -180,7 +206,7 @@ Nenhuma sustenta N=20 → o limite de "física quebrando" está em N≈15–20 p
 ---
 
 ## Caveats (para honestidade no relatório)
-- **Dataset preliminar (10 runs)** — final de 20 roda depois; ordens de grandeza não devem mudar.
+- **Dataset = 10 runs** por config (mínimo do enunciado; é o dataset final, coletado 2026-06-30/07-01).
 - **Atrito:** Unity usa 0.5 estático / 0.4 dinâmico; Godot e Unreal usam 0.5 único (limitação de API do Jolt/Chaos). Efeito menor numa pilha vertical com restituição 0.
 - **Timeouts (Unity N=10):** o filtro ±σ os descarta, mas por `howto-statistics.md` são resultado válido (instabilidade). A distribuição, não a média, é o achado.
 - **Métrica de step time:** cada engine usa seu mecanismo nativo (Godot `TIME_PHYSICS_PROCESS`, Unity `Stopwatch(Physics.Simulate)`, Unreal `TG_Pre→PostPhysics`). Medem "custo de avançar 1 passo" — comparável em significado.
