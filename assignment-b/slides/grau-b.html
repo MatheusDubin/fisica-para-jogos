@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grau B — Benchmark de Physics Engines</title>
+
+  <!-- Roboto (brand font) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- reveal.js core + theme (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" id="theme">
+
+  <style>
+    :root {
+      --bg:      #0a0d1a;   --bg2:     #070912;
+      --blue:    #2f3391;   --blue-br: #6c8cff;   --orange:  #f5871f;
+      --dim:     #9aa2b4;
+      --unity:   #cfd3dd;   --unreal:  #b39cff;   --godot:   #35c4d6;
+      --na:      #d9736b;
+    }
+
+    .reveal { font-family: 'Roboto', system-ui, sans-serif; font-weight: 300; }
+    .reveal section { text-align: left; }
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 { text-transform: none; letter-spacing: normal; font-weight: 900; }
+    .reveal b, .reveal strong { font-weight: 700; }
+
+    .hero-logo { display: inline-block; height: 58px; filter: brightness(0) invert(1); }
+    .logo-row { text-align: center; margin-top: 1.1em; }
+
+    .reveal .progress { color: #ffffff; height: 4px; }
+    .reveal .progress span { background: #ffffff; }
+
+    .eyebrow { text-transform: uppercase; letter-spacing: .3em; font-size: .38em; color: var(--blue-br); margin-bottom: .5em; font-weight: 500; }
+    .eyebrow.orange { color: var(--orange); }
+    .sec-num { color: var(--dim); font-weight: 400; }
+
+    .center { text-align: center !important; }
+    .title-tag {
+      display: inline-block; text-transform: uppercase; letter-spacing: .32em;
+      font-size: .4em; color: #fff; font-weight: 500;
+      background: linear-gradient(90deg, var(--blue), var(--blue-br));
+      padding: .5em 1.2em; border-radius: 999px; margin-bottom: 1em;
+    }
+    .reveal h1.deck-title { font-size: 1.6em; line-height: 1.08; margin: 0 0 .3em; }
+    .title-sub { color: var(--dim); font-size: .56em; font-weight: 300; line-height: 1.5; }
+    .title-people { margin-top: 1.4em; font-size: .4em; color: #c7ccd8; font-weight: 400; line-height: 1.7; }
+    .title-people .lbl { color: var(--dim); font-weight: 300; }
+    .title-meta { margin-top: 1em; font-size: .34em; color: #66708a; border-top: 1px solid rgba(255,255,255,.1); padding-top: .8em; }
+
+    .divider .big-num {
+      font-size: 3.4em; font-weight: 900; line-height: 1;
+      background: linear-gradient(90deg, var(--blue-br), var(--blue));
+      -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .9;
+    }
+    .divider h2 { font-size: 1.5em; margin: .1em 0 0; }
+    .divider .rule { width: 90px; height: 4px; background: var(--orange); border-radius: 2px; margin: .6em auto 0; }
+
+    .reveal h2.slide-title { font-size: 1.05em; margin: 0 0 .1em; }
+    .kicker { color: var(--dim); font-size: .46em; margin-bottom: .7em; font-weight: 400; }
+    .reveal ul { font-size: .62em; font-weight: 300; }
+    .reveal li { margin-bottom: .45em; line-height: 1.4; }
+    .lead { font-size: .66em; line-height: 1.55; color: #dfe3ec; font-weight: 300; }
+
+    .reveal table { font-size: .40em; border-collapse: collapse; width: 100%; margin-top: .3em; }
+    .reveal table th, .reveal table td { border: 1px solid rgba(255,255,255,.10); padding: .5em .6em; vertical-align: top; line-height: 1.35; }
+    .reveal table thead th { font-size: 1.05em; text-align: center; background: rgba(108,140,255,.10); font-weight: 700; }
+    .th-unity  { color: var(--unity);  } .th-unreal { color: var(--unreal); } .th-godot  { color: var(--godot);  }
+    .rowlabel { font-weight: 500; color: #fff; width: 20%; background: rgba(255,255,255,.03); }
+    .reveal table code { font-size: .95em; color: var(--blue-br); background: rgba(108,140,255,.10); padding: 0 .25em; border-radius: 3px; }
+    .na  { color: var(--na); font-weight: 500; }
+    .yes { color: var(--blue-br); font-weight: 700; }
+    .pend { color: var(--orange); font-weight: 500; }
+
+    .concept {
+      background: rgba(108,140,255,.08); border-left: 4px solid var(--blue-br);
+      border-radius: 0 8px 8px 0; padding: .5em .85em; margin: .25em 0 .5em;
+      font-size: .46em; line-height: 1.5; color: #dfe3ec; font-weight: 300;
+    }
+    .concept b { color: #fff; font-weight: 700; }
+    .takeaway {
+      margin-top: .55em; padding: .4em .85em; font-size: .44em; line-height: 1.45;
+      color: #f3e2cf; font-weight: 400;
+      background: rgba(245,135,31,.08); border-left: 4px solid var(--orange); border-radius: 0 8px 8px 0;
+    }
+    .takeaway b { color: var(--orange); font-weight: 700; }
+
+    .cards { display: flex; gap: 1em; margin-top: .5em; }
+    .card {
+      flex: 1; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10);
+      border-top: 3px solid var(--blue-br); border-radius: 10px; padding: .8em 1em; font-size: .44em; line-height: 1.45; font-weight: 300;
+    }
+    .card h4 { margin: 0 0 .5em; font-size: 1.25em; font-weight: 900; }
+    .card.unity  { border-top-color: var(--unity);  } .card.unity  h4 { color: var(--unity); }
+    .card.unreal { border-top-color: var(--unreal); } .card.unreal h4 { color: var(--unreal); }
+    .card.godot  { border-top-color: var(--godot);  } .card.godot  h4 { color: var(--godot); }
+
+    .chip {
+      display: inline-block; background: rgba(108,140,255,.10);
+      border: 1px solid rgba(108,140,255,.30); border-radius: 999px;
+      padding: .25em .8em; color: #dbe1f0; font-size: .5em; margin: .2em .3em .2em 0; font-weight: 400;
+    }
+    .chip b { color: #fff; font-weight: 700; }
+    .chip.warn { background: rgba(245,135,31,.10); border-color: rgba(245,135,31,.35); }
+
+    .refs { font-size: .42em; line-height: 1.55; font-weight: 300; }
+    .refs li { margin-bottom: .55em; }
+    .refs .src { color: var(--dim); }
+    .refs code { color: var(--blue-br); }
+
+    /* Charts + video placeholders */
+    .chart-wrap { width: 90%; height: 420px; margin: .2em auto 0; }
+    .video-ph {
+      width: 74%; margin: .6em auto 0; padding: 1.4em 1em;
+      border: 2px dashed rgba(108,140,255,.4); border-radius: 12px; text-align: center;
+      background: rgba(108,140,255,.05);
+    }
+    .video-ph .play { font-size: 1.4em; color: var(--blue-br); }
+    .video-ph .cap { font-size: .46em; color: #dfe3ec; margin-top: .3em; font-weight: 400; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ===================== TITLE ===================== -->
+      <section class="center" data-background-color="#0a0d1a">
+        <span class="title-tag">Física para Jogos Digitais · Grau B</span>
+        <h1 class="deck-title">Benchmark de Physics Engines</h1>
+        <div class="title-sub">Colocando a arquitetura à prova — estabilidade &amp; estresse de colisão<br>
+          <b style="color:var(--unity)">Unity</b> (PhysX) ·
+          <b style="color:var(--unreal)">Unreal</b> (Chaos) ·
+          <b style="color:var(--godot)">Godot</b> (Jolt)</div>
+        <div class="title-people">
+          <span class="lbl">Docente:</span> Prof.ª Rossana Baptista Queiroz<br>
+          <span class="lbl">Acadêmico:</span> Matheus Dubin da Silveira
+        </div>
+        <div class="title-meta">Universidade do Vale do Rio dos Sinos · Escola Politécnica · 2026</div>
+        <aside class="notes">Grau B: a parte prática. Medimos o que o Grau A previu, em cenários idênticos nas 3 engines.</aside>
+      </section>
+
+      <!-- ===================== 1. INTRODUÇÃO ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">01</div><h2>Introdução</h2><div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">01</span> · Introdução</div>
+        <h2 class="slide-title">Da teoria à prova</h2>
+        <div class="concept"><b>O Grau A</b> levantou as arquiteturas internas (solvers, threading, CCD). <b>O Grau B</b> coloca isso à prova: medir os limites e gargalos reais via testes de estresse, com a mesma cena nas três engines e rigor estatístico.</div>
+        <ul>
+          <li><b>Cenário 1 — A Torre:</b> pilha alta de corpos rígidos. Mede <b>estabilidade</b>: tempo até repouso (sleep), jitter e colapso.</li>
+          <li><b>Cenário 2 — A Chuva:</b> 1k / 5k / 10k corpos caindo em caixa fechada. Mede <b>performance</b>: Physics Step Time e FPS.</li>
+          <li><b>Regra:</b> malhas primitivas, mesma massa/atrito, <b>fixed timestep 0,02 s (50 Hz)</b>, solver/sleep no padrão de cada engine.</li>
+        </ul>
+        <div class="takeaway"><b>Pergunta central:</b> os resultados confirmam o que a arquitetura do Grau A previu?</div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">01</span> · Introdução</div>
+        <h2 class="slide-title">Hipóteses do Grau A (o que esperar)</h2>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity · PhysX</th><th class="th-unreal">Unreal · Chaos</th><th class="th-godot">Godot · Jolt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Torre (estabilidade)</td>
+              <td>Gauss-Seidel iterativo + warm starting → jitter residual em pilhas de 100+</td>
+              <td>XPBD + <b>Shock Propagation</b> — feature feita p/ este cenário</td>
+              <td>Impulse-based; multi-thread beneficia pouco (cena estática)</td></tr>
+            <tr><td class="rowlabel">Chuva (performance)</td>
+              <td>Broadphase é o provável gargalo &gt;5k; FPS cai junto com o Step Time</td>
+              <td><b>Async Physics Tick</b> desacopla FPS do Step Time; LWC eleva o custo base</td>
+              <td>Job system nativo → <b>melhor escalabilidade</b> esperada em 5k/10k</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Não são palpites a confirmar antes dos dados</b> — é o contexto que usaremos para <i>explicar</i> os números coletados.</div>
+        <aside class="notes">Estas expectativas vêm direto da tabela de contexto do assignment-b. Guardar para a seção de Análise Crítica.</aside>
+      </section>
+
+      <!-- ===================== 2. METODOLOGIA ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">02</div><h2>Metodologia</h2><div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">02</span> · Metodologia</div>
+        <h2 class="slide-title">Variáveis de controle (idênticas nas 3 engines)</h2>
+        <div class="concept"><b>Comparação justa</b> exige a mesma cena e os mesmos parâmetros físicos. Só o motor muda.</div>
+        <table>
+          <thead><tr><th>Parâmetro</th><th>Valor</th><th>Parâmetro</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td class="rowlabel">Fixed timestep</td><td><b>0,02 s (50 Hz)</b></td><td class="rowlabel">Gravidade</td><td>(0, −9,81, 0)</td></tr>
+            <tr><td class="rowlabel">Formas</td><td>primitivas (cubo / esfera)</td><td class="rowlabel">Massa</td><td>1 kg, atrito igual</td></tr>
+            <tr><td class="rowlabel">Solver / Sleep</td><td><b>padrão da engine</b> (não alterado)</td><td class="rowlabel">Build</td><td>Release, V-Sync off</td></tr>
+            <tr><td class="rowlabel">Torre</td><td>100 cubos + arena fechada</td><td class="rowlabel">Chuva</td><td>1k / 5k / 10k esferas, caixa fechada</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Arena fechada na Torre</b> (decisão nossa): contém cubos ejetados para a métrica ficar limpa em todas as engines.</div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">02</span> · Metodologia</div>
+        <h2 class="slide-title">Rigor estatístico — 4 passos por configuração</h2>
+        <div class="concept">Uma única execução não é confiável (ruído do SO, agendamento de threads). Repetimos e filtramos.</div>
+        <ul style="font-size:.56em">
+          <li><b>1 ·</b> Rodar <b>10+ execuções isoladas</b> por variação por engine.</li>
+          <li><b>2 ·</b> Calcular <b>média (M)</b> e <b>desvio padrão (σ)</b>.</li>
+          <li><b>3 ·</b> <b>Descartar</b> execuções fora da faixa <code>[M − σ, M + σ]</code>.</li>
+          <li><b>4 ·</b> <b>Média Final</b> = média apenas dos valores dentro da faixa.</li>
+        </ul>
+        <div class="takeaway"><b>Neste deck:</b> todos os números "filtrados" seguem estes 4 passos. Coletamos <b>até 30 ciclos</b> onde possível (excede o mínimo de 10).</div>
+        <aside class="notes">σ é populacional (divide por N), como o spec implica. Ver howto-statistics.md.</aside>
+      </section>
+
+      <!-- ===================== 3. CENÁRIO 1 — TORRE ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">03</div><h2>Cenário 1 — A Torre</h2><div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · A Torre · o conceito</div>
+        <h2 class="slide-title">Estabilidade, jitter e colapso</h2>
+        <div class="concept"><b>Uma pilha alta é um teste brutal do solver:</b> o contato da base precisa sustentar o peso de ~100 cubos. Com poucas iterações, o solver <b>sub-resolve</b> essa força a cada passo → a coluna afunda (<i>pancaking</i>). Medimos o <b>tempo até repouso total (sleep)</b>, se há <b>jitter</b> excessivo, e se a física <b>colapsa</b>.</div>
+        <div class="takeaway"><b>Ligação com o Grau A:</b> é exatamente aqui que PGS vs TGS vs XPBD e o número de iterações importam.</div>
+        <aside class="notes">Sleep = corpo praticamente parado "dorme". Pancaking ≠ explosão: a coluna achata reta para baixo (top_y cai monotônico).</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · A Torre · resultados</div>
+        <h2 class="slide-title">N = 100 cubos — o que aconteceu</h2>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity · PhysX (PGS)</th><th class="th-unreal">Unreal · Chaos</th><th class="th-godot">Godot · Jolt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Tempo até sleep (filtrado)</td><td><b>9,90 s</b></td><td class="pend">⏳ a coletar</td><td><b>8,74 s</b></td></tr>
+            <tr><td class="rowlabel">Colapsa?</td><td><span class="na">💥 sim — 10/10</span></td><td class="pend">⏳ a coletar</td><td><span class="na">💥 sim — 10/10</span></td></tr>
+            <tr><td class="rowlabel">Velocidade máx.</td><td>~40 m/s</td><td class="pend">⏳</td><td>~36 m/s</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Achado:</b> Unity (PhysX) e Godot (Jolt) <b>colapsam igual</b> — nenhum sustenta 100 cubos com os defaults. Godot assenta os escombros um pouco mais rápido (8,7 s vs 9,9 s).</div>
+        <aside class="notes">Unity/Godot: 10 runs cada (preliminar → 30). Unreal Torre ainda pendente. O debug per-frame mostra top_y caindo monotônico = falha de sustentação, não explosão.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · A Torre · achado</div>
+        <h2 class="slide-title">Limiar de colapso — não é falta de iterações</h2>
+        <div class="concept">Varremos N crescente com o solver default (PGS) e com TGS. Subir iterações 6→20 melhora o jitter, mas <b>não move o limiar</b>.</div>
+        <table>
+          <thead><tr><th>Altura da pilha (N)</th><th>PGS (default)</th><th>TGS</th></tr></thead>
+          <tbody>
+            <tr><td class="rowlabel">10</td><td><span class="yes">✓ estável</span></td><td><span class="yes">✓ estável</span></td></tr>
+            <tr><td class="rowlabel">15</td><td><span class="na">💥 colapsa</span></td><td><span class="yes">✓ estável</span></td></tr>
+            <tr><td class="rowlabel">20+</td><td><span class="na">💥 colapsa</span></td><td><span class="na">💥 colapsa</span></td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Conclusão:</b> o colapso é <b>arquitetural do solver</b> (linear, sem shock propagation), não contagem de iterações. TGS sobe o limiar um degrau — mas nenhum sustenta pilha alta com valores padrão. <i>Jogos reais evitam pilhas rígidas altas por isso.</i></div>
+        <aside class="notes">Sweep Unity 3 runs/N (preliminar → 10). PGS sustenta ≤10, TGS ≤15. Detalhe: o solver padrão do Unity é o PGS (o TGS existe, mas é opt-in) — como já indicado no Grau A.</aside>
+      </section>
+
+      <section class="center" data-background-color="#070912">
+        <div class="eyebrow orange center">Cenário 1 · Vídeo</div>
+        <h2 class="slide-title center" style="font-size:1.1em">O colapso da Torre em ação</h2>
+        <div class="video-ph">
+          <div class="play">▶</div>
+          <div class="cap"><b>Vídeo:</b> pancaking de 100 cubos (Unity · Godot lado a lado)</div>
+          <div style="margin-top:.5em"><span class="chip warn"><b>link Google Drive</b> — a inserir</span></div>
+        </div>
+        <aside class="notes">Apresentar ao vivo pelo navegador; no PDF fica o link/QR. Gravar clipe curto mostrando a coluna achatando.</aside>
+      </section>
+
+      <!-- ===================== 4. CENÁRIO 2 — CHUVA ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">04</div><h2>Cenário 2 — A Chuva</h2><div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">04</span> · A Chuva · o conceito</div>
+        <h2 class="slide-title">Estresse de colisão e performance</h2>
+        <div class="concept"><b>Milhares de corpos caindo juntos</b> saturam o pipeline: a <b>broadphase</b> explode em número de pares, a <b>narrowphase</b> testa cada contato, o <b>solver</b> resolve tudo por passo. Se o passo não termina em 20 ms (50 Hz), a simulação entra em <i>spiral of death</i>. Medimos <b>Physics Step Time</b> (primário) e <b>FPS</b>.</div>
+        <div class="takeaway"><b>Ligação com o Grau A:</b> aqui o threading e a escalabilidade do solver (Jolt job system vs Chaos islands) aparecem nos números.</div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">04</span> · A Chuva · resultados</div>
+        <h2 class="slide-title">Physics Step Time — quanto custa cada passo</h2>
+        <div class="chart-wrap"><canvas id="stepChart"></canvas></div>
+        <div style="text-align:center;margin-top:.4em">
+          <span class="fragment chip" data-fragment-index="0">5k → Jolt <b>13,4</b> vs Chaos <b>53,9</b> ms</span>
+          <span class="fragment chip" data-fragment-index="1">10k → Jolt <b>31,7</b> ms · Chaos <b>~86</b> (parcial)</span>
+          <span class="chip warn">Unity ⏳ a re-rodar (métrica corrigida)</span>
+        </div>
+        <aside class="notes">Godot filtrado M±σ; Unreal 1k/5k filtrado, 10k provisório (2 runs). Unity descartado (bug do ProfilerRecorder = 0). Jolt é ~4× mais rápido que Chaos em toda escala.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">04</span> · A Chuva · FPS</div>
+        <h2 class="slide-title">FPS sob estresse — com uma ressalva importante</h2>
+        <div class="concept"><b>Cuidado metodológico:</b> o FPS <b>não</b> é comparável 1-a-1. A Unreal está travada em <b>50 Hz (Fixed Frame Rate)</b>, então seu FPS nunca passa de ~50 por design; Godot e Unity rodam <b>sem cap</b>. Por isso o <b>Physics Step Time é a métrica primária</b>.</div>
+        <div class="chart-wrap" style="height:340px"><canvas id="fpsChart"></canvas></div>
+        <aside class="notes">Godot 1k = 1559 FPS (uncapped) mostra folga enorme; cai a ~17 em 10k (bimodal). Unreal ~50→17→10. Escala log ajudaria, mas mantida linear para leitura direta.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">04</span> · A Chuva · escalonamento</div>
+        <h2 class="slide-title">Como cada motor escala</h2>
+        <div class="cards">
+          <div class="card godot">
+            <h4>Godot · Jolt</h4>
+            <p>1k→5k: <b>5,1×</b> (linear) · 5k→10k: <b>2,4×</b> (<b>sublinear</b>). Melhor escalabilidade — job system multi-thread. Precisou tunar buffers do Jolt em 10k.</p>
+          </div>
+          <div class="card unreal">
+            <h4>Unreal · Chaos</h4>
+            <p>~<b>4× o custo</b> do Jolt em toda escala (10,9 / 53,9 / ~86 ms). Custo base elevado — XPBD + dupla precisão (LWC).</p>
+          </div>
+          <div class="card unity">
+            <h4>Unity · PhysX</h4>
+            <p><span class="pend">⏳ a re-rodar</span> com a métrica de Step Time corrigida (stepping manual + Stopwatch).</p>
+          </div>
+        </div>
+        <div class="takeaway"><b>Confirma o Grau A:</b> Jolt entrega a melhor escalabilidade esperada; o escalonamento sublinear 5k→10k é o destaque.</div>
+      </section>
+
+      <section class="center" data-background-color="#070912">
+        <div class="eyebrow orange center">Cenário 2 · Vídeo</div>
+        <h2 class="slide-title center" style="font-size:1.1em">10.000 corpos sob estresse</h2>
+        <div class="video-ph">
+          <div class="play">▶</div>
+          <div class="cap"><b>Vídeo:</b> Chuva 10k — onde a física começa a engasgar</div>
+          <div style="margin-top:.5em"><span class="chip warn"><b>link Google Drive</b> — a inserir</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== 5. ANÁLISE CRÍTICA ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">05</div><h2>Análise Crítica</h2><div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">05</span> · Análise Crítica</div>
+        <h2 class="slide-title">Estabilidade — quem segurou a pilha?</h2>
+        <div class="concept"><b>Q1 · Qual suportou mais corpos sem colapso?</b> Nenhum sustenta N=100 com defaults. O limiar (Unity: PGS ≤10, TGS ≤15) é baixo em todos — limitação estrutural dos solvers iterativos, não de uma engine específica.</div>
+        <div class="concept"><b>Q2 · Qual entregou a pilha mais estável?</b> Medindo tempo até assentar os escombros, <b>Godot/Jolt</b> foi levemente mais rápido (8,7 s) que <b>Unity/PhysX</b> (9,9 s), com ejeção menor (36 vs 40 m/s). Unreal pendente.</div>
+        <div class="takeaway"><b>Leitura:</b> a "pilha estável" não existe out-of-the-box em nenhuma — o design de jogos evita pilhas rígidas altas justamente por isso.</div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">05</span> · Análise Crítica</div>
+        <h2 class="slide-title">Performance &amp; o veredito sobre o Grau A</h2>
+        <div class="concept"><b>Q3 · Chaos vs PhysX vs Jolt?</b> Na Chuva, <b>Jolt (Godot)</b> domina: ~4× mais rápido que <b>Chaos (Unreal)</b> em Step Time, e escala sublinearmente. Chaos paga o custo do XPBD + LWC. PhysX (Unity) a confirmar.</div>
+        <div class="concept"><b>Q4 · Os resultados confirmam o Grau A?</b> <span class="yes">Sim, em grande parte</span> — Jolt escala melhor e Unreal tem custo base maior, como a arquitetura previa. <b>E medimos um detalhe na prática:</b> nem o <b>PGS</b> (solver padrão do Unity) nem o <b>TGS</b> (opt-in) sustentam pilha alta com iterações padrão.</div>
+        <div class="takeaway"><b>O benchmark tornou a teoria mensurável:</b> a pesquisa do Grau A previu o comportamento, e a prática o confirmou com números.</div>
+      </section>
+
+      <!-- ===================== 6. CONSIDERAÇÕES FINAIS ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">06</div><h2>Considerações Finais</h2><div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">06</span> · Considerações Finais</div>
+        <h2 class="slide-title">Síntese, limites e próximos passos</h2>
+        <ul>
+          <li><b>Estabilidade:</b> nenhum motor sustenta pilhas rígidas altas com defaults — é a arquitetura do solver, não iterações.</li>
+          <li><b>Performance:</b> Jolt (Godot) escala melhor (sublinear 5k→10k); Chaos (Unreal) tem custo base ~4× maior.</li>
+          <li><b>Limitações deste estudo:</b> Unity Chuva a re-rodar; Unreal Torre pendente; FPS da Unreal capado em 50 Hz; datasets ainda em finalização (10→30 ciclos).</li>
+          <li><b>Trabalhos futuros:</b> testar Godot Physics (legado) vs Jolt; medir com Async Physics Tick isolado na Unreal.</li>
+        </ul>
+        <div class="takeaway"><b>Fechamento:</b> a arquitetura do Grau A previu bem os resultados — e o benchmark tornou a diferença entre os motores mensurável, não apenas teórica.</div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">06</span> · Referências &amp; repositório</div>
+        <h2 class="slide-title">Fontes &amp; código</h2>
+        <ul class="refs">
+          <li><b>Repositório:</b> <span class="src">código das 3 engines + CSVs brutos + <code>results.md</code></span> <span class="chip warn">link GitHub — a inserir</span></li>
+          <li><b>Metodologia:</b> spec do assignment-b · <code>howto-statistics.md</code> (método M±σ).</li>
+          <li><b>Grau A:</b> levantamento arquitetural que fundamenta as hipóteses (PhysX / Chaos / Jolt).</li>
+          <li>Rouwé, J. — <b>Architecting Jolt Physics for 'Horizon Forbidden West'</b>, GDC 2022.</li>
+          <li>Macklin, M. et al. — <b>Small Steps in Physics Simulation</b>, SIGGRAPH/SCA 2019 (XPBD com substeps).</li>
+        </ul>
+      </section>
+
+      <section class="center" data-background-color="#0a0d1a">
+        <h2 class="slide-title center" style="font-size:1.3em">Obrigado</h2>
+        <p class="lead center" style="margin-bottom:.2em">Física para Jogos Digitais · Benchmark de Physics Engines</p>
+        <div class="title-people" style="margin-top:.4em">
+          <span class="lbl">Docente:</span> Prof.ª Rossana Baptista Queiroz<br>
+          <span class="lbl">Acadêmico:</span> Matheus Dubin da Silveira
+        </div>
+        <div class="logo-row"><img class="hero-logo" src="assets/unisinos-logo.png" alt="Unisinos — Nossa sala de aula é o mundo"></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js"></script>
+  <script>
+    const isPrint = window.location.search.includes('print-pdf');
+
+    Reveal.initialize({
+      hash: true, controls: true, progress: true, slideNumber: 'c/t',
+      transition: 'slide', width: 1100, height: 700, margin: 0.06,
+      pdfSeparateFragments: false,
+    });
+
+    // --- Filtered M±σ data from results/*.csv (10k Unreal is provisional: 2 runs) ---
+    const V = ['1.000', '5.000', '10.000'];
+    const COL = { godot: '#35c4d6', unreal: '#b39cff', unity: '#cfd3dd' };
+    const stepData = { godot: [2.620, 13.391, 31.657], unreal: [10.94, 53.94, 86.36], unity: [null, null, null] };
+    const fpsData  = { godot: [1558.9, 357.3, 16.6],    unreal: [49.9, 17.0, 10.2],   unity: [null, null, null] };
+
+    // Draw value labels on top of every rendered bar.
+    const valueLabel = (fmt) => ({
+      id: 'valueLabel',
+      afterDatasetsDraw(c) {
+        const { ctx } = c;
+        c.data.datasets.forEach((ds, di) => {
+          c.getDatasetMeta(di).data.forEach((bar, i) => {
+            const v = ds.data[i]; if (v == null) return;
+            ctx.save();
+            ctx.fillStyle = ds.backgroundColor; ctx.font = '700 11px Roboto, sans-serif';
+            ctx.textAlign = 'center'; ctx.fillText(fmt(v), bar.x, bar.y - 5);
+            ctx.restore();
+          });
+        });
+      }
+    });
+
+    const datasets = (data) => Object.keys(data).map(k => ({
+      label: k[0].toUpperCase() + k.slice(1), data: data[k].slice(),
+      backgroundColor: COL[k], borderRadius: 4, maxBarThickness: 46,
+    }));
+
+    const baseOpts = (yTitle) => ({
+      responsive: true, maintainAspectRatio: false,
+      animation: isPrint ? false : { duration: 800, easing: 'easeOutQuart' },
+      layout: { padding: { top: 22 } },
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: yTitle, color: '#9aa2b4' },
+             ticks: { color: '#cbd2dc' }, grid: { color: 'rgba(255,255,255,.08)' } },
+        x: { title: { display: true, text: 'Número de esferas', color: '#9aa2b4' },
+             ticks: { color: '#cbd2dc' }, grid: { display: false } }
+      },
+      plugins: { legend: { labels: { color: '#e6e9ee', font: { size: 13 } } } }
+    });
+
+    let stepChart, fpsChart;
+
+    function buildCharts() {
+      // GOTCHA: init on 'ready' (not slide-visible) so charts render in the PDF too.
+      const stepStart = isPrint ? V.length : 1;
+      stepChart = new Chart(document.getElementById('stepChart'), {
+        type: 'bar',
+        data: { labels: V.slice(), datasets: datasets(stepData) },
+        options: baseOpts('ms por step'),
+        plugins: [valueLabel(v => v.toFixed(1))]
+      });
+      applyStep(stepStart);
+
+      fpsChart = new Chart(document.getElementById('fpsChart'), {
+        type: 'bar',
+        data: { labels: V.slice(), datasets: datasets(fpsData) },
+        options: baseOpts('FPS médio'),
+        plugins: [valueLabel(v => Math.round(v))]
+      });
+    }
+
+    // Show only the first `n` variation-groups on the step chart (fragment-driven reveal).
+    function applyStep(n) {
+      stepChart.data.datasets.forEach((ds, di) => {
+        const key = Object.keys(stepData)[di];
+        ds.data = stepData[key].map((v, i) => (i < n ? v : null));
+      });
+      stepChart.update();
+    }
+
+    function syncFromFragments() {
+      if (!stepChart) return;
+      const slide = Reveal.getCurrentSlide();
+      if (!slide || !slide.contains(document.getElementById('stepChart'))) return;
+      const shown = slide.querySelectorAll('.fragment.visible').length;
+      applyStep(Math.min(V.length, 1 + shown));
+    }
+
+    Reveal.on('ready', buildCharts);
+    Reveal.on('fragmentshown', syncFromFragments);
+    Reveal.on('fragmenthidden', syncFromFragments);
+  </script>
+</body>
+</html>

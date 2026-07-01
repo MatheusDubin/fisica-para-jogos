@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b2eyhp45n1qwj"
+
+[deps]
+
+files=["res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.variacao.translation", "res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.physics.translation", "res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.physics.translation", "res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.fps.translation", "res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.amostras.translation"]
+
+source_file="res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.csv"
+dest_files=["res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.variacao.translation", "res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.physics.translation", "res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.physics.translation", "res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.fps.translation", "res://fisica-para-jogos/assignment-b/results/godot/chuva-default-buffer/chuva_godot.amostras.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

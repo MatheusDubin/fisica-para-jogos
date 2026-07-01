@@ -1,5 +1,12 @@
 # HANDOFF — Godot ✅ e Unity ✅, próximo: Unreal
 
+> 🔴 **FOLLOW-UP ABERTO (agentes Godot e Unity):** a Chuva precisa migrar de
+> janela **wall-clock** para **tempo de simulação** (senão a comparação é injusta
+> entre engines) e rodar **30 ciclos**. Spec completa + código pronto em
+> [`FOLLOWUP-chuva-simtime-e-30ciclos.md`](FOLLOWUP-chuva-simtime-e-30ciclos.md).
+> Os CSVs de Chuva atuais (Godot/Unity/Unreal) ficam obsoletos e serão re-coletados.
+
+
 > **AGENTE UNREAL: comece pela seção [Status Unity](#status-unity-snapshot--implementação-pronta-dataset-final-pendente)
 > no fim deste arquivo** — ela tem os achados (PGS≠TGS, limiar de colapso,
 > métrica de step time) e as decisões de implementação a replicar. Depois leia

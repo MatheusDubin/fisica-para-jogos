@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b1ckgh7406ja3"
+
+[deps]
+
+files=["res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.num.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.t.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.phys.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.asleep.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.active.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.max.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.mean.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.top.translation"]
+
+source_file="res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.csv"
+dest_files=["res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.num.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.t.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.phys.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.asleep.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.active.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.max.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.mean.translation", "res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tuned/torre_unity_debug.top.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

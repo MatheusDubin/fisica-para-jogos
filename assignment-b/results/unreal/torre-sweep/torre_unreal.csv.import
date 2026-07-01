@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dsdb2d5pjf8ik"
+
+[deps]
+
+files=["res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.num.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.tempo.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.timeout.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.phys.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.max.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.t.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.t.translation"]
+
+source_file="res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.csv"
+dest_files=["res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.num.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.tempo.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.timeout.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.phys.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.max.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.t.translation", "res://fisica-para-jogos/assignment-b/results/unreal/torre-sweep/torre_unreal.t.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

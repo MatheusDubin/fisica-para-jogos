@@ -52,6 +52,23 @@ namespace Benchmark.EditorTools
             SetTower("10,15,20,25,30", RUNS, "torre-sweep-tgs", DEFAULT_ITER);
 
         // =================================================================
+        //  COMPARACAO RAPIDA (10 ciclos) - para checar discrepancia entre engines
+        // =================================================================
+
+        [MenuItem("Benchmark/CMP Torre 10,15,20 (10 runs)", priority = 20)]
+        public static void RunCmpTorre() =>
+            SetTower("10,15,20", "10", "torre-sweep", DEFAULT_ITER);
+
+        [MenuItem("Benchmark/CMP Chuva 1k 5k 10k (10 runs)", priority = 21)]
+        public static void RunCmpChuva()
+        {
+            PlayerPrefs.SetString("bench_scenario", "rain");
+            PlayerPrefs.SetString("bench_rain_runs", "10");
+            PlayerPrefs.Save();
+            EnterPlay();
+        }
+
+        // =================================================================
         //  Utilidades
         // =================================================================
 

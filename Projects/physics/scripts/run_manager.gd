@@ -7,7 +7,7 @@ extends Node
 # Cenario 1 - Torre
 # Canonico: [100] (10 runs em N=100, com arena fechada).
 # Para stress-test, usar varios N (e.g. [5,10,15,20,25,30,35,40,45,50]).
-const TORRE_N_VALUES: Array[int] = [100]
+const TORRE_N_VALUES: Array[int] = [10, 15, 20]
 const TORRE_TOTAL_RUNS: int = 10
 const TORRE_TIMEOUT_S: float = 60.0
 const TORRE_CSV: String = "user://torre_godot.csv"
@@ -17,9 +17,8 @@ const TORRE_DEBUG_CSV: String = "user://torre_godot_debug.csv"
 const CHUVA_TOTAL_RUNS: int = 10
 const CHUVA_JANELA_S: float = 10.0
 const CHUVA_AQUECIMENTO_S: float = 0.5
-# Sessao atual: rodando APENAS 10000 com buffer Jolt aumentado.
-# Para a sessao completa, restaurar para [1000, 5000, 10000].
-const CHUVA_VARIACOES: Array[int] = [10000]
+# Comparacao 10 iteracoes: todas as variacoes.
+const CHUVA_VARIACOES: Array[int] = [1000, 5000, 10000]
 const CHUVA_CSV: String = "user://chuva_godot.csv"
 
 # ============================================================

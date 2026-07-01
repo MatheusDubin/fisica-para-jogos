@@ -20,6 +20,12 @@ const SPHERE_RADIUS: float = 0.5
 const SPHERE_DIAM: float = 1.0
 const SPACING: float = 1.15  # > diametro para evitar overlap inicial
 
+# Janela por TEMPO DE SIMULACAO (contagem de physics frames), NAO wall-clock:
+# garante que todas as engines medem o MESMO estado fisico (queda + pilha) na
+# mesma duracao simulada, independente de rodar acima/abaixo do tempo real.
+const WARMUP_STEPS: int = 25    # ~0.5s simulados (descartado; curto de proposito)
+const WINDOW_STEPS: int = 500   # 10s simulados (coleta) - a correcao de verdade
+
 var _num_objetos: int = 0
 
 var _spheres: Array[RigidBody3D] = []
@@ -29,6 +35,7 @@ var _fps: Array[float] = []
 
 var _t0_ms: int = 0
 var _t_coleta_ms: int = 0
+var _steps: int = 0
 var _aquecendo: bool = true
 var _coletando: bool = false
 var _registrado: bool = false
@@ -63,6 +70,7 @@ func _iniciar_proxima_run() -> void:
 
 	_step_ms.clear()
 	_fps.clear()
+	_steps = 0
 	_aquecendo = true
 	_coletando = false
 	_registrado = false
@@ -200,14 +208,12 @@ func _physics_process(_delta: float) -> void:
 	if _registrado:
 		return
 
-	var agora_ms: int = Time.get_ticks_msec()
-	var elapsed: float = (agora_ms - _t0_ms) / 1000.0
+	_steps += 1
 
 	if _aquecendo:
-		if elapsed >= RunManager.CHUVA_AQUECIMENTO_S:
+		if _steps >= WARMUP_STEPS:
 			_aquecendo = false
 			_coletando = true
-			_t_coleta_ms = agora_ms
 		return
 
 	if _coletando:
@@ -216,12 +222,11 @@ func _physics_process(_delta: float) -> void:
 		_step_ms.append(step_ms)
 		_fps.append(fps)
 
-		var elapsed_col: float = (agora_ms - _t_coleta_ms) / 1000.0
-		if _step_ms.size() % 50 == 1:
-			print("[Chuva %d] coleta t=%.1fs step_atual=%.2fms fps=%.1f n=%d" % [
-				_num_objetos, elapsed_col, step_ms, fps, _step_ms.size()
+		if _step_ms.size() % 100 == 1:
+			print("[Chuva %d] coleta sim_t=%.1fs step=%.2fms fps=%.1f n=%d" % [
+				_num_objetos, _step_ms.size() * 0.02, step_ms, fps, _step_ms.size()
 			])
-		if elapsed_col >= RunManager.CHUVA_JANELA_S:
+		if _step_ms.size() >= WINDOW_STEPS:
 			_finalizar()
 
 func _finalizar() -> void:

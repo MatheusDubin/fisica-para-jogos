@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dyfg2vbvqls8o"
+
+[deps]
+
+files=["res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.variacao.translation", "res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.physics.translation", "res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.physics.translation", "res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.fps.translation", "res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.amostras.translation"]
+
+source_file="res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.csv"
+dest_files=["res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.variacao.translation", "res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.physics.translation", "res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.physics.translation", "res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.fps.translation", "res://fisica-para-jogos/assignment-b/results/unreal/chuva-default/chuva_unreal.amostras.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

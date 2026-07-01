@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bghnhw7mtj8f8"
+
+[deps]
+
+files=["res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.variacao.translation", "res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.physics.translation", "res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.physics.translation", "res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.fps.translation", "res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.amostras.translation"]
+
+source_file="res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.csv"
+dest_files=["res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.variacao.translation", "res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.physics.translation", "res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.physics.translation", "res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.fps.translation", "res://fisica-para-jogos/assignment-b/results/unity/chuva-default/chuva_unity.amostras.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

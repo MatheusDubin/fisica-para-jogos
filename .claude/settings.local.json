@@ -34,7 +34,21 @@
       "Bash(head -15 torre-N100-arena/torre_unity_debug.csv)",
       "Bash(ls -la torre-sweep/)",
       "Bash(cat torre-sweep/torre_unity.csv)",
-      "PowerShell($procs = Get-Process Unity -ErrorAction SilentlyContinue; if\\($procs\\){ \"Unity RUNNING: $\\($procs.Id -join ', '\\)\" } else { \"Unity not running\" }; $lock = \"C:\\\\Users\\\\mathe\\\\Documents\\\\physics\\\\fisica-para-jogos\\\\Projects\\\\physics-unity\\\\Temp\\\\UnityLockfile\"; \"Lockfile exists: $\\(Test-Path $lock\\)\")"
+      "PowerShell($procs = Get-Process Unity -ErrorAction SilentlyContinue; if\\($procs\\){ \"Unity RUNNING: $\\($procs.Id -join ', '\\)\" } else { \"Unity not running\" }; $lock = \"C:\\\\Users\\\\mathe\\\\Documents\\\\physics\\\\fisica-para-jogos\\\\Projects\\\\physics-unity\\\\Temp\\\\UnityLockfile\"; \"Lockfile exists: $\\(Test-Path $lock\\)\")",
+      "Bash(ls -la Source)",
+      "Bash(cat *.uproject)",
+      "Read(//c/Users/mathe/Documents/physics/**)",
+      "Read(//c/Program Files/Epic Games//**)",
+      "Read(//c/Users/mathe/AppData/Local/UnrealEngine/**)",
+      "Read(//c/Program Files/Microsoft Visual Studio/**)",
+      "Read(//c/Program Files \\(x86\\)/Microsoft Visual Studio/**)",
+      "Read(//c/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/**)",
+      "Read(//c/Program Files \\(x86\\)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/**)",
+      "Bash(mkdir -p assignment-b/results/unreal/torre-N100-arena)",
+      "Bash(mkdir -p assignment-b/results/unreal/chuva-default)",
+      "Bash(mkdir -p Projects/physics_unreal/Source/physics_unreal)",
+      "Bash(xargs ls -la)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

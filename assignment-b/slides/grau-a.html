@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grau A — Levantamento de Physics Engines</title>
+
+  <!-- Roboto (brand font) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- reveal.js core + theme (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" id="theme">
+
+  <style>
+    :root {
+      /* Institutional palette (Unisinos) adapted to a dark theme */
+      --bg:      #0a0d1a;   /* dark navy background        */
+      --bg2:     #070912;   /* section-divider background  */
+      --blue:    #2f3391;   /* azul institucional (deep)   */
+      --blue-br: #6c8cff;   /* accent readable on dark     */
+      --orange:  #f5871f;   /* secondary accent (sparingly)*/
+      --dim:     #9aa2b4;
+      /* Functional column identifiers for the comparison (kept distinct for legibility) */
+      --unity:   #cfd3dd;
+      --unreal:  #b39cff;
+      --godot:   #35c4d6;
+      --na:      #d9736b;
+    }
+
+    .reveal { font-family: 'Roboto', system-ui, sans-serif; font-weight: 300; }
+    .reveal section { text-align: left; }
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+      text-transform: none; letter-spacing: normal; font-weight: 900;
+    }
+    .reveal b, .reveal strong { font-weight: 700; }
+
+    /* Brand logo — top-right, only on the first (title) and last (closing) slides */
+    .hero-logo {
+      display: inline-block; height: 58px;
+      filter: brightness(0) invert(1);
+    }
+    .logo-row { text-align: center; margin-top: 1.1em; }
+
+    /* White progress bar */
+    .reveal .progress { color: #ffffff; height: 4px; }
+    .reveal .progress span { background: #ffffff; }
+
+    /* --- Section eyebrow / numbering --- */
+    .eyebrow {
+      text-transform: uppercase; letter-spacing: .3em; font-size: .38em;
+      color: var(--blue-br); margin-bottom: .5em; font-weight: 500;
+    }
+    .eyebrow.orange { color: var(--orange); }
+    .sec-num { color: var(--dim); font-weight: 400; }
+
+    /* --- Title slide --- */
+    .center { text-align: center !important; }
+    .title-tag {
+      display: inline-block; text-transform: uppercase; letter-spacing: .32em;
+      font-size: .4em; color: #fff; font-weight: 500;
+      background: linear-gradient(90deg, var(--blue), var(--blue-br));
+      padding: .5em 1.2em; border-radius: 999px; margin-bottom: 1em;
+    }
+    .reveal h1.deck-title { font-size: 1.6em; line-height: 1.08; margin: 0 0 .3em; }
+    .title-sub { color: var(--dim); font-size: .56em; font-weight: 300; line-height: 1.5; }
+    .title-people {
+      margin-top: 1.4em; font-size: .4em; color: #c7ccd8; font-weight: 400; line-height: 1.7;
+    }
+    .title-people .lbl { color: var(--dim); font-weight: 300; }
+    .title-meta {
+      margin-top: 1em; font-size: .34em; color: #66708a;
+      border-top: 1px solid rgba(255,255,255,.1); padding-top: .8em;
+    }
+
+    /* --- Section divider --- */
+    .divider .big-num {
+      font-size: 3.4em; font-weight: 900; line-height: 1;
+      background: linear-gradient(90deg, var(--blue-br), var(--blue));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      opacity: .9;
+    }
+    .divider h2 { font-size: 1.5em; margin: .1em 0 0; }
+    .divider .rule { width: 90px; height: 4px; background: var(--orange); border-radius: 2px; margin: .6em auto 0; }
+
+    /* --- Content --- */
+    .reveal h2.slide-title { font-size: 1.05em; margin: 0 0 .1em; }
+    .reveal h3.slide-title { font-size: .9em; margin: 0 0 .5em; color: #fff; }
+    .kicker { color: var(--dim); font-size: .46em; margin-bottom: .7em; font-weight: 400; }
+    .reveal ul { font-size: .62em; font-weight: 300; }
+    .reveal li { margin-bottom: .45em; line-height: 1.4; }
+    .lead { font-size: .66em; line-height: 1.55; color: #dfe3ec; font-weight: 300; }
+
+    /* --- Tables --- */
+    .reveal table { font-size: .40em; border-collapse: collapse; width: 100%; margin-top: .3em; }
+    .reveal table th, .reveal table td {
+      border: 1px solid rgba(255,255,255,.10); padding: .5em .6em; vertical-align: top; line-height: 1.35;
+    }
+    .reveal table thead th { font-size: 1.05em; text-align: center; background: rgba(108,140,255,.10); font-weight: 700; }
+    .th-unity  { color: var(--unity);  }
+    .th-unreal { color: var(--unreal); }
+    .th-godot  { color: var(--godot);  }
+    .rowlabel { font-weight: 500; color: #fff; width: 16%; background: rgba(255,255,255,.03); }
+    .reveal table code { font-size: .95em; color: var(--blue-br); background: rgba(108,140,255,.10); padding: 0 .25em; border-radius: 3px; }
+    .na  { color: var(--na); font-weight: 500; }
+    .yes { color: var(--blue-br); font-weight: 700; }
+
+    /* Explanation callouts (plain-language concept + takeaway) */
+    .concept {
+      background: rgba(108,140,255,.08); border-left: 4px solid var(--blue-br);
+      border-radius: 0 8px 8px 0; padding: .5em .85em; margin: .25em 0 .5em;
+      font-size: .46em; line-height: 1.5; color: #dfe3ec; font-weight: 300;
+    }
+    .concept b { color: #fff; font-weight: 700; }
+    .takeaway {
+      margin-top: .55em; padding: .4em .85em; font-size: .44em; line-height: 1.45;
+      color: #f3e2cf; font-weight: 400;
+      background: rgba(245,135,31,.08); border-left: 4px solid var(--orange);
+      border-radius: 0 8px 8px 0;
+    }
+    .takeaway b { color: var(--orange); font-weight: 700; }
+
+    /* --- Cards row (strengths) --- */
+    .cards { display: flex; gap: 1em; margin-top: .5em; }
+    .card {
+      flex: 1; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10);
+      border-top: 3px solid var(--blue-br);
+      border-radius: 10px; padding: .8em 1em; font-size: .44em; line-height: 1.45; font-weight: 300;
+    }
+    .card h4 { margin: 0 0 .5em; font-size: 1.25em; font-weight: 900; }
+    .card .plus  { color: var(--blue-br); font-weight: 700; }
+    .card .minus { color: var(--na); font-weight: 700; }
+    .card.unity  { border-top-color: var(--unity);  } .card.unity  h4 { color: var(--unity); }
+    .card.unreal { border-top-color: var(--unreal); } .card.unreal h4 { color: var(--unreal); }
+    .card.godot  { border-top-color: var(--godot);  } .card.godot  h4 { color: var(--godot); }
+
+    .chip {
+      display: inline-block; background: rgba(108,140,255,.10);
+      border: 1px solid rgba(108,140,255,.30); border-radius: 999px;
+      padding: .25em .8em; color: #dbe1f0; font-size: .5em; margin: .2em .3em .2em 0; font-weight: 400;
+    }
+    .chip b { color: #fff; font-weight: 700; }
+
+    .refs { font-size: .42em; line-height: 1.55; font-weight: 300; }
+    .refs li { margin-bottom: .55em; }
+    .refs .src { color: var(--dim); }
+    .refs code { color: var(--blue-br); }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ===================== TITLE ===================== -->
+      <section class="center" data-background-color="#0a0d1a">
+        <span class="title-tag">Física para Jogos Digitais · Grau A</span>
+        <h1 class="deck-title">Motores de Física nas<br>Game Engines Modernas</h1>
+        <div class="title-sub">Um levantamento do estado da técnica<br>
+          <b style="color:var(--unity)">Unity</b> ·
+          <b style="color:var(--unreal)">Unreal Engine</b> ·
+          <b style="color:var(--godot)">Godot</b></div>
+        <div class="title-people">
+          <span class="lbl">Docente:</span> Prof.ª Rossana Baptista Queiroz<br>
+          <span class="lbl">Acadêmico:</span> Matheus Dubin da Silveira
+        </div>
+        <div class="title-meta">Universidade do Vale do Rio dos Sinos · Escola Politécnica · 2026</div>
+        <aside class="notes">Grau A (teórico): levantar o estado atual dos physics engines das 3 engines. O Grau B coloca isto à prova com benchmarks.</aside>
+      </section>
+
+      <!-- ===================== 1. INTRODUÇÃO ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">01</div>
+        <h2>Introdução</h2>
+        <div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">01</span> · Introdução</div>
+        <h2 class="slide-title">Por que revisitar a física dos motores agora?</h2>
+        <p class="lead" style="margin-top:.4em">
+          Historicamente, a física dos motores dependia de bibliotecas de terceiros
+          (<b>PhysX</b> antigo, <b>Havok</b>) focadas quase só em <b>corpos rígidos</b>.
+        </p>
+        <ul>
+          <li>As três grandes engines passaram por <b>reformulações arquitetônicas profundas</b> em seus sistemas de física.</li>
+          <li>Surgem soluções de <b>larga escala</b>, <b>processamento paralelo</b> e <b>simulações complexas</b> — destruição, tecidos, fluidos.</li>
+          <li><b>Objetivo:</b> levantar o estado da técnica e comparar como cada engine lida com problemas modernos de simulação em tempo real.</li>
+        </ul>
+        <aside class="notes">Evolução do hardware + exigência por realismo forçou a saída das libs de terceiros para soluções próprias.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">01</span> · Introdução</div>
+        <h2 class="slide-title">As três engines em análise</h2>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity 6 (LTS)</th><th class="th-unreal">Unreal Engine 5.8</th><th class="th-godot">Godot 4.6</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Perfil</td>
+              <td>Ecossistema maduro; forte em mobile/indie/AA e simulação determinística</td>
+              <td>Referência AAA em fidelidade visual e efeitos de física</td>
+              <td>Open source, leve, adoção crescente</td></tr>
+            <tr><td class="rowlabel">Motor de física padrão</td>
+              <td><b>NVIDIA PhysX 4.x</b></td>
+              <td><b>Chaos Physics</b> (Epic)</td>
+              <td><b>Jolt Physics</b> (open source)</td></tr>
+          </tbody>
+        </table>
+        <p class="kicker" style="margin-top:.8em">Versões de referência congeladas em 2026 para garantir comparação justa.</p>
+      </section>
+
+      <!-- ===================== 2. PANORAMA ATUAL ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">02</div>
+        <h2>Panorama Atual</h2>
+        <div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">02</span> · Panorama Atual</div>
+        <h2 class="slide-title">Motores subjacentes de cada engine</h2>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity 6</th><th class="th-unreal">Unreal 5.8</th><th class="th-godot">Godot 4.6</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Motor padrão</td>
+              <td>NVIDIA <b>PhysX 4.x</b></td>
+              <td><b>Chaos Physics</b> (proprietário)</td>
+              <td><b>Jolt Physics</b> (open source)</td></tr>
+            <tr><td class="rowlabel">Alternativa oficial</td>
+              <td>Unity Physics (DOTS/ECS)</td>
+              <td>— (Chaos é único)</td>
+              <td>Godot Physics (legado)</td></tr>
+            <tr><td class="rowlabel">Descontinuada</td>
+              <td>Havok for Unity (removido do Pro, 2025)</td>
+              <td>PhysX (deprecated em UE 5.1)</td>
+              <td>—</td></tr>
+            <tr><td class="rowlabel">Solver base</td>
+              <td>Impulse-based (PhysX) / XPBD (Unity Physics)</td>
+              <td><b>XPBD</b> (Extended Position-Based Dynamics)</td>
+              <td>Impulse-based (Jolt)</td></tr>
+          </tbody>
+        </table>
+        <p class="kicker" style="margin-top:.7em">Tendência comum: saída das libs de terceiros rumo a motores próprios/abertos e solvers baseados em posição.</p>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">02</span> · Panorama Atual</div>
+        <h2 class="slide-title">Como um motor de física funciona (a cada passo)</h2>
+        <div class="concept" style="font-size:.44em"><b>Vocabulário que usaremos:</b> todo motor repete o mesmo pipeline a cada passo fixo de simulação. Saber onde cada etapa gasta tempo é o que torna a comparação — e os benchmarks do Grau B — legíveis.</div>
+        <ul style="font-size:.52em">
+          <li><b>1 · Broadphase</b> — descobre rapidamente quais pares <i>podem</i> colidir (estruturas como BVH / SAP).</li>
+          <li><b>2 · Narrowphase</b> — testa a geometria exata desses pares (algoritmos GJK / EPA).</li>
+          <li><b>3 · Solver</b> — calcula e aplica correções para resolver contatos e juntas, iterando. <b>É o coração e o maior custo.</b></li>
+          <li><b>4 · Integração</b> — atualiza velocidades e posições para o próximo passo.</li>
+          <li><b>5 · Sleep</b> — corpos praticamente parados "dormem" para poupar CPU.</li>
+        </ul>
+        <div class="takeaway"><b>Por que importa:</b> é sobretudo no <b>solver</b> que as engines divergem — e é o <i>Physics Step Time</i> desse estágio que mediremos no Grau B.</div>
+        <aside class="notes">Broadphase = filtro grosso (caixas envolventes); narrowphase = teste fino de geometria. O solver roda N iterações: mais iterações = mais estável e mais caro.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">02</span> · Panorama Atual</div>
+        <h2 class="slide-title">O coração: os tipos de solver</h2>
+        <div class="concept"><b>O solver</b> decide como resolver contatos e juntas a cada passo. Há duas grandes famílias — e é isso que separa as três engines:</div>
+        <table>
+          <thead>
+            <tr><th>Família</th><th>Como funciona</th><th>Quem usa</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Baseado em impulso<br>(Gauss-Seidel iterativo)</td>
+              <td>Corrige <b>velocidades</b> par a par, iterando. No <b>PGS</b> (padrão do Unity) a posição só é corrigida no fim; no <b>TGS</b> (opt-in) ela é atualizada <i>durante</i> as iterações → mais estável em pilhas e cadeias.</td>
+              <td><b>PhysX</b> (Unity) · <b>Jolt</b> (Godot)</td></tr>
+            <tr><td class="rowlabel">Baseado em posição<br>(PBD / XPBD)</td>
+              <td>Resolve diretamente as <b>posições</b> para satisfazer as restrições; o <b>XPBD</b> adiciona rigidez fisicamente correta.</td>
+              <td><b>Chaos</b> (Unreal) · <b>Unity Physics</b> (DOTS)</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Regra de ouro:</b> mais iterações/substeps = mais estável, porém mais caro. <b>Nenhum sustenta pilhas altas com os valores padrão</b> — algo que o Grau B confirma na prática.</div>
+        <aside class="notes">Impulse-based corrige velocidade; position-based corrige posição direto. XPBD resolve o problema do PBD (rigidez dependente do nº de iterações). Ligação direta com o Cenário 1 (a Torre) do Grau B.</aside>
+      </section>
+
+      <!-- ===================== 3. ANÁLISE COMPARATIVA ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">03</div>
+        <h2>Análise Comparativa</h2>
+        <div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Corpos rígidos &amp; colisões</div>
+        <h2 class="slide-title">Colisão: discreta vs. contínua</h2>
+        <div class="concept"><b>O problema:</b> a detecção <b>discreta</b> testa a sobreposição uma vez por passo — barata, mas um objeto veloz pode <b>atravessar</b> uma parede fina entre dois passos (<i>tunneling</i>). A <b>contínua (CCD)</b> varre a trajetória para impedir isso — precisa, porém mais cara. As três usam discreta por padrão, com CCD opcional.</div>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity</th><th class="th-unreal">Unreal</th><th class="th-godot">Godot</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Como resolve</td>
+              <td><code>Rigidbody</code> + <code>Collider</code> (PhysX). CCD por flag <code>Continuous</code></td>
+              <td>Chaos <code>FPBDRigidsSolver</code>. CCD por componente; dupla precisão (LWC)</td>
+              <td><code>RigidBody3D</code>. Jolt: <i>speculative contacts</i> + <i>motion clamping</i></td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>A diferença que importa:</b> mesma escolha padrão (discreta); divergem no truque de precisão — os <i>speculative contacts</i> do Jolt e a dupla precisão (LWC) da Unreal para mundos de escala quilométrica.</div>
+        <aside class="notes">CCD custa caro, por isso fica opt-in. LWC = coordenadas em dupla precisão; evita jitter longe da origem — vantagem da Unreal para mundos abertos gigantes.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Juntas &amp; restrições</div>
+        <h2 class="slide-title">Juntas: coordenadas máximas vs. reduzidas</h2>
+        <div class="concept"><b>O conceito:</b> juntas restringem como dois corpos se movem entre si (dobradiça = porta, esfera = ombro). Cadeias articuladas podem usar <b>coordenadas máximas</b> (cada corpo é livre e a restrição o "puxa" — pode vibrar/deslizar) ou <b>reduzidas</b> (só os graus de liberdade permitidos existem — estável por construção; ideal p/ robótica e ragdolls).</div>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity</th><th class="th-unreal">Unreal</th><th class="th-godot">Godot</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Tipos &amp; abordagem</td>
+              <td>Hinge/Fixed/Spring/Configurable (6&nbsp;DoF) + <b><code>ArticulationBody</code></b> (coord. <b>reduzidas</b>)</td>
+              <td><code>PhysicsConstraint</code> único: ball/hinge/prismático; motors; <i>Breakable</i>; profiles em runtime</td>
+              <td>Pin / Hinge / Slider / ConeTwist / <b>Generic6DOF</b> (coord. máximas)</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>A diferença que importa:</b> só a Unity oferece <b>coordenadas reduzidas</b> (<code>ArticulationBody</code>) para cadeias estáveis; a Unreal aposta em ajuste em runtime + blend com animação; a Godot cobre o conjunto padrão.</div>
+        <aside class="notes">Coordenadas reduzidas (Featherstone): o solver só conhece os ângulos permitidos, então a junta nunca "se separa". Por isso a Unity é citada em robótica / RL.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Corpos flexíveis</div>
+        <h2 class="slide-title">Soft bodies: tecido vs. volumétrico</h2>
+        <div class="concept"><b>Dois níveis de "mole":</b> <b>tecido (cloth)</b> é uma <b>superfície 2D</b> — malha de restrições de aresta (bandeiras, capas). <b>Soft body volumétrico</b> é um <b>sólido 3D</b> que se deforma por dentro (malha tetraedral) — músculo, gelatina. O volumétrico é muito mais caro e difícil.</div>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity</th><th class="th-unreal">Unreal</th><th class="th-godot">Godot</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Suporte</td>
+              <td><code>Cloth</code> (superfície). <span class="na">Sem volumétrico nativo</span></td>
+              <td><b>Chaos Cloth</b> (PBD, CPU) + <b>Chaos Flesh</b> (volumétrico tetraedral, <i>experimental</i>)</td>
+              <td><code>SoftBody3D</code> (tecido). <span class="na">Não volumétrico</span>; bugs com Jolt</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>A diferença que importa:</b> as três fazem tecido; só a Unreal tenta volumétrico nativo (Chaos Flesh) — e ainda experimental. <b>Nenhuma tem soft body volumétrico pronto para produção.</b></div>
+        <aside class="notes">Tetraedral = o sólido é preenchido por tetraedros cujas arestas resistem à compressão. Chaos Flesh mira deformação muscular (SIGGRAPH 2024), roda em CPU.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Destruição dinâmica</div>
+        <h2 class="slide-title">Destruição: pré-fraturada vs. procedural</h2>
+        <div class="concept"><b>Duas abordagens:</b> <b>pré-fraturada</b> — o artista quebra a malha antes e troca no impacto (barato, "enlatado"). <b>Procedural em tempo real</b> — a engine fratura dinamicamente (células de <i>Voronoi</i>) e reage às forças (cinematográfico, caro).</div>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity</th><th class="th-unreal">Unreal</th><th class="th-godot">Godot</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Suporte</td>
+              <td><span class="na">Sem sistema nativo</span> — Asset Store (DinoFracture, Blast)</td>
+              <td><span class="yes">Chaos Destruction</span> + Geometry Collections (Voronoi/Slice), <b>tempo real</b>; Field System. Produção 5.4+</td>
+              <td><span class="na">Sem sistema nativo</span> — addons + peças pré-quebradas</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>A diferença que importa:</b> a Unreal é a <b>única com destruição procedural AAA nativa</b>; Unity e Godot dependem de pré-fratura ou addons comunitários.</div>
+        <aside class="notes">Voronoi divide o volume em fragmentos irregulares plausíveis. Geometry Collections guardam a hierarquia de fragmentos; Field System controla onde/como a fratura ocorre.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Fluidos &amp; partículas</div>
+        <h2 class="slide-title">Fluidos: partícula visual vs. solver físico</h2>
+        <div class="concept"><b>A distinção-chave:</b> <b>partículas visuais</b> parecem fluido mas não empurram sólidos de volta. Um <b>solver físico</b> (SPH/FLIP) simula o líquido de verdade. E há <b>acoplamento</b>: <i>uma via</i> (o fluido só recebe) vs. <i>duas vias</i> (fluido e sólidos se empurram mutuamente).</div>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity</th><th class="th-unreal">Unreal</th><th class="th-godot">Godot</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Suporte</td>
+              <td>VFX Graph (GPU) + Particle System. <span class="na">Sem solver de fluidos nativo</span></td>
+              <td><b>Niagara Fluids</b> (GPU FLIP, produção; colide via SDF) + Chaos Fluids (duas vias, <i>experimental</i>)</td>
+              <td><code>GPUParticles3D</code> + colisão. <span class="na">Sem solver dedicado</span></td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>A diferença que importa:</b> a Unreal lidera (Niagara em produção; acoplamento de duas vias em desenvolvimento); Unity e Godot oferecem partículas visuais, não fluidos físicos.</div>
+        <aside class="notes">SPH/FLIP = métodos que representam o fluido por partículas/grade e resolvem pressão. "Colide via SDF" = o fluido enxerga sólidos como campos de distância assinada.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Arquitetura &amp; performance</div>
+        <h2 class="slide-title">Arquitetura: onde a física roda e como escala</h2>
+        <div class="concept"><b>Ideias-chave:</b> <b>threads</b> (1 vs. várias); <b>ECS/DOTS</b> = dados orientados, <i>stateless</i> → <b>determinístico</b> (mesma entrada = mesma saída, essencial p/ rollback em rede); <b>islands</b> = grupos independentes resolvidos em paralelo; <b>Async Tick</b> = física num relógio próprio, desacoplada do FPS. <b>Nenhuma usa GPU para corpos rígidos.</b></div>
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity</th><th class="th-unreal">Unreal</th><th class="th-godot">Godot</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rowlabel">Modelo</td>
+              <td>PhysX: worker thread (stateful). DOTS: ECS + Job System + Burst — <b>stateless/determinístico</b></td>
+              <td><code>FPhysScene_Chaos</code>: <i>islands</i> paralelas + <b>Async Physics Tick</b> (5.4+) + LWC</td>
+              <td>GodotPhysics: 1 thread. Jolt: <b>multi-thread nativo</b> (todos os cores); <code>PhysicsServer3D</code> trocável</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>A diferença que importa:</b> Unity = determinismo (DOTS); Unreal = async + islands + mundos gigantes; Godot = multithread aberto e trocável. Todas presas à <b>CPU</b> para corpos rígidos.</div>
+        <aside class="notes">Stateless = a física não guarda memória oculta entre frames → reproduzível bit a bit (permite rollback netcode). Async Tick desacopla o Physics Step Time do FPS — importante para ler os dados do Grau B.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Síntese</div>
+        <h2 class="slide-title">Pontos fortes e fracos</h2>
+        <div class="cards">
+          <div class="card unity">
+            <h4>Unity 6</h4>
+            <p><span class="plus">▲</span> Física determinística (DOTS), <code>ArticulationBody</code> p/ robótica, ecossistema maduro</p>
+            <p><span class="minus">▼</span> Destruição nativa, soft bodies volumétricos, fluidos físicos</p>
+          </div>
+          <div class="card unreal">
+            <h4>Unreal 5.8</h4>
+            <p><span class="plus">▲</span> Destruição AAA (Chaos), fluidos visuais (Niagara), ragdolls complexos</p>
+            <p><span class="minus">▼</span> Chaos Flesh/Fluids ainda experimentais, Cloth em CPU</p>
+          </div>
+          <div class="card godot">
+            <h4>Godot 4.6</h4>
+            <p><span class="plus">▲</span> Open source, multi-threading (Jolt), GDExtension, custo zero</p>
+            <p><span class="minus">▼</span> Destruição nativa, fluidos físicos, SoftBody limitado</p>
+          </div>
+        </div>
+        <p class="kicker" style="margin-top:1em">Nenhuma domina em tudo: cada engine otimizou para um perfil de uso diferente.</p>
+      </section>
+
+      <!-- ===================== 4. CONSIDERAÇÕES FINAIS ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">04</div>
+        <h2>Considerações Finais</h2>
+        <div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">04</span> · Considerações Finais</div>
+        <h2 class="slide-title">Para onde a simulação física caminha</h2>
+        <ul>
+          <li><b>Convergência de solvers:</b> as três caminham para <b>XPBD/PBD</b>, maior <b>multi-threading</b> e GPU reservada a efeitos específicos (fluidos, partículas).</li>
+          <li><b>Unity</b> — a única com ECS <b>stateless e determinístico</b>: vantagem para jogos online competitivos.</li>
+          <li><b>Unreal</b> — a única com <b>destruição procedural AAA nativa</b> e acoplamento fluido-sólido em desenvolvimento.</li>
+          <li><b>Godot</b> — a única <b>open source</b>: pipeline de física customizável via GDExtension, sem custo de licença.</li>
+        </ul>
+        <aside class="notes">Não há vencedor absoluto; a escolha depende do gênero e das exigências físicas do projeto.</aside>
+      </section>
+
+      <section class="center" data-background-color="#070912">
+        <div class="eyebrow orange center">Ponte para o Grau B</div>
+        <h2 class="slide-title center" style="font-size:1.2em">Da teoria à prova</h2>
+        <p class="lead center" style="max-width:80%;margin:.6em auto 1em">
+          No <b>Grau B</b> colocamos estas arquiteturas à prova com benchmarks idênticos
+          nas três engines — medindo estabilidade de pilha e estresse de colisão.
+        </p>
+        <div class="center">
+          <span class="chip"><b>Cenário 1</b> · A Torre — estabilidade &amp; jitter</span>
+          <span class="chip"><b>Cenário 2</b> · A Chuva — 1k / 5k / 10k corpos</span>
+        </div>
+        <p class="kicker center" style="margin-top:1.2em">A pergunta que responderemos: <b>os resultados confirmam o que a arquitetura previu?</b></p>
+      </section>
+
+      <!-- ===================== 5. REFERÊNCIAS ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">05</div>
+        <h2>Referências</h2>
+        <div class="rule"></div>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">05</span> · Referências · Documentação oficial</div>
+        <h2 class="slide-title">Fontes primárias por engine</h2>
+        <ul class="refs">
+          <li><b>Unity</b> — <span class="src">Built-in 3D Physics Overview; Unity Physics (com.unity.physics); DOTS / Burst / C# Job System.</span> <code>docs.unity3d.com</code></li>
+          <li><b>Unreal</b> — <span class="src">Physics in Unreal Engine; Chaos Cloth / Flesh; Chaos Destruction &amp; Geometry Collections; Niagara Fluids; Large World Coordinates.</span> <code>dev.epicgames.com</code></li>
+          <li><b>Godot</b> — <span class="src">Using Jolt Physics (4.6); RigidBody3D / Joint3D / SoftBody3D; PhysicsServer3D; godot-jolt (GitHub).</span> <code>docs.godotengine.org</code></li>
+        </ul>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">05</span> · Referências · Acadêmicas &amp; técnicas</div>
+        <h2 class="slide-title">GDC · SIGGRAPH · arXiv · SBGames</h2>
+        <ul class="refs">
+          <li>Rouwé, J. — <b>Architecting Jolt Physics for 'Horizon Forbidden West'</b>, GDC 2022.</li>
+          <li>Macklin, M. et al. — <b>Small Steps in Physics Simulation</b>, SIGGRAPH/SCA 2019 <span class="src">(base do XPBD com substeps)</span>.</li>
+          <li>NVIDIA — <b>PhysX 4: Raising the Fidelity &amp; Performance</b>, GTC 2019 <span class="src">(solver TGS)</span>.</li>
+          <li>Van Allen, J. et al. (Epic) — <b>Causing Chaos: The Future of Physics and Destruction in UE</b>, GDC 2019.</li>
+          <li>Balakshin, A. — <b>ECS in Practice: The Case of Unity</b>, GDC 2024.</li>
+          <li>Kaup, M. et al. — <b>A Review of Nine Physics Engines for RL Research</b>, arXiv 2024.</li>
+          <li>Oliveira, S. et al. — <b>Decoupling Physics from the Game Engine</b>, SBGames 2023.</li>
+        </ul>
+      </section>
+
+      <section class="center" data-background-color="#0a0d1a">
+        <h2 class="slide-title center" style="font-size:1.3em">Obrigado</h2>
+        <p class="lead center" style="margin-bottom:.2em">Física para Jogos Digitais</p>
+        <div class="title-people" style="margin-top:.4em">
+          <span class="lbl">Docente:</span> Prof.ª Rossana Baptista Queiroz<br>
+          <span class="lbl">Acadêmico:</span> Matheus Dubin da Silveira
+        </div>
+        <p class="kicker center" style="margin-top:1.1em">Continua no Grau B → benchmarks práticos</p>
+        <div class="logo-row"><img class="hero-logo" src="assets/unisinos-logo.png" alt="Unisinos — Nossa sala de aula é o mundo"></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      controls: true,
+      progress: true,
+      slideNumber: 'c/t',
+      transition: 'slide',
+      width: 1100,
+      height: 700,
+      margin: 0.06,
+      pdfSeparateFragments: false,
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://clf8wujj6jsv"
+
+[deps]
+
+files=["res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.num.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.t.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.phys.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.asleep.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.active.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.max.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.mean.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.top.translation"]
+
+source_file="res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.csv"
+dest_files=["res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.num.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.t.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.phys.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.asleep.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.active.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.max.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.mean.translation", "res://fisica-para-jogos/assignment-b/results/godot/torre-N100-arena/torre_godot_debug.top.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

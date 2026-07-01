@@ -1,0 +1,16 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://crp30fnx5iixu"
+
+[deps]
+
+source_file="res://fisica-para-jogos/assignment-b/results/unity/torre-N100-tgs/torre_unity.csv"
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -28,8 +28,12 @@ namespace Benchmark
         const float SPACING = 1.15f;      // > diametro, evita overlap inicial
         const float SPAWN_Y = 25.0f;      // altura de spawn acima do chao da caixa
         int _totalRuns = 10;              // configuravel via bench_rain_runs / BENCH_RAIN_RUNS
-        const float WARMUP_S = 0.5f;
-        const float WINDOW_S = 10.0f;
+        // Janela por TEMPO DE SIMULACAO (contagem de FixedUpdate = passos de
+        // fisica), NAO wall-clock: garante que todas as engines medem o MESMO
+        // estado fisico (queda + pilha) na mesma duracao simulada.
+        const int WARMUP_STEPS = 25;   // ~0.5s simulados (curto de proposito)
+        const int WINDOW_STEPS = 500;  // 10s simulados - a correcao de verdade
+        int _steps = 0;
 
         const string SUBDIR = "chuva-default";
         const string CSV = "chuva_unity.csv";
@@ -137,6 +141,7 @@ namespace Benchmark
             _numObjetos = _variacoes[_varIdx];
             _stepMs.Clear();
             _fps.Clear();
+            _steps = 0;
             _aquecendo = true;
             _coletando = false;
             _running = true;
@@ -218,16 +223,14 @@ namespace Benchmark
             sw.Stop();
             float stepMs = (float)sw.Elapsed.TotalMilliseconds;
 
-            double now = Time.unscaledTimeAsDouble;
-            double elapsed = now - _tStart;
+            _steps++;
 
             if (_aquecendo)
             {
-                if (elapsed >= WARMUP_S)
+                if (_steps >= WARMUP_STEPS)
                 {
                     _aquecendo = false;
                     _coletando = true;
-                    _tColeta = now;
                 }
                 return;
             }
@@ -236,10 +239,9 @@ namespace Benchmark
             {
                 _stepMs.Add(stepMs);
 
-                double elapsedCol = now - _tColeta;
                 if (_stepMs.Count % 100 == 1)
-                    Debug.Log($"[Chuva {_numObjetos}] coleta t={elapsedCol:F1}s step={stepMs:F2}ms n={_stepMs.Count}");
-                if (elapsedCol >= WINDOW_S)
+                    Debug.Log($"[Chuva {_numObjetos}] coleta sim_t={_stepMs.Count * 0.02:F1}s step={stepMs:F2}ms n={_stepMs.Count}");
+                if (_stepMs.Count >= WINDOW_STEPS)
                     Finalizar();
             }
         }
