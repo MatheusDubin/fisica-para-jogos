@@ -228,6 +228,26 @@
         <aside class="notes">Solver tunado (TGS, +iter, CVars do Chaos) só aparece como 'análise crítica' à parte, nunca na comparação principal. Cada engine mede o step time no seu mecanismo nativo — todos medindo 'custo de avançar 1 passo de 0,02 s'.</aside>
       </section>
 
+      <!-- 2c-bis · Hardware -->
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">02</span> · Ambiente · hardware</div>
+        <h2 class="slide-title">Máquina de teste</h2>
+        <div class="concept"><b>As 3 engines rodaram na MESMA máquina</b> — então qualquer diferença nos números vem do <b>motor de física</b>, não do hardware. (Ex.: o gap de ~11× do Chaos vs PhysX em 10k é no mesmo PC.)</div>
+        <table>
+          <thead><tr><th>Componente</th><th>Especificação</th></tr></thead>
+          <tbody>
+            <tr><td class="rowlabel">CPU</td><td><span class="chip warn">a preencher</span></td></tr>
+            <tr><td class="rowlabel">GPU</td><td>NVIDIA GeForce RTX 4050 Laptop <span class="chip warn">confirmar</span></td></tr>
+            <tr><td class="rowlabel">Memória (RAM)</td><td><span class="chip warn">a preencher</span></td></tr>
+            <tr><td class="rowlabel">Sistema operacional</td><td>Windows <span class="chip warn">versão a preencher</span></td></tr>
+            <tr><td class="rowlabel">Armazenamento</td><td><span class="chip warn">a preencher (SSD?)</span></td></tr>
+            <tr><td class="rowlabel">Tipo</td><td>Notebook</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Por que importa:</b> num notebook, boost-clock e throttling térmico variam entre runs — parte do ruído que o filtro M±σ trata, e a causa provável do <b>FPS bimodal</b> visto no 10k.</div>
+        <aside class="notes">Preencher com os specs reais. GPU (RTX 4050 Laptop) e SO (Windows/DX12) vêm dos NOTES do Godot — confirmar; CPU/RAM/SSD a passar. Ponto-chave p/ o professor: mesma máquina → a comparação isola o motor de física.</aside>
+      </section>
+
       <!-- 2d · Rigor estatístico -->
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">02</span> · Método estatístico</div>
