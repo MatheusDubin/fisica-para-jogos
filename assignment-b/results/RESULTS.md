@@ -3,6 +3,11 @@
 > Gerado por `aggregate_stats.py`. Metodologia do enunciado: 10 runs → M e σ (populacional, ÷n) → descartar fora de [M±σ] → Média Final.
 > Torre em **segundos** (tempo até sleep). Chuva em **ms** (physics step) e **FPS**.
 > Valores de todas as engines já normalizados às mesmas unidades (m, m/s, ms).
+>
+> **⚠️ Ressalva de método (leia antes de comparar):**
+> - **Chuva:** só os datasets **canônicos** (janela sim-time, `amostras=500`, 10 runs) entram aqui. Datasets wall-clock obsoletos foram movidos para `_arquivo-obsoleto/`. O `chuva-optimized` do Unreal é um **exercício** (otimização que piorou), não a coluna principal.
+> - **Filtro ±σ em distribuições bimodais / com timeout:** a Média Final **não tem significado físico** quando a distribuição é bimodal (ex.: Godot Chuva 10k FPS, faixa com limite negativo) ou quando há timeouts (que por `howto-statistics.md` são **resultado válido**, não outlier). Nesses casos use **mediana + contagem de timeouts + clusters**, não a Média Final.
+> - **Torre — métrica primária é COLAPSO/estabilidade** (`kept%`, tabela abaixo), **não** o tempo-até-sleep: cada engine dorme a um limiar de velocidade diferente (Unity 0.005 · Jolt 0.03 · Chaos por frames), então o tempo-até-sleep **não é comparável 1-pra-1**. Ver `ANALYSIS-comparativo.md`.
 
 ## Cenário 1 — A Torre (tempo até repouso total, s)
 
@@ -10,10 +15,7 @@
 
 | Config | Runs (valores puros, s) | M | σ | Faixa [M±σ] | Descartados | **Média Final** |
 |---|---|---|---|---|---|---|
-| godot · torre-N10 · N=10 | 14.412, 2.118, 24.458, 2.498, 18.438, 13.438, 19.398, 43.498, 6.257, 16.538 | 16.105 | 11.508 | [4.597, 27.613] | 2.118, 2.498, 43.498 (3) | **16.134** |
 | godot · torre-N100-arena · N=100 | 10.049, 8.977, 8.637, 8.677, 8.696, 8.917, 8.577, 9.417, 8.217, 8.717 | 8.888 | 0.486 | [8.403, 9.374] | 10.049, 9.417, 8.217 (3) | **8.743** |
-| godot · torre-N100 · N=100 | 60.011, 60.017, 8.557, 60.017, 60.017, 9.356, 9.177, 60.017, 8.458, 8.497 | 34.412 | 25.605 | [8.808, 60.017] | 8.557, 8.458, 8.497 (3) | **45.516** |
-| godot · torre-N25 · N=25 | 12.752, 13.439, 10.938, 8.078, 60.001, 8.233, 11.038, 9.119, 16.738, 13.818 | 16.415 | 14.756 | [1.659, 31.172] | 60.001 (1) | **11.573** |
 | godot · torre-sweep · N=10 | 0.483, 11.117, 0.518, 0.518, 0.518, 11.118, 0.518, 0.519, 0.518, 0.518 | 2.635 | 4.242 | [-1.607, 6.876] | 11.117, 11.118 (2) | **0.514** |
 | godot · torre-sweep · N=15 | 12.338, 8.698, 10.278, 13.258, 14.118, 9.758, 14.298, 11.639, 11.018, 12.198 | 11.760 | 1.758 | [10.002, 13.518] | 8.698, 14.118, 9.758, 14.298 (4) | **11.788** |
 | godot · torre-sweep · N=20 | 11.438, 8.978, 11.758, 8.918, 8.678, 10.298, 10.978, 10.698, 10.278, 9.558 | 10.158 | 1.033 | [9.125, 11.191] | 11.438, 8.978, 11.758, 8.918, 8.678 (5) | **10.362** |

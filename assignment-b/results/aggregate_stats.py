@@ -160,6 +160,21 @@ def build_report():
           "M e σ (populacional, ÷n) → descartar fora de [M±σ] → Média Final.",
           "> Torre em **segundos** (tempo até sleep). Chuva em **ms** (physics step) e **FPS**.",
           "> Valores de todas as engines já normalizados às mesmas unidades (m, m/s, ms).",
+          ">",
+          "> **⚠️ Ressalva de método (leia antes de comparar):**",
+          "> - **Chuva:** só os datasets **canônicos** (janela sim-time, `amostras=500`, "
+          "10 runs) entram aqui. Datasets wall-clock obsoletos foram movidos para "
+          "`_arquivo-obsoleto/`. O `chuva-optimized` do Unreal é um **exercício** "
+          "(otimização que piorou), não a coluna principal.",
+          "> - **Filtro ±σ em distribuições bimodais / com timeout:** a Média Final "
+          "**não tem significado físico** quando a distribuição é bimodal (ex.: Godot "
+          "Chuva 10k FPS, faixa com limite negativo) ou quando há timeouts (que por "
+          "`howto-statistics.md` são **resultado válido**, não outlier). Nesses casos "
+          "use **mediana + contagem de timeouts + clusters**, não a Média Final.",
+          "> - **Torre — métrica primária é COLAPSO/estabilidade** (`kept%`, tabela "
+          "abaixo), **não** o tempo-até-sleep: cada engine dorme a um limiar de "
+          "velocidade diferente (Unity 0.005 · Jolt 0.03 · Chaos por frames), então o "
+          "tempo-até-sleep **não é comparável 1-pra-1**. Ver `ANALYSIS-comparativo.md`.",
           ""]
 
     md.append("## Cenário 1 — A Torre (tempo até repouso total, s)")
