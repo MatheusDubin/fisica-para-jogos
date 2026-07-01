@@ -3,6 +3,43 @@
 > Every value in this document must be reproduced identically in Unity, Unreal Engine, and Godot.  
 > If an engine forces a different unit system (e.g., Unreal uses centimeters), convert and note it explicitly.
 
+> 🟠 **RECONCILIAÇÃO 2026-07-01 (leia antes das tabelas abaixo):** este documento
+> foi escrito **antes** da implementação. Durante a execução, alguns valores foram
+> **alterados de forma deliberada** e aplicados **identicamente nas 3 engines** (a
+> comparação cross-engine permanece justa). As tabelas originais abaixo registram a
+> *intenção de projeto*; a seção **"Desvios do spec (o que rodou de fato)"** logo
+> abaixo é a **verdade operacional**. Onde houver conflito, vale a seção de desvios.
+
+---
+
+## Desvios do spec (o que rodou de fato) — 2026-07-01
+
+> Cada desvio foi aplicado **igual nas 3 engines**. O "desvio" é entre este
+> documento (planejado) e o que foi executado — **não** entre engines.
+> Fonte da verdade dos valores: `results/{godot,unity,unreal}/NOTES.md`,
+> `results/AUDITORIA.md`, configs (`DynamicsManager.asset`, `project.godot`,
+> `DefaultEngine.ini`).
+
+| Parâmetro | Spec original (este doc) | O que rodou | Por quê | Impacto |
+|---|---|---|---|---|
+| **Atrito** (corpos) | estático **0.6** / dinâmico 0.4 | **0.5** est. / 0.4 din. (Jolt/Chaos: **0.5 único**, API tem 1 coeficiente) | uniformizar cross-engine | baixo (restituição 0, pilha vertical) |
+| **Atrito do chão** (Torre) | estático **0.8** | **0.5** | uniformizar com as paredes/arena | baixo |
+| **Restituição** (Chuva) | **0.0** | **0.3** | "um pouco de bounce" — medir dinâmica, não estabilidade | baixo |
+| **Forma** (Chuva) | Box | **Esfera** (r=0.5 m) | primitiva mais simples p/ narrowphase; menos instabilidade box-box | baixo (esfera é primitiva; enunciado pede "primitivas") |
+| **Container** (Chuva) | Funil (pirâmide invertida) | **Caixa fechada 35×80×35 m** (6 paredes) | reprodutibilidade + conter corpos p/ métrica limpa | ⚠️ **médio** — enunciado do professor diz "funil"; **justificar no slide** |
+| **Spawn** (Chuva) | queda aleatória de um plano em (0,22,0), Y-jitter [0,5] | **grade 3D**, spacing 1.15 m, jitter ±3 cm (seed determinístico), origem Y≈25 m | posicionamento exato e reprodutível, sem overlap inicial | baixo (mesmo cross-engine) |
+| **Sleep threshold** | 0.05 m/s (linear e angular) | **default de cada engine** (Unity 0.005 · Jolt 0.03 · Chaos = 5 frames) | §2.1 "não mexer no solver/sleep" — parte do que se compara | ⚠️ **médio** — torna tempo-até-sleep **não comparável** → Torre lida por **colapso** |
+| **Janela de medição** (Chuva) | 30 s (wall-clock) | **500 passos de simulação** (≈10 s sim) + warmup 25 passos | wall-clock mede estados físicos diferentes por engine (bug); sim-time = mesmo cenário nas 3 | **alto (correção-chave)** — ver `FOLLOWUP-chuva-simtime-e-30ciclos.md` |
+| **Tempo-até-sleep** (Torre) | — | **tempo de simulação** (`phys_frames×0.02`) no Unity/Unreal; **wall-clock** no Godot | implementação | baixo (Torre comparada por colapso, não por tempo) |
+| **Arena** (Torre) | só chão estático | **arena fechada 60×60×150 m** (chão+4 paredes+teto) | conter cubos ejetados p/ métrica válida em todas as engines | baixo (paredes a 30 m do centro; não tocam a pilha intacta) |
+| **N da Torre** | T-50 / T-100 / T-200 | **N=100** (canônico) + **sweep N=10/15/20** (limiar de colapso) | N=100 = "quantidade elevada"; sweep acha onde quebra. N=200 não testado (todas já colapsam bem antes) | baixo |
+| **Gravidade** | −9.81 m/s² | Unity −9.81 · Unreal −9.80 · Godot −9.8 (defaults) | defaults de engine | desprezível (<0.1%) |
+
+**Runs por configuração:** **10** (mínimo do enunciado) — é o dataset final,
+coletado 2026-06-30/07-01. *(Datasets exploratórios com n<10 — sweeps PGS/TGS do
+Unity — ficam rotulados como "análise crítica exploratória", não como resultado
+principal.)*
+
 ---
 
 ## Global Physics Settings

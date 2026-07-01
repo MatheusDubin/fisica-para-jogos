@@ -167,9 +167,9 @@ re-coleta é necessária** para isso — os dados de colapso já existem.
 - **Objetivo:** onde há timeout/bimodalidade, reportar mediana + contagem de timeouts (não a Média Final filtrada). Remover/rotular a linha `godot·torre-N100` (final 45.5s sem sentido) no `RESULTS.md`.
 - **Status:** ✅ arquivadas torres não-canônicas do Godot + ressalva de filtro no script.
 
-### T9 — Atualizar SCENE_SPEC com desvios reais 🤖 ⬜
+### T9 — Atualizar SCENE_SPEC com desvios reais 🤖 ✅
 - **Objetivo:** `SCENE_SPEC.md` refletir o que rodou (atrito 0.5, restituição chuva 0.3, esfera, caixa fechada, grid 3D, sleep default) numa seção "Desvios e porquê".
-- **Status:** ⬜.
+- **Status:** ✅ banner + seção 'Desvios do spec' no topo do SCENE_SPEC.md.
 
 ### T10 — Fontes e coerência fina (baixa prioridade) 🤖 ✅
 - Citações não-verificáveis (`references-academic.md` URLs genéricas); versão Godot 4.6 (Grau A) vs 4.7 (benchmark); gravidade −9.80/−9.81/−9.8. Decidir padronizar ou anotar.
@@ -183,8 +183,7 @@ re-coleta é necessária** para isso — os dados de colapso já existem.
 3. **Ordem:** ✅ T3/T5/T6/T7/T8 executadas.
 
 ## Restante (próxima rodada — aguarda seu ok)
-- **T9** — atualizar `SCENE_SPEC.md` com desvios reais (atrito 0.5, restituição
-  chuva 0.3, esfera, caixa fechada, grid 3D, sleep default). 🤖
+- **T9** — ✅ feito (seção 'Desvios do spec' no SCENE_SPEC.md).
 - **T10** — ✅ feito (versão, gravidade e citações genéricas anotadas).
 - **Fase 2 — Slides** — Grau A (5 seções) + Grau B (gráficos/vídeos/considerações
   críticas), com as correções já aplicadas.
