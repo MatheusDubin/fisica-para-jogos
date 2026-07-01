@@ -7,6 +7,13 @@
 >
 > **σ aqui é população (divide por N)**, não amostral (N−1). É o que o spec
 > implica ao falar de "desvio padrão dos dados coletados" sem qualificar.
+>
+> ⚠️ **Aviso de proveniência (2026-07-01):** a **seção Chuva deste documento
+> analisa os datasets `chuva-default-buffer`/`chuva-tuned-buffer` (janela
+> wall-clock), agora ARQUIVADOS em `../_arquivo-obsoleto/godot/`.** Os números
+> canônicos da Chuva (janela **sim-time**, `amostras=500`) são `chuva-default/`
+> → ver `../RESULTS.md` e `../ANALYSIS-comparativo.md`. A seção **Torre**
+> (`torre-N100-arena`) permanece válida e canônica.
 
 ---
 
@@ -211,13 +218,14 @@ bimodalidade.
 | 5k | 13.391 ms | **5.11×** (esperado para 5× objetos com BVH O(n log n)) |
 | 10k | 31.657 ms | **2.37×** (sublinear — broadphase reaproveita estrutura?) |
 
-A razão 5k → 10k ser sublinear é interessante. Possíveis explicações:
-- Cache locality melhora com densidade
-- Jolt's job system paraleliza melhor quando há mais islands
-- Algum custo fixo de spawning/init que se amortiza melhor em 10k
-
-**Para investigar quando comparar com Unity/Unreal:** se as outras engines
-mostram escalonamento linear puro, isso é um achado positivo para Jolt.
+A razão 5k → 10k ser sublinear **NÃO é vantagem do Jolt** — é efeito **geral das
+três engines** (a hipótese original foi refutada ao coletar Unity e Unreal).
+Escalonamento 5k→10k dos datasets **canônicos** (sim-time): **Jolt 2.17× · Unity
+1.89× · Chaos 2.28×** — todas sublineares. Como todas exibem o mesmo padrão, a
+causa é **comum**, não arquitetural do Jolt: a janela de 10 s captura em boa parte
+a **pilha já assentada** (mais barata que a broadphase da fase de queda), diluindo
+o custo de pico. *(Correção da especulação original "job system / cache locality =
+achado positivo para Jolt", que a coleta das outras engines refutou.)*
 
 ---
 
