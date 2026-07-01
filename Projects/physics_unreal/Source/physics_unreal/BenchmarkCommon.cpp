@@ -196,6 +196,38 @@ namespace BenchmarkUtil
 		return Comp;
 	}
 
+	void ApplyChaosCVars(UWorld* World, bool bOptimize)
+	{
+		if (!World || !GEngine)
+		{
+			return;
+		}
+
+		// Pares (CVar, valor otimizado, valor de reset ao padrão).
+		// Fontes UE 5.8: PBDRigidsSolver.cpp:336-345,393,406; IslandGroupManager.cpp:34-38.
+		// Padrão -1 nas iterações = "usar config" (Position 8 / Velocity 2 / Projection 1).
+		struct FCVarSet { const TCHAR* Name; const TCHAR* Opt; const TCHAR* Reset; };
+		static const FCVarSet Sets[] = {
+			{ TEXT("p.Chaos.Solver.Iterations.Position"),          TEXT("4"), TEXT("-1") },
+			{ TEXT("p.Chaos.Solver.Iterations.Velocity"),          TEXT("1"), TEXT("-1") },
+			{ TEXT("p.Chaos.Solver.Iterations.Projection"),        TEXT("0"), TEXT("-1") },
+			{ TEXT("p.Chaos.Solver.Deterministic"),                TEXT("0"), TEXT("-1") },
+			{ TEXT("p.Chaos.Solver.UseCCD"),                       TEXT("0"), TEXT("1")  },
+			{ TEXT("p.Chaos.Solver.Collision.DeferNarrowPhase"),   TEXT("1"), TEXT("0")  },
+			{ TEXT("p.Chaos.Solver.IslandGroups.ParallelMode"),    TEXT("2"), TEXT("2")  },
+			{ TEXT("p.Chaos.Solver.IslandGroups.WorkerMultiplier"),TEXT("2"), TEXT("1")  },
+		};
+
+		UE_LOG(LogTemp, Warning, TEXT("[Chuva] Chaos CVars -> %s"),
+			bOptimize ? TEXT("OTIMIZADO") : TEXT("DEFAULT (reset)"));
+		for (const FCVarSet& S : Sets)
+		{
+			const TCHAR* Val = bOptimize ? S.Opt : S.Reset;
+			GEngine->Exec(World, *FString::Printf(TEXT("%s %s"), S.Name, Val));
+			UE_LOG(LogTemp, Warning, TEXT("  %s = %s"), S.Name, Val);
+		}
+	}
+
 	ACameraActor* CreateViewer(UWorld* World, const FVector& CamLoc, const FVector& LookAt)
 	{
 		if (!World)

@@ -72,6 +72,14 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Chuva")
 	int32 RainWindowSteps = 500;
 
+	// Coluna EXPLORATORIA "Chaos-otimizado": aplica um bundle de CVars do Chaos
+	// (menos iterações, sem CCD, paralelismo, etc.) para ver quanto dá para
+	// reduzir o step time. Grava em subpasta separada (`chuva-optimized`), então
+	// NÃO afeta a coluna default (`chuva-default`), que continua re-rodável.
+	// Off = reseta as CVars aos padrões (runs default ficam limpos na mesma sessão).
+	UPROPERTY(config, EditAnywhere, Category = "Chuva")
+	bool bRainOptimize = false;
+
 	// Resolve o cenario efetivo (settings + override de linha de comando).
 	static EBenchScenario ResolveScenario();
 };

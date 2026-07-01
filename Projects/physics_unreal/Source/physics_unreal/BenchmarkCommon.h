@@ -71,6 +71,12 @@ namespace BenchmarkUtil
 	UStaticMeshComponent* CreateWall(UWorld* World, UStaticMesh* CubeMesh,
 		UPhysicalMaterial* Mat, const FVector& CenterLoc, const FVector& BoxSizeCm, bool bVisible);
 
+	// Aplica (bOptimize=true) ou reseta aos padrões (false) o bundle de CVars do
+	// Chaos usado na coluna exploratória "Chaos-otimizado" da Chuva. Simétrico de
+	// propósito: com false, restaura os defaults, para um run default rodar limpo
+	// mesmo depois de um run otimizado na mesma sessão do editor. Loga cada CVar.
+	void ApplyChaosCVars(UWorld* World, bool bOptimize);
+
 	// Camera + luz direcional + skylight, com a camera olhando para LookAt.
 	// Define o view target do player controller. Loc/LookAt em cm.
 	// Retorna a camera para poder reposiciona-la depois (ex: reenquadrar por N).

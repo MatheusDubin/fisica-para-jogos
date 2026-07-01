@@ -33,6 +33,16 @@ void ARainBenchmark::BeginPlay()
 	WarmupSteps = FMath::Max(0, S->RainWarmupSteps);
 	WindowSteps = FMath::Max(1, S->RainWindowSteps);
 
+	// Coluna exploratória "Chaos-otimizado": aplica o bundle de CVars e grava em
+	// pasta separada. Com bRainOptimize=false, reseta as CVars aos padrões, então
+	// um run default fica limpo mesmo depois de um otimizado (não sobrescreve
+	// chuva-default; a coluna default continua re-rodável).
+	BenchmarkUtil::ApplyChaosCVars(GetWorld(), S->bRainOptimize);
+	if (S->bRainOptimize)
+	{
+		Subdir = TEXT("chuva-optimized");
+	}
+
 	SphereMesh = BenchmarkUtil::LoadSphereMesh();
 	SphereScale = BenchmarkUtil::UniformScaleForHalfExtent(SphereMesh, SPHERE_RADIUS);
 	// Chuva: atrito 0.4, restituicao 0.3, bounce combine Average.

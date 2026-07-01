@@ -317,6 +317,7 @@ deles — ver `FOLLOWUP`). Esperado: os números deles também sobem, sobretudo 
 | Validar step time ≠ 0 na 1ª run da Chuva | ✅ OK (10/65/150 ms) |
 | **Dataset Torre (N=10/15/20, 10 runs)** | ✅ **Coletado** — `torre-sweep/`. Chaos: estável 10, parcial 15, colapsa 20 |
 | **Dataset Chuva (1k/5k/10k, 10 runs, sim-time)** | ✅ **Coletado** — `chuva-default/`. 10.1 / 65.6 / 149.8 ms |
+| **Chuva "otimizada" (CVars, exercício)** | ✅ **Coletado** — `chuva-optimized/`. 10.3 / 73.9 / **173.8 ms** → **PIOROU** (+2/+13/+16%). Cortar iterações do solver não ajuda: gargalo é colisão/contatos + 10k atores + LWC, não iterações. Ver §6 |
 | Dataset final 20 runs (Unreal) | ⏳ Amanhã (dono) |
 | Re-rodar Godot/Unity (Chuva sim-time + Torre 10/15/20) | ⏳ Dono roda em seguida |
 | Vídeos + relatório comparativo (3 engines) | ⏳ Pendente (após Godot/Unity) |
@@ -325,3 +326,32 @@ deles — ver `FOLLOWUP`). Esperado: os números deles também sobem, sobretudo 
 > UE 5.8, 0 erros. Falta agora a validação em **runtime** (dar Play): confirmar
 > que os corpos simulam, que o step time da Chuva ≠ 0, e anotar os defaults do
 > solver / Shock Propagation. A metodologia e a estrutura estão prontas.
+
+---
+
+## 6. Chuva "otimizada" — a otimização que NÃO funcionou (e por quê)
+
+Aplicamos, via `bRainOptimize=true` → `ApplyChaosCVars()`, um bundle de CVars do
+Chaos (iterações 8→4/2→1/1→0, `Deterministic 0`, `UseCCD 0`, `DeferNarrowPhase 1`,
+`IslandGroups.WorkerMultiplier 2`) em pasta separada `chuva-optimized/`. Resultado
+(média final ±σ, 10 runs):
+
+| N | default | otimizado | Δ |
+|---|---|---|---|
+| 1.000 | 10.10 | 10.32 | **+2,2%** |
+| 5.000 | 65.59 | 73.92 | **+12,7%** |
+| 10.000 | 149.83 | **173.83** | **+16,0%** |
+
+**Piorou em tudo.** Diagnóstico (detalhado em `ANALYSIS-comparativo.md`):
+- Gargalo da chuva densa = **pipeline de colisão** sobre milhares de contatos, não as
+  iterações do solver. Cortar iterações raspa a parte barata.
+- Menos iterações → pilha menos estável → mais corpos acordados/tremendo → **mais**
+  contatos ativos por passo → solver de colisão trabalha mais.
+- `WorkerMultiplier 2` numa **ilha de contato única** (pilha) só adiciona overhead de
+  agendamento, sem paralelismo real.
+- Custo dos ~150 ms é **estrutural** (colisão + LWC double + 10k AActors), não um
+  default conservador destravável por CVar.
+- Determinismo perdido de brinde (σ 10k: ≈0 → 7,5 ms com `Deterministic 0`).
+
+**Default continua re-rodável:** `ApplyChaosCVars(false)` reseta as CVars aos padrões;
+rodar default depois de otimizado na mesma sessão volta a ~10/66/150 ms.

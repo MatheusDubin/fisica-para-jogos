@@ -28,21 +28,96 @@
 - Escalonamento 1k→10k: PhysX 9.2×, Jolt 11.4×, Chaos 14.8× (todos sublineares no topo; Chaos degrada mais).
 - As 3 rodaram 10k sem crash.
 
-**Por que o Chaos é tão mais lento?** Coerente com o Grau A: Chaos usa
-**double precision (LWC)** e um pipeline mais pesado; aqui rodou **acoplado** ao
-frame (para medir o passo). Não é ineficiência de algoritmo isolada — é custo
-arquitetural por corpo.
+**Por que o Chaos parece tão lento? (e NÃO é o hardware)**
+A mesma máquina rodou PhysX a 13 ms e Chaos a 150 ms em 10k — um gap de 11× no
+**mesmo PC** é arquitetura + setup de medição pior-caso, não a máquina. Fatores:
+1. **Editor/PIE (Development), não Shipping** — overhead mais pesado; o editor do
+   Unreal é mais pesado que o do Unity/Godot (as 3 rodaram no editor, mas o Unreal
+   paga mais).
+2. **Física acoplada (nossa escolha p/ medir)** — o render espera a física, então
+   o FPS despenca. Num jogo real o Chaos roda **async** e o jogo continua fluido;
+   nosso setup expõe o custo bruto de propósito.
+3. **10k AActors separados** — sync de transform por ator entra na janela medida.
+4. **Defaults do Chaos mais pesados que o PhysX:** 8 iterações de posição (PhysX ~4–5),
+   **double precision (LWC)**, XPBD + shock propagation = mais trabalho por passo, por design.
 
-### FPS — ⚠️ NÃO comparar diretamente
+**Reframe honesto:** o Chaos não é "terrível" na prática — num jogo que shippa ele
+roda async e mantém 60+ FPS enquanto a física trabalha na thread dela; nossa
+medição acoplada+editor mostra o custo bruto. Os 150 ms são o custo real de
+resolver, mas não é o que o jogador sente.
+
+### Coluna exploratória: "Chaos-otimizado" (exercício de otimização) — **o tiro saiu pela culatra**
+> Config-only, mesmo modo (editor), coletado à parte em `chuva-optimized/` — **não
+> altera** a coluna default. Bundle de CVars do Chaos: iterações 8→4 / 2→1 / 1→0,
+> `Deterministic 0`, `UseCCD 0`, `DeferNarrowPhase 1`, island-groups com mais workers.
+> Pergunta: quanto do custo é intrínseco vs. defaults conservadores?
+> **Resposta empírica: o custo é intrínseco — a "otimização" deixou MAIS LENTO.**
+
+| N | Chaos default | Chaos "otimizado" | Δ | vs PhysX (13,1 ms) |
+|---|---|---|---|---|
+| 1.000 | 10.10 | 10.32 | **+2,2%** 🔴 | 7,2× |
+| 5.000 | 65.59 | 73.92 | **+12,7%** 🔴 | 5,7× |
+| 10.000 | 149.83 | **173.83** | **+16,0%** 🔴 | 13,3× |
+
+FPS caiu junto (5k: 14,2→13,0; 10k: 6,6→5,8). **Reduzir iterações do solver não
+acelerou nada — piorou.** Este é o achado mais valioso do exercício, e é honesto.
+
+**Por que a "otimização" falhou (e o que isso ensina):**
+1. **O gargalo NÃO é o solver de iterações.** Numa chuva densa (10k corpos em pilha),
+   o custo dominante é o **pipeline de colisão** (broad + narrow phase, contagem de
+   contatos) sobre milhares de pares, não as 8 iterações de posição. Cortar iterações
+   raspa a parte barata.
+2. **Menos iterações = pilha menos estável = MAIS trabalho.** Com 4 posições em vez de
+   8, a pilha assenta pior, mais corpos ficam **acordados e tremendo** por mais tempo →
+   mais contatos ativos por passo → o solver de colisão trabalha mais. A economia de
+   iterações é engolida (e superada) pelo contato extra.
+3. **`IslandGroups.WorkerMultiplier 2` foi contraproducente.** Uma chuva empilhada é
+   essencialmente **uma ilha de contato gigante**. Fatiar em mais grupos de workers só
+   adicionou overhead de agendamento/sincronização de tasks, sem paralelismo real (não
+   dá pra paralelizar uma ilha única) — cache pior, mais sync.
+4. **`UseCCD 0` / `DeferNarrowPhase 1` não moveram o ponteiro** — as esferas não usavam
+   CCD de qualquer forma, e diferir a narrow-phase só reorganiza o mesmo custo.
+5. O que **realmente** reduziria (fora do escopo config-only): **Shipping build**
+   (sem overhead de editor), **física async** (esconde o custo em outra thread, não o
+   reduz — é lever de FPS), e **ISM/instâncias** em vez de 10k AActors. Nada disso é
+   "config-only", então fica de fora desta coluna por decisão de escopo.
+
+**Conclusão do exercício:** os ~150 ms do Chaos em 10k são **estruturais** (arquitetura
+de colisão + double precision LWC + 10k atores), não um default conservador que se
+destrava com CVars. Tentar afinar o solver por CVar não só não ajuda — atrapalha.
+Mantemos as **duas** colunas justamente para mostrar isso: default (out-of-the-box) e
+"otimizado" (que documenta uma otimização **que não funcionou**, resultado tão válido
+quanto uma que funcionaria).
+
+> Nota de método: o "otimizado" também perdeu o determinismo (σ subiu de ≈0 p/ 7,5 ms
+> em 10k, com `Deterministic 0`), ou seja, pagamos variância **e** ficamos mais lentos.
+
+### FPS — reportado, mas ⚠️ NÃO comparável entre engines (e por quê)
 | N | Godot | Unity | Unreal |
 |---|---|---|---|
 | 1k | ~1660 | 230 | 50 |
 | 5k | ~430 | 123 | 14 |
 | 10k | ~10–80 (bimodal) | 48 | 6.6 |
 
-Godot e Unity **desacoplam** render da física (FPS alto). Unreal rodou
-**acoplado** → FPS acompanha o custo da física. Logo o FPS reflete **arquitetura
-de threading**, não velocidade de física. **Step Time é a métrica honesta.**
+O enunciado pede **os dois** (Step Time E FPS) — reportamos os dois. A questão é o
+que cada um pode **comparar entre engines**:
+
+- **Step Time mede a MESMA grandeza física nas 3 engines:** o tempo de CPU para
+  avançar a simulação um passo de 0,02 s com N corpos. É definido igual,
+  independente da arquitetura → é a métrica do **ranking cross-engine**.
+- **FPS mede coisas DIFERENTES em cada engine**, por causa do acoplamento
+  render↔física. Godot e Unity travam a física em 50 Hz num laço próprio e deixam
+  o render livre: "1660 FPS" **não** significa física a 1660 Hz (ela roda a 50 Hz)
+  — significa que o *laço de render* girou 1660×/s. Lá o FPS ≈ velocidade de
+  render/GPU, não custo de física. Nosso Unreal rodou **acoplado** (1 passo por
+  frame) → o FPS dele acompanha a física. Comparar "1660 (render Godot)" com
+  "50 (físico Unreal)" é comparar grandezas de categorias diferentes.
+- **Isto não é fugir da métrica — é lê-la certo**, e confirma o Grau A (a física
+  em thread do Unreal torna o FPS cross-engine "enganoso"). Usamos o **FPS por
+  engine** como tendência de estresse interna (ex.: Unity 1k→10k: 230→48 FPS
+  mostra o pipeline afundando com a carga) e o **Step Time no confronto direto**.
+- Analogia p/ slide: FPS = "quão rápido o ponteiro do painel se mexe" (depende do
+  painel/arquitetura de render); Step Time = o trabalho real feito por volta do motor.
 
 ---
 
