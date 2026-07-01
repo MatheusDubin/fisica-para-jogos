@@ -236,16 +236,16 @@
         <table>
           <thead><tr><th>Componente</th><th>Especificação</th></tr></thead>
           <tbody>
-            <tr><td class="rowlabel">CPU</td><td><span class="chip warn">a preencher</span></td></tr>
-            <tr><td class="rowlabel">GPU</td><td>NVIDIA GeForce RTX 4050 Laptop <span class="chip warn">confirmar</span></td></tr>
-            <tr><td class="rowlabel">Memória (RAM)</td><td><span class="chip warn">a preencher</span></td></tr>
-            <tr><td class="rowlabel">Sistema operacional</td><td>Windows <span class="chip warn">versão a preencher</span></td></tr>
-            <tr><td class="rowlabel">Armazenamento</td><td><span class="chip warn">a preencher (SSD?)</span></td></tr>
-            <tr><td class="rowlabel">Tipo</td><td>Notebook</td></tr>
+            <tr><td class="rowlabel">CPU</td><td>Intel Core <b>i7-12650H</b> (12ª gen, 2,30 GHz) — <b>10 núcleos</b> (6P + 4E), 16 threads</td></tr>
+            <tr><td class="rowlabel">GPU</td><td>NVIDIA GeForce <b>RTX 4050 Laptop</b> (6 GB) + Intel UHD (integrada)</td></tr>
+            <tr><td class="rowlabel">Memória (RAM)</td><td><b>32 GB</b></td></tr>
+            <tr><td class="rowlabel">Armazenamento</td><td>477 GB (347 GB em uso)</td></tr>
+            <tr><td class="rowlabel">Sistema</td><td>Windows 64-bit (x64)</td></tr>
+            <tr><td class="rowlabel">Tipo</td><td>Notebook · "DubinMachine"</td></tr>
           </tbody>
         </table>
-        <div class="takeaway"><b>Por que importa:</b> num notebook, boost-clock e throttling térmico variam entre runs — parte do ruído que o filtro M±σ trata, e a causa provável do <b>FPS bimodal</b> visto no 10k.</div>
-        <aside class="notes">Preencher com os specs reais. GPU (RTX 4050 Laptop) e SO (Windows/DX12) vêm dos NOTES do Godot — confirmar; CPU/RAM/SSD a passar. Ponto-chave p/ o professor: mesma máquina → a comparação isola o motor de física.</aside>
+        <div class="takeaway"><b>Por que importa:</b> num notebook, boost-clock, throttling térmico e o <b>escalonamento entre P-cores e E-cores</b> (6P + 4E) variam entre runs — parte do ruído que o filtro M±σ trata, e a hipótese mais provável do <b>FPS bimodal</b> visto no 10k.</div>
+        <aside class="notes">Mesma máquina para as 3 engines → a comparação isola o motor de física (o gap 11× do Chaos é no mesmo PC). O i7-12650H é híbrido (P+E cores); Jolt e Chaos usam job system multi-thread, então o nº de núcleos importa na Chuva. (Device/Product ID omitidos de propósito — identificadores privados.)</aside>
       </section>
 
       <!-- 2d · Rigor estatístico -->
