@@ -200,7 +200,7 @@
           <tbody>
             <tr><td class="rowlabel">Fixed timestep</td><td><b>0,02 s (50 Hz)</b></td><td class="rowlabel">Gravidade</td><td>≈ (0, −9,81, 0)</td></tr>
             <tr><td class="rowlabel">Formas</td><td>primitivas (cubo / esfera)</td><td class="rowlabel">Massa / atrito</td><td>1 kg / 0,5</td></tr>
-            <tr><td class="rowlabel">Build</td><td>Release, V-Sync off, sem frame cap</td><td class="rowlabel">Runs</td><td>10 por configuração</td></tr>
+            <tr><td class="rowlabel">Build</td><td>Release · V-Sync off (todas). Render <b>livre</b> em Unity/Godot; Unreal <b>trava a 50 Hz</b> = mecanismo do passo 0,02 s (ver 2c)</td><td class="rowlabel">Runs</td><td>10 por configuração</td></tr>
             <tr><td class="rowlabel">Torre</td><td>100 cubos + <b>arena fechada</b> 60×60×150 m</td><td class="rowlabel">Chuva</td><td>1k / 5k / 10k esferas, caixa fechada</td></tr>
             <tr><td class="rowlabel">Cena</td><td colspan="3"><b>100% gerada em código</b> (C# / C++ / GDScript) — posição exata, reprodutível, zero setup manual de Inspector</td></tr>
           </tbody>
@@ -220,11 +220,11 @@
             <tr><td class="rowlabel">Motor físico</td><td>PhysX (GameObject)</td><td>Jolt</td><td>Chaos</td></tr>
             <tr><td class="rowlabel">Solver (default)</td><td><b>PGS</b> · 6+1 iter</td><td>impulse (Gauss-Seidel)</td><td>XPBD + <b>Shock Prop.</b> · 8+2 iter</td></tr>
             <tr><td class="rowlabel">Sleep threshold</td><td>0,005 m/s</td><td>0,03 m/s</td><td>5 frames</td></tr>
-            <tr><td class="rowlabel">Física ↔ render</td><td>desacoplada</td><td>desacoplada</td><td><b>acoplada</b> (escolha nossa)</td></tr>
+            <tr><td class="rowlabel">Física ↔ render</td><td>desacoplada</td><td>desacoplada</td><td><b>acoplada</b> — trava o frame a 50 Hz p/ garantir o passo fixo 0,02 s (não é cap de performance)</td></tr>
             <tr><td class="rowlabel">Step time medido via</td><td><code>Stopwatch(Physics.Simulate)</code></td><td><code>TIME_PHYSICS_PROCESS</code></td><td><code>TG_Pre→PostPhysics</code></td></tr>
           </tbody>
         </table>
-        <div class="takeaway"><b>Ponto p/ o professor:</b> solver e sleep ficam no <b>padrão de cada engine</b> (é parte do que se compara) — por isso o "tempo até dormir" NÃO é comparável 1-a-1, e a Torre é lida por <b>colapso</b>.</div>
+        <div class="takeaway"><b>Ponto p/ o professor:</b> deixar solver e sleep no <b>padrão de cada engine</b> é <b>exigência do spec (§2.1: "não modificar — é parte do que se compara")</b>, não descuido. Como cada engine dorme a um limiar diferente (0,005 · 0,03 · 5 frames), o "tempo até dormir" NÃO é comparável 1-a-1 → a Torre é lida por <b>colapso</b> (geométrico, independe do sleep).</div>
         <aside class="notes">Solver tunado (TGS, +iter, CVars do Chaos) só aparece como 'análise crítica' à parte, nunca na comparação principal. Cada engine mede o step time no seu mecanismo nativo — todos medindo 'custo de avançar 1 passo de 0,02 s'.</aside>
       </section>
 
@@ -241,7 +241,6 @@
             <tr><td class="rowlabel">Memória (RAM)</td><td><b>32 GB</b></td></tr>
             <tr><td class="rowlabel">Armazenamento</td><td>477 GB (347 GB em uso)</td></tr>
             <tr><td class="rowlabel">Sistema</td><td>Windows 64-bit (x64)</td></tr>
-            <tr><td class="rowlabel">Tipo</td><td>Notebook · "DubinMachine"</td></tr>
           </tbody>
         </table>
         <div class="takeaway"><b>Por que importa:</b> num notebook, boost-clock, throttling térmico e o <b>escalonamento entre P-cores e E-cores</b> (6P + 4E) variam entre runs — parte do ruído que o filtro M±σ trata, e a hipótese mais provável do <b>FPS bimodal</b> visto no 10k.</div>
@@ -348,7 +347,7 @@
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">04</span> · A Chuva · FPS</div>
         <h2 class="slide-title">FPS sob estresse — com uma ressalva importante</h2>
-        <div class="concept"><b>Cuidado metodológico:</b> o FPS <b>não</b> é comparável 1-a-1. A Unreal está travada em <b>50 Hz (Fixed Frame Rate)</b>, então seu FPS nunca passa de ~50 por design; Godot e Unity rodam <b>sem cap</b>. Por isso o <b>Physics Step Time é a métrica primária</b>.</div>
+        <div class="concept"><b>Primeiro, o que É igual:</b> o <b>passo de física é 0,02 s (50 Hz) nas três</b> — a exigência do spec está cumprida. O que <b>não</b> é comparável 1-a-1 é o <b>FPS</b>, e a causa é o <b>acoplamento render↔física</b>, não o timestep. Na <b>Unreal</b> a física roda <b>acoplada</b> (1 passo por frame) → o FPS reflete o custo da física (teto ~50). Em <b>Unity/Godot</b> o render é <b>desacoplado e livre</b> → ali "FPS" é velocidade de render/GPU, não custo de física. Por isso o FPS é lido <b>por engine</b> (tendência) e o <b>Physics Step Time é a métrica primária</b> que compara entre engines.</div>
         <div class="chart-wrap" style="height:340px"><canvas id="fpsChart"></canvas></div>
         <aside class="notes">Godot 1k = 1664 FPS (uncapped, render livre) → ~14 em 10k (BIMODAL: 6 runs ~10, 4 runs ~37 — a média não representa; ver Bastidores). Unity 230→124→49. Unreal 50→14→6,6 (capado em 50 Hz + física acoplada). Por isso o FPS é lido como tendência POR engine, não comparado 1-a-1.</aside>
       </section>
