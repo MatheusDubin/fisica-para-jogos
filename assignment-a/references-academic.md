@@ -4,6 +4,13 @@
 > Coletadas via Google Deep Research — junho 2026.
 > Complementam as referências de documentação oficial em `references-unity.md`, `references-unreal.md`, `references-godot.md`.
 
+> ⚠️ **Verificação pendente antes da entrega (T10):** algumas entradas de 2025
+> precisam de link/autoria específicos: (a) as duas de **SIGGRAPH 2025** ("AMG for
+> XPBD" e "Phase-Field-FLIP") apontam para a **mesma URL genérica**
+> (`Conference-Papers.html`) — trocar pelo DOI/página de cada paper; (b) entradas
+> marcadas **"Anonymous"** (Taccel, Phase-Field-FLIP) têm autoria real no arXiv —
+> nomear. Não usar essas linhas em citação de slide sem confirmar a fonte.
+
 ---
 
 ## Arquitetura Base e Performance

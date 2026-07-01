@@ -171,9 +171,9 @@ re-coleta é necessária** para isso — os dados de colapso já existem.
 - **Objetivo:** `SCENE_SPEC.md` refletir o que rodou (atrito 0.5, restituição chuva 0.3, esfera, caixa fechada, grid 3D, sleep default) numa seção "Desvios e porquê".
 - **Status:** ⬜.
 
-### T10 — Fontes e coerência fina (baixa prioridade) 🤖/👤 ⬜
+### T10 — Fontes e coerência fina (baixa prioridade) 🤖 ✅
 - Citações não-verificáveis (`references-academic.md` URLs genéricas); versão Godot 4.6 (Grau A) vs 4.7 (benchmark); gravidade −9.80/−9.81/−9.8. Decidir padronizar ou anotar.
-- **Status:** ⬜.
+- **Status:** ✅ versão (Godot 4.7 vs 4.6), gravidade e citações genéricas anotadas.
 
 ---
 
@@ -185,6 +185,6 @@ re-coleta é necessária** para isso — os dados de colapso já existem.
 ## Restante (próxima rodada — aguarda seu ok)
 - **T9** — atualizar `SCENE_SPEC.md` com desvios reais (atrito 0.5, restituição
   chuva 0.3, esfera, caixa fechada, grid 3D, sleep default). 🤖
-- **T10** — fontes/versões (citações genéricas; Godot 4.6 vs 4.7; gravidade). 🤖/👤
+- **T10** — ✅ feito (versão, gravidade e citações genéricas anotadas).
 - **Fase 2 — Slides** — Grau A (5 seções) + Grau B (gráficos/vídeos/considerações
   críticas), com as correções já aplicadas.
