@@ -31,16 +31,29 @@
 
 **Por que o Chaos parece tão lento? (e NÃO é o hardware)**
 A mesma máquina rodou PhysX a 13 ms e Chaos a 150 ms em 10k — um gap de 11× no
-**mesmo PC** é arquitetura + setup de medição pior-caso, não a máquina. Fatores:
-1. **Editor/PIE (Development), não Shipping** — overhead mais pesado; o editor do
-   Unreal é mais pesado que o do Unity/Godot (as 3 rodaram no editor, mas o Unreal
-   paga mais).
-2. **Física acoplada (nossa escolha p/ medir)** — o render espera a física, então
-   o FPS despenca. Num jogo real o Chaos roda **async** e o jogo continua fluido;
-   nosso setup expõe o custo bruto de propósito.
-3. **10k AActors separados** — sync de transform por ator entra na janela medida.
-4. **Defaults do Chaos mais pesados que o PhysX:** 8 iterações de posição (PhysX ~4–5),
-   **double precision (LWC)**, XPBD + shock propagation = mais trabalho por passo, por design.
+**mesmo PC**. ⚠️ **Separar o MEDIDO da CONJECTURA:** o 11× é o **custo bruto do
+passo no nosso setup** (editor + física acoplada + sync de 10k atores), **não**
+uma medição isolada do solver do Chaos. Não decompusemos o gap — os itens abaixo
+são fatores plausíveis, não parcelas medidas:
+
+- **[é o setup] Editor/PIE (Development), não Shipping** — as 3 rodaram no editor,
+  mas o Unreal paga mais overhead.
+- **[é o setup] Física acoplada (nossa escolha)** — o render espera a física; num
+  jogo real o Chaos roda **async** e continua fluido. Expomos o custo bruto de propósito.
+- **[entra na janela medida] 10k AActors separados** — o sync de transform por ator
+  está DENTRO da métrica `TG_Pre→PostPhysics`. Ou seja, a métrica do Unreal **não é
+  só o solver** (ao contrário do `Physics.Simulate()` do Unity) → o 11× já **não é**
+  uma comparação limpa de solver-para-solver.
+- **[conjectura, não medido] Double precision (LWC)** — o Grau A cita ~54% de custo
+  extra em rigid bodies (UE 5.0, `research-unreal.md:56`); direção plausível, mas
+  aqui **não isolamos**.
+
+> **O que NÃO explica o gap (refutado pelos próprios dados):** a **contagem de
+> iterações do solver**. O experimento "Chaos-otimizado" (abaixo) **cortou as
+> iterações 8→4 e ficou MAIS lento** → iterações não são o gargalo. (Nota factual:
+> o default do Unity é **6 de posição + 1 de velocidade** — `DynamicsManager.asset`
+> —, não "4–5"; mas isso é irrelevante para o gap, justamente porque iterações não
+> são a causa.)
 
 **Reframe honesto:** o Chaos não é "terrível" na prática — num jogo que shippa ele
 roda async e mantém 60+ FPS enquanto a física trabalha na thread dela; nossa
