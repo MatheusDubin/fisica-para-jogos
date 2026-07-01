@@ -160,61 +160,87 @@
         <div class="takeaway"><b>Pergunta central:</b> os resultados confirmam o que a arquitetura do Grau A previu?</div>
       </section>
 
+      <!-- ===================== 2. EXPECTATIVAS & SETUP ===================== -->
+      <section class="center divider" data-background-color="#070912">
+        <div class="big-num">02</div><h2>Expectativas &amp; Setup</h2><div class="rule"></div>
+        <p style="color:var(--dim);font-size:.5em;margin-top:.5em">O que a teoria prevê · como montamos um teste justo em cada engine</p>
+      </section>
+
+      <!-- 2a · Expectativas -->
       <section data-background-color="#0a0d1a">
-        <div class="eyebrow"><span class="sec-num">01</span> · Introdução</div>
-        <h2 class="slide-title">Hipóteses do Grau A (o que esperar)</h2>
+        <div class="eyebrow"><span class="sec-num">02</span> · Expectativas (do Grau A)</div>
+        <h2 class="slide-title">O que esperar de cada motor</h2>
+        <div class="concept">Antes de medir, registramos o que a <b>arquitetura levantada no Grau A</b> prevê. Na Análise Crítica confrontamos <b>previsão × dado</b>.</div>
         <table>
           <thead>
-            <tr><th>&nbsp;</th><th class="th-unity">Unity · PhysX</th><th class="th-unreal">Unreal · Chaos</th><th class="th-godot">Godot · Jolt</th></tr>
+            <tr><th>&nbsp;</th><th class="th-unity">Unity · PhysX</th><th class="th-godot">Godot · Jolt</th><th class="th-unreal">Unreal · Chaos</th></tr>
           </thead>
           <tbody>
-            <tr><td class="rowlabel">Torre (estabilidade)</td>
-              <td>Gauss-Seidel iterativo + warm starting → jitter residual em pilhas de 100+</td>
-              <td>XPBD + <b>Shock Propagation</b> — feature feita p/ este cenário</td>
-              <td>Impulse-based; multi-thread beneficia pouco (cena estática)</td></tr>
-            <tr><td class="rowlabel">Chuva (performance)</td>
-              <td>Broadphase é o provável gargalo &gt;5k; FPS cai junto com o Step Time</td>
-              <td><b>Async Physics Tick</b> desacopla FPS do Step Time; LWC eleva o custo base</td>
-              <td>Job system nativo → <b>melhor escalabilidade</b> esperada em 5k/10k</td></tr>
+            <tr><td class="rowlabel">Torre<br>(estabilidade)</td>
+              <td>Gauss-Seidel iterativo + warm starting → jitter residual em pilhas altas</td>
+              <td>Impulse-based; multi-thread ajuda pouco (cena quase estática)</td>
+              <td>XPBD + <b>Shock Propagation</b> — mecanismo feito p/ este cenário</td></tr>
+            <tr><td class="rowlabel">Chuva<br>(performance)</td>
+              <td>Broadphase é o gargalo &gt;5k; FPS cai junto com o Step Time</td>
+              <td>Job system nativo → <b>melhor escalabilidade</b> esperada em 5k/10k</td>
+              <td><b>Async Physics Tick</b> desacopla FPS; LWC eleva o custo base</td></tr>
           </tbody>
         </table>
-        <div class="takeaway"><b>Não são palpites a confirmar antes dos dados</b> — é o contexto que usaremos para <i>explicar</i> os números coletados.</div>
-        <aside class="notes">Estas expectativas vêm direto da tabela de contexto do assignment-b. Guardar para a seção de Análise Crítica.</aside>
+        <div class="takeaway"><b>Guardem estas 3 previsões:</b> Shock Propagation ajuda a Torre? · Jolt escala melhor? · Chaos é mais caro? — a prática responde adiante.</div>
+        <aside class="notes">Fonte: tabela de contexto do assignment-b ("o que o Grau A nos diz sobre o Grau B"). Spoiler honesto p/ a Análise Crítica: 1 confirma (Chaos caro + Shock Prop), 1 se INVERTE (PhysX foi o mais rápido, não o Jolt), 1 confirma com ressalva (FPS enganoso).</aside>
       </section>
 
-      <!-- ===================== 2. METODOLOGIA ===================== -->
-      <section class="center divider" data-background-color="#070912">
-        <div class="big-num">02</div><h2>Metodologia</h2><div class="rule"></div>
-      </section>
-
+      <!-- 2b · Ambiente idêntico -->
       <section data-background-color="#0a0d1a">
-        <div class="eyebrow"><span class="sec-num">02</span> · Metodologia</div>
-        <h2 class="slide-title">Variáveis de controle (idênticas nas 3 engines)</h2>
-        <div class="concept"><b>Comparação justa</b> exige a mesma cena e os mesmos parâmetros físicos. Só o motor muda.</div>
+        <div class="eyebrow"><span class="sec-num">02</span> · Ambiente (o que é IGUAL)</div>
+        <h2 class="slide-title">Mesma cena nas 3 engines — só o motor muda</h2>
+        <div class="concept"><b>Comparação justa</b> exige travar tudo que não é o motor de física. Estes valores são idênticos nas três.</div>
         <table>
           <thead><tr><th>Parâmetro</th><th>Valor</th><th>Parâmetro</th><th>Valor</th></tr></thead>
           <tbody>
-            <tr><td class="rowlabel">Fixed timestep</td><td><b>0,02 s (50 Hz)</b></td><td class="rowlabel">Gravidade</td><td>(0, −9,81, 0)</td></tr>
-            <tr><td class="rowlabel">Formas</td><td>primitivas (cubo / esfera)</td><td class="rowlabel">Massa</td><td>1 kg, atrito igual</td></tr>
-            <tr><td class="rowlabel">Solver / Sleep</td><td><b>padrão da engine</b> (não alterado)</td><td class="rowlabel">Build</td><td>Release, V-Sync off</td></tr>
-            <tr><td class="rowlabel">Torre</td><td>100 cubos + arena fechada</td><td class="rowlabel">Chuva</td><td>1k / 5k / 10k esferas, caixa fechada</td></tr>
+            <tr><td class="rowlabel">Fixed timestep</td><td><b>0,02 s (50 Hz)</b></td><td class="rowlabel">Gravidade</td><td>≈ (0, −9,81, 0)</td></tr>
+            <tr><td class="rowlabel">Formas</td><td>primitivas (cubo / esfera)</td><td class="rowlabel">Massa / atrito</td><td>1 kg / 0,5</td></tr>
+            <tr><td class="rowlabel">Build</td><td>Release, V-Sync off, sem frame cap</td><td class="rowlabel">Runs</td><td>10 por configuração</td></tr>
+            <tr><td class="rowlabel">Torre</td><td>100 cubos + <b>arena fechada</b> 60×60×150 m</td><td class="rowlabel">Chuva</td><td>1k / 5k / 10k esferas, caixa fechada</td></tr>
+            <tr><td class="rowlabel">Cena</td><td colspan="3"><b>100% gerada em código</b> (C# / C++ / GDScript) — posição exata, reprodutível, zero setup manual de Inspector</td></tr>
           </tbody>
         </table>
-        <div class="takeaway"><b>Arena fechada na Torre</b> (decisão nossa): contém cubos ejetados para a métrica ficar limpa em todas as engines.</div>
+        <div class="takeaway"><b>Duas decisões de método nossas (iguais nas 3):</b> arena fechada na Torre (contém cubos ejetados → métrica limpa) e janela por <b>tempo de simulação</b> na Chuva (não wall-clock — ver Bastidores).</div>
       </section>
 
+      <!-- 2c · Setup por engine -->
       <section data-background-color="#0a0d1a">
-        <div class="eyebrow"><span class="sec-num">02</span> · Metodologia</div>
+        <div class="eyebrow"><span class="sec-num">02</span> · Setup por engine (o que DIFERE = o default)</div>
+        <h2 class="slide-title">Como configuramos cada engine</h2>
+        <div class="concept">O que muda entre elas é <b>o motor no seu padrão de fábrica</b> — é exatamente isso que comparamos. Nada de solver tunado na coluna principal.</div>
+        <table>
+          <thead><tr><th>&nbsp;</th><th class="th-unity">Unity</th><th class="th-godot">Godot</th><th class="th-unreal">Unreal</th></tr></thead>
+          <tbody>
+            <tr><td class="rowlabel">Versão</td><td>6000.5 (U6 LTS)</td><td>4.7</td><td>5.8</td></tr>
+            <tr><td class="rowlabel">Motor físico</td><td>PhysX (GameObject)</td><td>Jolt</td><td>Chaos</td></tr>
+            <tr><td class="rowlabel">Solver (default)</td><td><b>PGS</b> · 6+1 iter</td><td>impulse (Gauss-Seidel)</td><td>XPBD + <b>Shock Prop.</b> · 8+2 iter</td></tr>
+            <tr><td class="rowlabel">Sleep threshold</td><td>0,005 m/s</td><td>0,03 m/s</td><td>5 frames</td></tr>
+            <tr><td class="rowlabel">Física ↔ render</td><td>desacoplada</td><td>desacoplada</td><td><b>acoplada</b> (escolha nossa)</td></tr>
+            <tr><td class="rowlabel">Step time medido via</td><td><code>Stopwatch(Physics.Simulate)</code></td><td><code>TIME_PHYSICS_PROCESS</code></td><td><code>TG_Pre→PostPhysics</code></td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Ponto p/ o professor:</b> solver e sleep ficam no <b>padrão de cada engine</b> (é parte do que se compara) — por isso o "tempo até dormir" NÃO é comparável 1-a-1, e a Torre é lida por <b>colapso</b>.</div>
+        <aside class="notes">Solver tunado (TGS, +iter, CVars do Chaos) só aparece como 'análise crítica' à parte, nunca na comparação principal. Cada engine mede o step time no seu mecanismo nativo — todos medindo 'custo de avançar 1 passo de 0,02 s'.</aside>
+      </section>
+
+      <!-- 2d · Rigor estatístico -->
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">02</span> · Método estatístico</div>
         <h2 class="slide-title">Rigor estatístico — 4 passos por configuração</h2>
         <div class="concept">Uma única execução não é confiável (ruído do SO, agendamento de threads). Repetimos e filtramos.</div>
         <ul style="font-size:.56em">
-          <li><b>1 ·</b> Rodar <b>10+ execuções isoladas</b> por variação por engine.</li>
-          <li><b>2 ·</b> Calcular <b>média (M)</b> e <b>desvio padrão (σ)</b>.</li>
+          <li><b>1 ·</b> Rodar <b>10 execuções isoladas</b> por variação por engine.</li>
+          <li><b>2 ·</b> Calcular <b>média (M)</b> e <b>desvio padrão (σ)</b> (populacional, ÷N).</li>
           <li><b>3 ·</b> <b>Descartar</b> execuções fora da faixa <code>[M − σ, M + σ]</code>.</li>
           <li><b>4 ·</b> <b>Média Final</b> = média apenas dos valores dentro da faixa.</li>
         </ul>
-        <div class="takeaway"><b>Neste deck:</b> todos os números "filtrados" seguem estes 4 passos. <b>10 execuções por configuração</b> (mínimo do enunciado) — dataset final.</div>
-        <aside class="notes">σ é populacional (÷N / STDEVP), como o spec implica (howto-statistics.md). Ressalva: em distribuições bimodais / com timeout a Média Final perde sentido — nesses casos reportamos mediana + clusters (ver seção Bastidores).</aside>
+        <div class="takeaway"><b>Ressalva honesta:</b> em distribuições <b>bimodais</b> ou com <b>timeout</b>, a Média Final perde sentido → ali usamos <b>mediana + clusters</b> (detalhe nos Bastidores).</div>
+        <aside class="notes">σ populacional (÷N / STDEVP), como o spec implica (howto-statistics.md). 10 = mínimo do enunciado; é o dataset final.</aside>
       </section>
 
       <!-- ===================== 3. CENÁRIO 1 — TORRE ===================== -->
