@@ -3,6 +3,14 @@
 > Diário de bordo da implementação Unity. Espelha o `results/godot/NOTES.md`
 > para que os três engines sejam comparáveis 1-pra-1 no relatório final.
 
+> 🔴 **CORREÇÃO 2026-07-01 (Chuva do Unity NÃO está inválida):** as seções §4/§5
+> abaixo dizem que a Chuva teve "step time 0.0 — descartar e re-rodar". **Isso
+> está OBSOLETO.** A Chuva foi **re-coletada e é válida** — `chuva-default/`
+> (janela **sim-time**, `amostras=500`, 10 runs): **1.43 / 6.92 / 13.10 ms**
+> (via `Stopwatch(Physics.Simulate)`, não `ProfilerRecorder`). Ver `../RESULTS.md`.
+> O "dataset final de 30 ciclos" mencionado abaixo **não se aplica**: o dataset
+> final é **10 runs** (mínimo do enunciado, coletado ontem).
+
 ---
 
 ## 1. Ambiente

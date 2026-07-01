@@ -4,6 +4,15 @@
 > cada variação testada, e cada deviação intencional para justificar resultados
 > no relatório final.
 
+> 🔴 **CORREÇÃO 2026-07-01 (canônico da Chuva mudou):** este diário aponta
+> `chuva-default-buffer`/`chuva-tuned-buffer` como canônicos (2.62/13.39/31.66 ms).
+> **Isso está OBSOLETO.** Aqueles datasets usavam janela **wall-clock** e foram
+> **arquivados** em `../_arquivo-obsoleto/godot/` (item CR-02 da `../AUDITORIA.md`).
+> O **canônico atual** da Chuva é **`chuva-default/`** (janela **sim-time**,
+> `amostras=500`, 10 runs): **2.87 / 15.13 / 32.87 ms**. Ver `../RESULTS.md` e
+> `../ANALYSIS-comparativo.md`. A **Torre** (`torre-N100-arena`, `torre-sweep`)
+> permanece válida.
+
 ---
 
 ## 1. Ambiente
