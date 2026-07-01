@@ -1,5 +1,13 @@
 # HANDOFF — Godot ✅ e Unity ✅, próximo: Unreal
 
+> 🔴 **CORREÇÃO 2026-07-01 (histórico — leia com ressalva):** este handoff é
+> anterior à coleta final. Correções que valem hoje: (1) o **canônico da Chuva do
+> Godot** é `chuva-default/` (sim-time, **2.87/15.13/32.87 ms**), **não** os
+> `chuva-*-buffer` citados abaixo (wall-clock, arquivados). (2) Dataset final =
+> **10 runs** (não 30). (3) Unity default = **PGS** (não TGS). (4) Torre é
+> comparada por **colapso**, não tempo-até-sleep. Estado atual e pendências em
+> `results/PLANO-CORRECOES.md`; achados em `results/AUDITORIA.md`.
+
 > 🔴 **FOLLOW-UP ABERTO (agentes Godot e Unity):** a Chuva precisa migrar de
 > janela **wall-clock** para **tempo de simulação** (senão a comparação é injusta
 > entre engines) e rodar **30 ciclos**. Spec completa + código pronto em

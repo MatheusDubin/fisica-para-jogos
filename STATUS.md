@@ -1,7 +1,14 @@
 # STATUS — Project F
 
-> Última atualização: junho 2026
+> Última atualização: **2026-07-01** (corrigido)
 > Disciplina: Física para Jogos Digitais — Unisinos
+
+> 🔴 **CORREÇÃO 2026-07-01:** o corpo deste STATUS abaixo está DESATUALIZADO
+> (dizia "Grau B 0% implementação"). **Realidade:** as 3 engines (Godot/Jolt,
+> Unity/PhysX, Unreal/Chaos) estão implementadas e os benchmarks foram rodados
+> (**10 iterações por config**, dataset final). Resultados em `RESULTS.md`,
+> `ANALYSIS-comparativo.md`. Estado real e plano de fechamento em
+> `assignment-b/results/PLANO-CORRECOES.md` e `AUDITORIA.md`.
 
 ---
 
@@ -10,7 +17,7 @@
 | Trabalho | Fase atual | % documentação | % implementação |
 |---|---|---|---|
 | **Grau A** — Physics Survey | Pesquisa concluída, slides pendentes | ✅ 100% | ⏳ Slides ao final do B |
-| **Grau B** — Benchmark Prático | Planejamento concluído, implementação não iniciada | ✅ 100% | ❌ 0% |
+| **Grau B** — Benchmark Prático | **Implementado + coletado** (10 runs/config); análise em revisão | ✅ 100% | ✅ ~90% (dados prontos; falta N=100 Unreal + slides) |
 
 ---
 
