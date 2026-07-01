@@ -128,7 +128,7 @@
   https://gdcvault.com/play/1024345/Game-Physics-on-the-GPU
 
 - NVIDIA. **PhysX 4: Raising the Fidelity and Performance of Physics Simulation** — GTC 2019.
-  Introdução do solver TGS no PhysX 4 (usado no Unity clássico via GameObject).
+  Introdução do solver TGS na **biblioteca** PhysX 4. **Nota (corrigido no Grau B):** TGS é *opção* da biblioteca; o Unity clássico (GameObject) usa **PGS por padrão** (`DynamicsManager.asset → m_SolverType: 0`) — TGS é opt-in, não o default.
   https://developer.download.nvidia.com/video/gputechconf/gtc/2019/presentation/s9990-physx-4-raising-the-fidelity-and-performance-of-physics-simulation-in-games.pdf
 
 - Kaup, M. et al. **A Review of Nine Physics Engines for Reinforcement Learning Research** — arXiv 2024.

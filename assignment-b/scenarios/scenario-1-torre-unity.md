@@ -8,10 +8,10 @@
 
 ## Contexto do Grau A
 
-O Grau A identificou que Unity usa **PhysX 4.x** no path clássico de GameObjects. Pesquisa posterior (GTC 2019, NVIDIA) confirmou que o PhysX 4 usa o solver **TGS (Temporal Gauss-Seidel)** — não o PGS clássico. O que isso significa para a Torre:
+O Grau A identificou que Unity usa **PhysX 4.x** no path clássico de GameObjects. A biblioteca PhysX 4 *oferece* o solver **TGS (Temporal Gauss-Seidel)** (GTC 2019, NVIDIA), mas **o default do Unity NÃO é o TGS** — a integração usa **PGS (Projected Gauss-Seidel)** por padrão. Confirmado empiricamente no Grau B: `ProjectSettings/DynamicsManager.asset → m_SolverType: 0` (`0` = PGS default; `1` = TGS, opt-in via Project Settings). *(Correção da suposição original, que assumia TGS.)* O que isso significa para a Torre:
 
-- **Warm starting ativo:** o PhysX reutiliza a solução de impulsos do frame anterior como ponto de partida, o que acelera convergência em pilhas estáveis.
-- **TGS atualiza posições durante as iterações:** diferente do PGS clássico (que aplica correção posicional via Baumgarte apenas ao final do frame), o TGS recalcula contatos e Jacobianos enquanto itera. Resultado: pilhas altas convergem mais suavemente e com menos overshoot do que um solver PGS puro — jitter residual existe, mas tende a ser menor do que descrições de "Gauss-Seidel simples" sugerem.
+- **Warm starting ativo:** o PhysX reutiliza a solução de impulsos do frame anterior como ponto de partida, o que acelera convergência em pilhas estáveis (vale para PGS e TGS).
+- **PGS (default) faz a correção posicional via Baumgarte só ao final do passo** — não reatualiza contatos/Jacobianos durante as iterações como o TGS faria. Em pilhas altas isso sub-resolve a força de sustentação da base e acumula erro. **Resultado empírico (Grau B): a Torre N=100 no Unity/PGS COLAPSA (pancaking)** — não é só "jitter residual". O TGS (opt-in) sustenta apenas ~1 degrau de N a mais (colapsa em N=20 vs N=15 do PGS); nenhum dos dois sustenta pilha alta com iterações padrão.
 - **Sem equivalente ao Shock Propagation:** o Chaos (Unreal) tem um mecanismo explícito para distribuir impulsos da base ao topo da pilha; o PhysX não. Isso deve aparecer como diferença no tempo até sleep e na presença de jitter — mesmo com TGS.
 - **Sleep threshold padrão:** `0.005 m/s` linear e `0.005 rad/s` angular — relativamente sensível. Documentar o valor exato encontrado nas Project Settings antes de rodar.
 - **`ArticulationBody`** seria mais estável para cadeias (descoberto no Grau A), mas não usaremos — o assignment pede `Rigidbody` padrão, que é o que PhysX processa via constraint solver convencional.
