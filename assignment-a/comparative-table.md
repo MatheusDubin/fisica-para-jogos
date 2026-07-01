@@ -12,7 +12,7 @@
 | **Motor padrão** | NVIDIA PhysX 4.x | Chaos Physics (Epic, proprietário) | Jolt Physics (open source) |
 | **Alternativa oficial** | Unity Physics (DOTS/ECS) | — (Chaos é único) | Godot Physics (legado) |
 | **Alternativa descontinuada** | Havok Physics for Unity (removido do Pro em 6.3) | PhysX (deprecated em UE 5.1) | — |
-| **Solver base** | Impulse-based (PhysX) / XPBD (Unity Physics) | XPBD (Extended Position-Based Dynamics) | Impulse-based (Jolt) |
+| **Solver base** | Impulse-based (PhysX) — **PGS por padrão, TGS opt-in** (`m_SolverType: 0`) / XPBD (Unity Physics) | XPBD (Extended Position-Based Dynamics) | Impulse-based (Jolt) |
 
 ---
 
