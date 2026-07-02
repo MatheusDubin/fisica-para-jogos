@@ -227,7 +227,7 @@
             <tr><td class="rowlabel">Step time medido via</td><td><code>Stopwatch(Physics.Simulate)</code></td><td><code>TIME_PHYSICS_PROCESS</code></td><td><code>TG_Pre→PostPhysics</code></td></tr>
           </tbody>
         </table>
-        <div class="takeaway"><b>Ponto p/ o professor:</b> deixar solver e sleep no <b>padrão de cada engine</b> é <b>exigência do spec (§2.1: "não modificar — é parte do que se compara")</b>, não descuido. Como cada engine dorme a um limiar diferente (0,005 · 0,03 · 5 frames), o "tempo até dormir" NÃO é comparável 1-a-1 → a Torre é lida por <b>colapso</b> (geométrico, independe do sleep).</div>
+        <div class="takeaway"><b>Ponto p/ o professor:</b> deixar solver e sleep no <b>padrão de cada engine</b> é <b>regra do nosso protocolo (doc genérico, §2.1: "não modificar — é parte do que se compara")</b> — decisão de método para comparar o out-of-the-box, não descuido. Como cada engine dorme a um limiar diferente (0,005 · 0,03 · 5 frames), o "tempo até dormir" NÃO é comparável 1-a-1 → a Torre é lida por <b>colapso</b> (geométrico, independe do sleep).</div>
         <aside class="notes">Solver tunado (TGS, +iter, CVars do Chaos) só aparece como 'análise crítica' à parte, nunca na comparação principal. Cada engine mede o step time no seu mecanismo nativo — todos medindo 'custo de avançar 1 passo de 0,02 s'.</aside>
       </section>
 
@@ -491,7 +491,7 @@
           <thead><tr><th>Parâmetro</th><th>Spec original</th><th>O que rodou</th><th>Por quê</th></tr></thead>
           <tbody>
             <tr><td class="rowlabel">Container (Chuva)</td><td>funil (pirâmide)</td><td><b>caixa fechada</b> 35×80×35 m</td><td>reprodutível + contém os corpos → métrica limpa</td></tr>
-            <tr><td class="rowlabel">Sleep threshold</td><td>0,05 m/s</td><td><b>default de cada engine</b> (0,005 · 0,03 · 5 frames)</td><td>§2.1 proíbe mexer no sleep → a Torre é lida por <b>colapso</b></td></tr>
+            <tr><td class="rowlabel">Sleep threshold</td><td>0,05 m/s</td><td><b>default de cada engine</b> (0,005 · 0,03 · 5 frames)</td><td>nosso protocolo (§2.1) trava o sleep → a Torre é lida por <b>colapso</b></td></tr>
             <tr><td class="rowlabel">Janela (Chuva)</td><td>30 s wall-clock</td><td><b>500 passos de simulação</b> (~10 s sim)</td><td>wall-clock media trechos físicos diferentes por engine (bug)</td></tr>
             <tr><td class="rowlabel">Menores</td><td colspan="2">forma box→<b>esfera</b> · atrito 0,6/0,8→<b>0,5</b> · restituição Chuva 0→0,3 · spawn aleatório→<b>grade 3D</b> · arena fechada na Torre</td><td>impacto baixo; iguais nas 3</td></tr>
           </tbody>
@@ -505,7 +505,7 @@
         <div class="cards">
           <div class="card unreal">
             <h4>🔬 "Otimizar" o Chaos</h4>
-            <p>Cortamos iterações 8→4 + CVars. Resultado: <b>+19% mais lento</b> em 10k. <b>Aprendizado:</b> o gargalo é o pipeline de <b>colisão</b>, não as iterações.</p>
+            <p>Cortamos iterações 8→4 + CVars. Resultado: <b>+16% mais lento</b> em 10k (no lote do experimento). <b>Aprendizado:</b> as iterações não são o gargalo — o diagnóstico aponta o pipeline de <b>colisão</b>.</p>
           </div>
           <div class="card unity">
             <h4>🔬 PGS vs TGS vs +iter</h4>
@@ -522,14 +522,14 @@
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">06</span> · Bastidores</div>
         <h2 class="slide-title">A "otimização" que piorou o Chaos — por quê?</h2>
-        <div class="concept"><b>O experimento:</b> cortamos as iterações do solver (8→4), desligamos CCD, adiamos a narrowphase e fatiamos em mais workers. <b>Resultado:</b> em 10k, <b>146,6 → 173,8 ms (+19%)</b> — e o FPS caiu junto. As hipóteses:</div>
+        <div class="concept"><b>O experimento:</b> cortamos as iterações do solver (8→4), desligamos CCD, adiamos a narrowphase e fatiamos em mais workers. <b>Resultado:</b> em 10k, <b>149,8 → 173,8 ms (+16%)</b>, comparando default e "otimizado" do mesmo lote — e o FPS caiu junto. As hipóteses:</div>
         <ul style="font-size:.54em">
           <li><b>1 · O gargalo não são as iterações do solver.</b> Numa chuva densa (10k empilhados) o custo dominante é o <b>pipeline de colisão</b> (broad + narrowphase, contagem de contatos) sobre milhares de pares. Cortar iterações raspa só a parte barata.</li>
           <li><b>2 · Menos iterações = pilha menos estável = MAIS trabalho.</b> Com 4 iterações a pilha assenta pior; mais corpos ficam <b>acordados e tremendo</b> → mais contatos ativos por passo → o solver de colisão trabalha mais. A economia é <b>engolida</b> pelo contato extra.</li>
           <li><b>3 · Mais workers foi contraproducente.</b> Uma chuva empilhada é <b>uma ilha de contato gigante</b>; fatiá-la em mais grupos só somou overhead de agendamento/sync, sem paralelismo real (não se paraleliza uma ilha única).</li>
-          <li><b>4 · CCD off / defer narrowphase não moveram o ponteiro</b> — as esferas não usavam CCD, e adiar a narrowphase só reorganiza o mesmo custo. <i>(Bônus ruim: perdemos o determinismo — σ subiu de ≈0 para 7,5 ms.)</i></li>
+          <li><b>4 · CCD off / defer narrowphase não fizeram diferença mensurável</b> — as esferas não usavam CCD, e adiar a narrowphase só reorganiza o mesmo custo. <i>(Bônus ruim: perdemos o determinismo — σ subiu de ≈0 para 7,5 ms.)</i></li>
         </ul>
-        <div class="takeaway"><b>A lição:</b> os ~150 ms do Chaos em 10k são <b>estruturais</b> (arquitetura de colisão + LWC + 10k atores), não um default conservador que se destrava por CVar. Uma otimização que <b>falha</b>, bem explicada, ensina tanto quanto uma que funciona.</div>
+        <div class="takeaway"><b>A lição:</b> os ~150 ms do Chaos em 10k são <b>estruturais</b> (pipeline de colisão + sync de 10k atores; LWC como fator plausível do Grau A), não um default conservador que se destrava por CVar. Uma otimização que <b>falha</b>, bem explicada, ensina tanto quanto uma que funciona.</div>
       </section>
 
       <section data-background-color="#0a0d1a">
@@ -571,6 +571,30 @@
         <aside class="notes">Tabela execução a execução completa em results/COMPARISON-n10-vs-n15.md. "Em isolado" = cada lote, sozinho, dá a mesma classificação e vereditos; "somados" = a tabela lado a lado com Δ. Nenhuma conclusão mudou de 10→15 — é o argumento de que o dataset é estável.</aside>
       </section>
 
+      <!-- 6f · retrospectiva de método -->
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">06</span> · Bastidores · retrospectiva</div>
+        <h2 class="slide-title">Se rodássemos de novo — o que mudaríamos no método</h2>
+        <div class="concept">O benchmark respondeu o que prometia, mas deixou <b>perguntas abertas</b> — e cada uma tem um experimento barato que a fecharia. É a nossa lista honesta de "lições aprendidas":</div>
+        <table>
+          <thead><tr><th>Pergunta que ficou aberta</th><th>O experimento que a fecha</th></tr></thead>
+          <tbody>
+            <tr><td class="rowlabel">O degrau do Chaos em N=15 é MESMO o Shock Propagation?</td>
+              <td>Rodar a Torre com <b>Shock Propagation desligado</b> (1 CVar). Hoje temos <i>consistência</i> com o Grau A — o A/B daria <b>prova causal</b>.</td></tr>
+            <tr><td class="rowlabel">Quanto do 11× é motor, quanto é setup?</td>
+              <td><b>Decompor o gap:</b> build <b>Shipping</b> (sem editor) + física <b>async</b> + <b>ISM</b> no lugar de 10k AActors + profiling por fase (broad / narrow / solver / sync).</td></tr>
+            <tr><td class="rowlabel">Onde exatamente cada solver quebra?</td>
+              <td>Sweep <b>fino</b> de N (11→20, de 1 em 1, 10+ execuções) para o limiar exato — e o PGS×TGS com n≥10 (o nosso foi n=3, exploratório).</td></tr>
+            <tr><td class="rowlabel">A média escondeu o pico?</td>
+              <td>Elevar <b>p95 / pior passo</b> a métrica primária de estresse — a janela de 500 passos dilui a fase cara na pilha já assentada (é a origem do "sublinear").</td></tr>
+            <tr><td class="rowlabel">De onde veio o FPS bimodal do 10k?</td>
+              <td>Repetir em desktop com <b>clocks travados</b> / afinidade de núcleos — a hipótese é P-cores × E-cores + throttling do notebook, não a engine.</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Nada disso invalida o que medimos</b> — transformaria "consistente com o Grau A" em <b>prova causal</b>, e "custo bruto" em <b>custo decomposto</b>.</div>
+        <aside class="notes">Cada linha nasce de uma ressalva já registrada: shock prop não isolado (unreal/NOTES), 11× engloba setup (ANALYSIS/PLANO T6), TGS n=3 (unity/NOTES), sublinear = efeito de janela (ANALYSIS), bimodal = P/E-cores (godot/ANALYSIS). Slide serve de ponte para o de Trabalhos Futuros nas Considerações.</aside>
+      </section>
+
       <!-- ===================== 7. CONSIDERAÇÕES FINAIS ===================== -->
       <section class="center divider" data-background-color="#070912">
         <div class="big-num">07</div><h2>Considerações Finais</h2><div class="rule"></div>
@@ -585,6 +609,29 @@
           <li><b>Limitações honestas:</b> a "diferença de 11×" do Chaos inclui editor + acoplamento + sincronização de 10k atores (não é só o solver); FPS não comparável 1-a-1 (Unreal capado a 50 Hz); FPS 10k bimodal (lido por mediana + grupos).</li>
         </ul>
         <div class="takeaway"><b>Fechamento:</b> a arquitetura do Grau A previu bem o comportamento — e o benchmark o tornou mensurável, <b>corrigindo pelo caminho</b> duas suposições (PGS≠TGS; a leitura da diferença do Chaos).</div>
+      </section>
+
+      <!-- 7b · Trabalhos futuros -->
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">07</span> · Trabalhos futuros</div>
+        <h2 class="slide-title">Round 2 — benchmarks que joguem com a força de cada engine</h2>
+        <div class="concept">Nosso teste foi <b>propositalmente neutro</b>: a mesma cena, defaults de fábrica. Isso é justo — mas o terreno neutro não é o habitat de ninguém (e, na prática, favoreceu o caso do PhysX: <b>uma ilha de contato única</b> e sync leve de objetos). O segundo round que proporíamos: <b>cada engine no cenário para o qual foi desenhada</b>, medido com o mesmo rigor (n≥10, M±σ, janela sim-time).</div>
+        <div class="cards">
+          <div class="card unity">
+            <h4>Unity → throughput</h4>
+            <p><b>DOTS / Unity Physics + Burst</b>: dezenas de milhares de corpos <i>stateless</i> — o caminho oficial para massa de corpos, que o modo GameObject não mostra. E a pilha com <b>TGS + substeps</b> como config documentada (não default).</p>
+          </div>
+          <div class="card godot">
+            <h4>Godot → multi-core</h4>
+            <p><b>Cena multi-ilha</b>: ~100 pilhas/caixas independentes em vez de um monte único. Nossa Chuva era <b>o pior caso</b> para o job system do Jolt (uma ilha gigante não paraleliza) — com ilhas paralelas, a previsão invertida do Grau A ("Jolt escala melhor") ganharia o teste que merecia.</p>
+          </div>
+          <div class="card unreal">
+            <h4>Unreal → fidelidade</h4>
+            <p><b>Shipping + Async Physics + ISM</b> — medir o custo que o jogador <i>sente</i>, não só o custo bruto do editor — e um cenário de <b>destruição</b> (Geometry Collections/fratura): exatamente o caso de uso para o qual o Chaos foi criado.</p>
+          </div>
+        </div>
+        <div class="takeaway"><b>A pergunta muda:</b> de "quem é mais rápido na <i>mesma</i> cena?" para <b>"quanto custa a cena <i>certa</i> em cada engine?"</b> — e são as duas respostas, juntas, que orientam a escolha de motor.</div>
+        <aside class="notes">Ganchos nos dados: ilha gigante = achado do experimento "Chaos otimizado" (WorkerMultiplier não ajudou); Shipping/async/ISM = fatores listados como fora do escopo config-only; TGS = experimento exploratório que merece n≥10; DOTS citado no Grau A. Encaixa como resposta à pergunta "e se cada engine pudesse jogar no seu jogo?".</aside>
       </section>
 
       <section data-background-color="#0a0d1a">

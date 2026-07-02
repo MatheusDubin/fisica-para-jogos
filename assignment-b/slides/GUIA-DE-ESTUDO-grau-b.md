@@ -130,7 +130,9 @@ agrupa corpos em *solver islands*. A ideia é escalar em CPUs multi-core (a noss
 | Step time medido via | `Stopwatch(Physics.Simulate)` | `TIME_PHYSICS_PROCESS` | `TG_Pre→PostPhysics` |
 
 **Ponto-chave para a professora:** deixar solver e sleep no **padrão de fábrica** de cada engine é
-**exigência do spec (§2.1: "não modificar — é parte do que se compara")**, não descuido. Cada engine
+**regra do nosso protocolo (doc genérico, §2.1: "não modificar — é parte do que se compara")** —
+decisão de método para comparar o out-of-the-box, não descuido (o enunciado em si obriga malha
+primitiva, massa, atrito e timestep fixo). Cada engine
 mede o step time no seu **mecanismo nativo**, mas todos medindo a mesma coisa: "custo de avançar 1
 passo de 0,02 s".
 
@@ -285,8 +287,10 @@ tornou mensurável, corrigindo pelo caminho duas suposições (PGS≠TGS; a leit
 
 ### Experimentos deliberados
 
-- **"Otimizar" o Chaos** (cortar iterações 8→4 + CVars): resultado = **+19% MAIS LENTO** em 10k
-  (146,6 → 173,8 ms). **Aprendizado:** o gargalo é o pipeline de **colisão**, não as iterações. Uma
+- **"Otimizar" o Chaos** (cortar iterações 8→4 + CVars): resultado = **+16% MAIS LENTO** em 10k
+  (149,8 → 173,8 ms, comparando default e "otimizado" do mesmo lote; vs o default canônico n=15,
+  146,6 ms, a diferença chega a ~+19%). **Aprendizado:** as iterações não são o gargalo — o
+  diagnóstico aponta o pipeline de **colisão**. Uma
   otimização que falha, bem documentada, ensina tanto quanto uma que funciona.
 - **PGS vs TGS vs +iterações** (Unity): iterações 6→20 **não movem** o colapso; TGS (opt-in) sobe
   **1 degrau**. É o **algoritmo**, não a contagem.
@@ -353,7 +357,8 @@ Não — é o filtro **M±σ do enunciado**, aplicado igual em todas. Descartar 
 não muda, porque os valores são quase idênticos. Contagem de descarte alta ≠ dado ruim.
 
 **"Por que não mexeram nas iterações / no solver para segurar a torre?"**
-Duas razões. (1) O spec **proíbe** — o comportamento default é parte do que se compara. (2) Testamos
+Duas razões. (1) O nosso protocolo **trava os defaults** (doc genérico, §2.1) — o comportamento
+out-of-the-box é parte do que se compara. (2) Testamos
 mesmo assim como experimento: subir iterações 6→20 **não** move o colapso; trocar PGS→TGS sobe só 1
 degrau. É o **algoritmo** que importa, não a contagem — e nenhum default segura pilha alta.
 
