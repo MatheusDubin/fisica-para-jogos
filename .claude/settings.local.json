@@ -48,7 +48,8 @@
       "Bash(mkdir -p assignment-b/results/unreal/chuva-default)",
       "Bash(mkdir -p Projects/physics_unreal/Source/physics_unreal)",
       "Bash(xargs ls -la)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(node *)"
     ]
   }
 }

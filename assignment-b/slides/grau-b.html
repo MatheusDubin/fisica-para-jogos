@@ -154,15 +154,15 @@
         <div class="concept"><b>O Grau A</b> levantou as arquiteturas internas (solvers, threading, CCD). <b>O Grau B</b> coloca isso à prova: medir os limites e gargalos reais via testes de estresse, com a mesma cena nas três engines e rigor estatístico.</div>
         <ul>
           <li><b>Cenário 1 — A Torre:</b> pilha alta de corpos rígidos. Mede <b>estabilidade</b>: tempo até repouso (sleep), jitter e colapso.</li>
-          <li><b>Cenário 2 — A Chuva:</b> 1k / 5k / 10k corpos caindo em caixa fechada. Mede <b>performance</b>: Physics Step Time e FPS.</li>
+          <li><b>Cenário 2 — A Chuva:</b> 1k / 5k / 10k corpos caindo em caixa fechada. Mede <b>desempenho</b>: Physics Step Time e FPS.</li>
           <li><b>Regra:</b> malhas primitivas, mesma massa/atrito, <b>fixed timestep 0,02 s (50 Hz)</b>, solver/sleep no padrão de cada engine.</li>
         </ul>
         <div class="takeaway"><b>Pergunta central:</b> os resultados confirmam o que a arquitetura do Grau A previu?</div>
       </section>
 
-      <!-- ===================== 2. EXPECTATIVAS & SETUP ===================== -->
+      <!-- ===================== 2. EXPECTATIVAS & CONFIGURAÇÃO ===================== -->
       <section class="center divider" data-background-color="#070912">
-        <div class="big-num">02</div><h2>Expectativas &amp; Setup</h2><div class="rule"></div>
+        <div class="big-num">02</div><h2>Expectativas &amp; Configuração</h2><div class="rule"></div>
         <p style="color:var(--dim);font-size:.5em;margin-top:.5em">O que a teoria prevê · como montamos um teste justo em cada engine</p>
       </section>
 
@@ -180,7 +180,7 @@
               <td>Gauss-Seidel iterativo + warm starting → jitter residual em pilhas altas</td>
               <td>Impulse-based; multi-thread ajuda pouco (cena quase estática)</td>
               <td>XPBD + <b>Shock Propagation</b> — mecanismo feito p/ este cenário</td></tr>
-            <tr><td class="rowlabel">Chuva<br>(performance)</td>
+            <tr><td class="rowlabel">Chuva<br>(desempenho)</td>
               <td>Broadphase é o gargalo &gt;5k; FPS cai junto com o Step Time</td>
               <td>Job system nativo → <b>melhor escalabilidade</b> esperada em 5k/10k</td>
               <td><b>Async Physics Tick</b> desacopla FPS; LWC eleva o custo base</td></tr>
@@ -200,17 +200,17 @@
           <tbody>
             <tr><td class="rowlabel">Fixed timestep</td><td><b>0,02 s (50 Hz)</b></td><td class="rowlabel">Gravidade</td><td>≈ (0, −9,81, 0)</td></tr>
             <tr><td class="rowlabel">Formas</td><td>primitivas (cubo / esfera)</td><td class="rowlabel">Massa / atrito</td><td>1 kg / 0,5</td></tr>
-            <tr><td class="rowlabel">Build</td><td>Release · V-Sync off (todas). Render <b>livre</b> em Unity/Godot; Unreal <b>trava a 50 Hz</b> = mecanismo do passo 0,02 s (ver 2c)</td><td class="rowlabel">Runs</td><td>10 por configuração</td></tr>
+            <tr><td class="rowlabel">Build</td><td>Release · V-Sync desligado (todas). Render <b>livre</b> em Unity/Godot; Unreal <b>trava a 50 Hz</b> = mecanismo do passo 0,02 s (ver 2c)</td><td class="rowlabel">Execuções</td><td>15 por configuração</td></tr>
             <tr><td class="rowlabel">Torre</td><td>100 cubos + <b>arena fechada</b> 60×60×150 m</td><td class="rowlabel">Chuva</td><td>1k / 5k / 10k esferas, caixa fechada</td></tr>
-            <tr><td class="rowlabel">Cena</td><td colspan="3"><b>100% gerada em código</b> (C# / C++ / GDScript) — posição exata, reprodutível, zero setup manual de Inspector</td></tr>
+            <tr><td class="rowlabel">Cena</td><td colspan="3"><b>100% gerada em código</b> (C# / C++ / GDScript) — posição exata, reprodutível, zero configuração manual de Inspector</td></tr>
           </tbody>
         </table>
         <div class="takeaway"><b>Duas decisões de método nossas (iguais nas 3):</b> arena fechada na Torre (contém cubos ejetados → métrica limpa) e janela por <b>tempo de simulação</b> na Chuva (não wall-clock — ver Bastidores).</div>
       </section>
 
-      <!-- 2c · Setup por engine -->
+      <!-- 2c · Configuração por engine -->
       <section data-background-color="#0a0d1a">
-        <div class="eyebrow"><span class="sec-num">02</span> · Setup por engine (o que DIFERE = o default)</div>
+        <div class="eyebrow"><span class="sec-num">02</span> · Configuração por engine (o que DIFERE = o default)</div>
         <h2 class="slide-title">Como configuramos cada engine</h2>
         <div class="concept">O que muda entre elas é <b>o motor no seu padrão de fábrica</b> — é exatamente isso que comparamos. Nada de solver tunado na coluna principal.</div>
         <table>
@@ -220,7 +220,7 @@
             <tr><td class="rowlabel">Motor físico</td><td>PhysX (GameObject)</td><td>Jolt</td><td>Chaos</td></tr>
             <tr><td class="rowlabel">Solver (default)</td><td><b>PGS</b> · 6+1 iter</td><td>impulse (Gauss-Seidel)</td><td>XPBD + <b>Shock Prop.</b> · 8+2 iter</td></tr>
             <tr><td class="rowlabel">Sleep threshold</td><td>0,005 m/s</td><td>0,03 m/s</td><td>5 frames</td></tr>
-            <tr><td class="rowlabel">Física ↔ render</td><td>desacoplada</td><td>desacoplada</td><td><b>acoplada</b> — trava o frame a 50 Hz p/ garantir o passo fixo 0,02 s (não é cap de performance)</td></tr>
+            <tr><td class="rowlabel">Física ↔ render</td><td>desacoplada</td><td>desacoplada</td><td><b>acoplada</b> — trava o frame a 50 Hz p/ garantir o passo fixo 0,02 s (não é um limite de desempenho)</td></tr>
             <tr><td class="rowlabel">Step time medido via</td><td><code>Stopwatch(Physics.Simulate)</code></td><td><code>TIME_PHYSICS_PROCESS</code></td><td><code>TG_Pre→PostPhysics</code></td></tr>
           </tbody>
         </table>
@@ -232,7 +232,7 @@
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">02</span> · Ambiente · hardware</div>
         <h2 class="slide-title">Máquina de teste</h2>
-        <div class="concept"><b>As 3 engines rodaram na MESMA máquina</b> — então qualquer diferença nos números vem do <b>motor de física</b>, não do hardware. (Ex.: o gap de ~11× do Chaos vs PhysX em 10k é no mesmo PC.)</div>
+        <div class="concept"><b>As 3 engines rodaram na MESMA máquina</b> — então qualquer diferença nos números vem do <b>motor de física</b>, não do hardware. (Ex.: a diferença de ~11× do Chaos vs PhysX em 10k é no mesmo PC.)</div>
         <table>
           <thead><tr><th>Componente</th><th>Especificação</th></tr></thead>
           <tbody>
@@ -243,8 +243,8 @@
             <tr><td class="rowlabel">Sistema</td><td>Windows 64-bit (x64)</td></tr>
           </tbody>
         </table>
-        <div class="takeaway"><b>Por que importa:</b> num notebook, boost-clock, throttling térmico e o <b>escalonamento entre P-cores e E-cores</b> (6P + 4E) variam entre runs — parte do ruído que o filtro M±σ trata, e a hipótese mais provável do <b>FPS bimodal</b> visto no 10k.</div>
-        <aside class="notes">Mesma máquina para as 3 engines → a comparação isola o motor de física (o gap 11× do Chaos é no mesmo PC). O i7-12650H é híbrido (P+E cores); Jolt e Chaos usam job system multi-thread, então o nº de núcleos importa na Chuva. (Device/Product ID omitidos de propósito — identificadores privados.)</aside>
+        <div class="takeaway"><b>Por que importa:</b> num notebook, boost-clock, throttling térmico e o <b>escalonamento entre P-cores e E-cores</b> (6P + 4E) variam entre execuções — parte do ruído que o filtro M±σ trata, e a hipótese mais provável do <b>FPS bimodal</b> visto no 10k.</div>
+        <aside class="notes">Mesma máquina para as 3 engines → a comparação isola o motor de física (a diferença de 11× do Chaos é no mesmo PC). O i7-12650H é híbrido (P+E cores); Jolt e Chaos usam job system multi-thread, então o nº de núcleos importa na Chuva. (Device/Product ID omitidos de propósito — identificadores privados.)</aside>
       </section>
 
       <!-- 2d · Rigor estatístico -->
@@ -253,13 +253,13 @@
         <h2 class="slide-title">Rigor estatístico — 4 passos por configuração</h2>
         <div class="concept">Uma única execução não é confiável (ruído do SO, agendamento de threads). Repetimos e filtramos.</div>
         <ul style="font-size:.56em">
-          <li><b>1 ·</b> Rodar <b>10 execuções isoladas</b> por variação por engine.</li>
+          <li><b>1 ·</b> Rodar <b>15 execuções isoladas</b> por variação por engine.</li>
           <li><b>2 ·</b> Calcular <b>média (M)</b> e <b>desvio padrão (σ)</b> (populacional, ÷N).</li>
           <li><b>3 ·</b> <b>Descartar</b> execuções fora da faixa <code>[M − σ, M + σ]</code>.</li>
           <li><b>4 ·</b> <b>Média Final</b> = média apenas dos valores dentro da faixa.</li>
         </ul>
-        <div class="takeaway"><b>Ressalva honesta:</b> em distribuições <b>bimodais</b> ou com <b>timeout</b>, a Média Final perde sentido → ali usamos <b>mediana + clusters</b> (detalhe nos Bastidores).</div>
-        <aside class="notes">σ populacional (÷N / STDEVP), como o spec implica (howto-statistics.md). 10 = mínimo do enunciado; é o dataset final.</aside>
+        <div class="takeaway"><b>Ressalva honesta:</b> em distribuições <b>bimodais</b> ou com <b>timeout</b>, a Média Final perde sentido → ali usamos <b>mediana + grupos</b> (detalhe nos Bastidores).</div>
+        <aside class="notes">σ populacional (÷N / STDEVP), como o spec implica (howto-statistics.md). 15 execuções (acima do mínimo de 10 do enunciado); é o dataset final. Um piloto a 10 execuções foi arquivado — ver Bastidores (reprodutibilidade).</aside>
       </section>
 
       <!-- ===================== 3. CENÁRIO 1 — TORRE ===================== -->
@@ -275,6 +275,23 @@
         <aside class="notes">Sleep = corpo praticamente parado "dorme". Pancaking ≠ explosão: a coluna achata reta para baixo (top_y cai monotônico).</aside>
       </section>
 
+      <!-- 3-metricas · métricas da Torre -->
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">03</span> · A Torre · métricas</div>
+        <h2 class="slide-title">O que medimos — e o que de fato compara</h2>
+        <div class="concept">Nem toda métrica é <b>comparável entre engines</b>. Separamos a de comparação das diagnósticas (glossário completo em <code>results/METRICS-e-exclusoes.md</code>).</div>
+        <table>
+          <thead><tr><th>Métrica</th><th>O que mede</th><th>Comparável entre engines?</th></tr></thead>
+          <tbody>
+            <tr><td class="rowlabel">Colapso <code>kept%</code></td><td>Altura final do topo ÷ altura se intacta. Puramente geométrica.</td><td><span class="yes">✓ SIM</span> — independe do sleep. <b>Métrica primária.</b></td></tr>
+            <tr><td class="rowlabel">Tempo até sleep</td><td>Tempo até <b>todos</b> os corpos dormirem; reflete a convergência do solver.</td><td><span class="na">✗ não</span> — limiar de sleep difere (0,005 · 0,03 · 5 frames).</td></tr>
+            <tr><td class="rowlabel">Vel. máx <code>max_v</code></td><td>Pico de velocidade na execução. Distingue <i>pancaking</i> (~gravidade) de explosão.</td><td>diagnóstico</td></tr>
+            <tr><td class="rowlabel">Timeout (60 s)</td><td>Pilha nunca assenta — <b>resultado válido</b>, não outlier.</td><td>diagnóstico</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Veredito de colapso:</b> ESTÁVEL &gt;90% · PARCIAL 25–90% · COLAPSOU &lt;25%. Lemos a Torre por <code>kept%</code> porque é o único critério que mede a <b>mesma coisa</b> nas 3 engines.</div>
+      </section>
+
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">03</span> · A Torre · resultados</div>
         <h2 class="slide-title">N = 100 cubos — o que aconteceu</h2>
@@ -284,29 +301,29 @@
             <tr><th>&nbsp;</th><th class="th-unity">Unity · PhysX (PGS)</th><th class="th-godot">Godot · Jolt</th><th class="th-unreal">Unreal · Chaos</th></tr>
           </thead>
           <tbody>
-            <tr><td class="rowlabel">Colapsa? (kept%)</td><td><span class="na">💥 sim — 2%</span></td><td><span class="na">💥 sim — 2%</span></td><td class="pend">↝ inferido*</td></tr>
-            <tr><td class="rowlabel">Runs</td><td>10/10 colapsam</td><td>10/10 colapsam</td><td class="pend">N=100 não coletado*</td></tr>
-            <tr><td class="rowlabel">Velocidade máx.</td><td>~40 m/s</td><td>~36 m/s</td><td class="pend">—</td></tr>
+            <tr><td class="rowlabel">Colapsa? (kept%)</td><td><span class="na">💥 sim — 2%</span></td><td><span class="na">💥 sim — 2%</span></td><td><span class="na">💥 sim — 2%</span></td></tr>
+            <tr><td class="rowlabel">Execuções</td><td>15/15 colapsam</td><td>15/15 colapsam</td><td>15/15 colapsam</td></tr>
+            <tr><td class="rowlabel">Velocidade máx.</td><td>~40 m/s</td><td>~36 m/s</td><td>~43 m/s</td></tr>
           </tbody>
         </table>
-        <div class="takeaway"><b>Achado:</b> Unity (PhysX) e Godot (Jolt) <b>colapsam igual</b> (kept ~2%, <i>pancaking</i> — <code>top_y</code> cai monotônico). Nenhum sustenta 100 cubos com os defaults. <b>*Unreal:</b> N=100 não foi medido, mas o Chaos já colapsa em N=20 (próximo slide) → colapsaria também.</div>
-        <aside class="notes">Unity/Godot: 10 runs cada. Pancaking ≠ explosão: falha de sustentação de carga. Tempo-até-sleep NÃO é a métrica de comparação (limiares de sleep diferentes — ver Bastidores). Se der tempo, coletar Unreal N=100 fecha a paridade.</aside>
+        <div class="takeaway"><b>Achado:</b> as <b>três colapsam igual</b> (kept ~2%, <i>pancaking</i> — <code>top_y</code> cai monotônico). Nenhum sustenta 100 cubos com os defaults — o Chaos (Unreal), agora <b>medido</b> (15/15), confirma o que a varredura já indicava.</div>
+        <aside class="notes">15 execuções por engine (as 3 medidas). Pancaking ≠ explosão: falha de sustentação de carga. Tempo-até-sleep NÃO é a métrica de comparação (limiares de sleep diferentes — ver Bastidores). Unreal N=100 é determinístico (15 execuções quase idênticas, σ≈0).</aside>
       </section>
 
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">03</span> · A Torre · achado</div>
         <h2 class="slide-title">Limiar de colapso — e o "degrau" do Chaos</h2>
-        <div class="concept">Sweep de N crescente (10 runs por N). Todos colapsam cedo — mas o <b>Chaos aguenta um degrau a mais</b> em N=15.</div>
+        <div class="concept">Varredura de N crescente (10 execuções por N). Todos colapsam cedo — mas o <b>Chaos aguenta um degrau a mais</b> em N=15.</div>
         <table>
           <thead><tr><th>N</th><th class="th-unity">Unity · PGS</th><th class="th-godot">Godot · Jolt</th><th class="th-unreal">Unreal · Chaos</th></tr></thead>
           <tbody>
             <tr><td class="rowlabel">10</td><td><span class="yes">✓ estável</span></td><td><span class="yes">✓ estável</span></td><td><span class="yes">✓ estável</span></td></tr>
-            <tr><td class="rowlabel">15</td><td><span class="na">💥 colapsa (8%)</span></td><td><span class="na">💥 colapsa (14%)</span></td><td><span class="pend">⚠️ parcial (38%)</span></td></tr>
+            <tr><td class="rowlabel">15</td><td><span class="na">💥 colapsa (6%)</span></td><td><span class="na">💥 colapsa (22%)</span></td><td><span class="pend">⚠️ parcial (38%)</span></td></tr>
             <tr><td class="rowlabel">20</td><td><span class="na">💥 colapsa</span></td><td><span class="na">💥 colapsa</span></td><td><span class="na">💥 colapsa</span></td></tr>
           </tbody>
         </table>
         <div class="takeaway"><b>Consistente com o Grau A:</b> só o Chaos tem <b>Shock Propagation</b> (default) — segura ~⅓ da pilha em N=15 onde os outros achatam. <b>Mas efeito limitado:</b> em N=20 todos colapsam. Nenhum sustenta pilha alta com defaults. <i>(TGS opt-in do Unity sobe o limiar 1 degrau; iterações 6→20 não movem — é o algoritmo, não a contagem.)</i></div>
-        <aside class="notes">Ressalva honesta: não desligamos o Shock Propagation para provar causa; e o max_v ~19,5 m/s em N=15 mostra colapso PARCIAL (metade de cima cede), não "segurar" a pilha. Sweep PGS/TGS do Unity é n=3 (exploratório) — não apoiar tese firme nele.</aside>
+        <aside class="notes">Ressalva honesta: não desligamos o Shock Propagation para provar causa; e o max_v ~19,5 m/s em N=15 mostra colapso PARCIAL (metade de cima cede), não "segurar" a pilha. Varredura PGS/TGS do Unity é n=3 (exploratório) — não apoiar tese firme nele.</aside>
       </section>
 
       <section class="center" data-background-color="#070912">
@@ -327,21 +344,39 @@
 
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">04</span> · A Chuva · o conceito</div>
-        <h2 class="slide-title">Estresse de colisão e performance</h2>
-        <div class="concept"><b>Milhares de corpos caindo juntos</b> saturam o pipeline: a <b>broadphase</b> explode em número de pares, a <b>narrowphase</b> testa cada contato, o <b>solver</b> resolve tudo por passo. Se o passo não termina em 20 ms (50 Hz), a simulação entra em <i>spiral of death</i>. Medimos <b>Physics Step Time</b> (primário) e <b>FPS</b>.</div>
+        <h2 class="slide-title">Estresse de colisão e desempenho</h2>
+        <div class="concept"><b>Milhares de corpos caindo juntos</b> saturam o pipeline: a <b>broadphase</b> explode em número de pares, a <b>narrowphase</b> testa cada contato, o <b>solver</b> resolve tudo por passo. Se o passo não termina em 20 ms (50 Hz), a simulação entra em <i>espiral da morte</i>. Medimos <b>Physics Step Time</b> (primário) e <b>FPS</b>.</div>
         <div class="takeaway"><b>Ligação com o Grau A:</b> aqui o threading e a escalabilidade do solver (Jolt job system vs Chaos islands) aparecem nos números.</div>
+      </section>
+
+      <!-- 4-metricas · métricas da Chuva -->
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">04</span> · A Chuva · métricas</div>
+        <h2 class="slide-title">O que medimos — e como as métricas se ligam</h2>
+        <div class="concept">Duas métricas do enunciado. Uma <b>compara entre engines</b>, a outra só vale <b>por engine</b> — e a razão é o acoplamento render↔física.</div>
+        <table>
+          <thead><tr><th>Métrica</th><th>O que mede</th><th>Comparável entre engines?</th></tr></thead>
+          <tbody>
+            <tr><td class="rowlabel">Physics Step Time</td><td>Custo de CPU para avançar <b>1 passo</b> de 0,02 s com N corpos.</td><td><span class="yes">✓ SIM</span> — mesma grandeza física nas 3. <b>Métrica primária.</b></td></tr>
+            <tr><td class="rowlabel">Step time máx.</td><td>Pior passo isolado da janela (o pico quando a pilha se forma).</td><td>diagnóstico de pico</td></tr>
+            <tr><td class="rowlabel">FPS médio</td><td>Ritmo do laço de <b>render</b> (não da física).</td><td><span class="na">✗ não</span> — render acoplado (Unreal) vs livre (Unity/Godot).</td></tr>
+            <tr><td class="rowlabel"><code>amostras</code></td><td>Nº de passos de física na janela (alvo <b>500</b> = 10 s simulados).</td><td>auditoria da janela</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Como se ligam:</b> com física <b>acoplada</b> (Unreal) <code>FPS ≈ 1000/step</code> (teto 50); <b>desacoplada</b> (Unity/Godot) o FPS é velocidade de GPU. Por isso o <b>Step Time compara</b> e o FPS não — e <code>amostras=500</code> confirma que as 3 mediram o mesmo trecho simulado.</div>
       </section>
 
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">04</span> · A Chuva · resultados</div>
         <h2 class="slide-title">Physics Step Time — quanto custa cada passo</h2>
-        <div class="chart-wrap"><canvas id="stepChart"></canvas></div>
+        <div class="chart-wrap" style="height:360px"><canvas id="stepChart"></canvas></div>
         <div style="text-align:center;margin-top:.4em">
-          <span class="fragment chip" data-fragment-index="0">5k → Unity <b>6,9</b> · Jolt <b>15,1</b> · Chaos <b>65,6</b> ms</span>
-          <span class="fragment chip" data-fragment-index="1">10k → Unity <b>13,1</b> · Jolt <b>32,9</b> · Chaos <b>149,8</b> ms</span>
-          <span class="chip"><b>Ranking:</b> Unity &lt; Godot &lt; Unreal</span>
+          <span class="fragment chip" data-fragment-index="0">5k → Unity <b>7,1</b> · Jolt <b>15,2</b> · Chaos <b>67,1</b> ms</span>
+          <span class="fragment chip" data-fragment-index="1">10k → Unity <b>13,3</b> · Jolt <b>32,8</b> · Chaos <b>146,6</b> ms</span>
+          <span class="chip"><b>Classificação:</b> Unity &lt; Godot &lt; Unreal</span>
         </div>
-        <aside class="notes">Todas as 3 no dataset canônico (sim-time, amostras=500, 10 runs, filtrado M±σ). PhysX (Unity) é o mais barato; Chaos ~11× o custo do PhysX em 10k (mas ver Bastidores: a métrica do Unreal engloba mais que o solver + editor + acoplamento). As 3 rodaram 10k sem crash (Godot precisou tunar buffers do Jolt).</aside>
+        <div class="takeaway"><b>Custo relativo (× vs PhysX, o mais barato) em 10k:</b> PhysX <b>1×</b> · Jolt <b>2,5×</b> · Chaos <b>11×</b>. <span style="color:var(--dim)">Eixo Y em <b>escala log</b> (cada divisória = 10×) — é o que deixa a barra do PhysX (13,3 ms) legível ao lado do Chaos (146,6 ms).</span></div>
+        <aside class="notes">Todas as 3 no dataset canônico (sim-time, amostras=500, 15 execuções, filtrado M±σ). PhysX (Unity) é o mais barato; Chaos ~11× o custo do PhysX em 10k (mas ver Bastidores: a métrica do Unreal engloba mais que o solver + editor + acoplamento). As 3 rodaram 10k sem travamento (Godot precisou tunar buffers do Jolt).</aside>
       </section>
 
       <section data-background-color="#0a0d1a">
@@ -349,7 +384,7 @@
         <h2 class="slide-title">FPS sob estresse — com uma ressalva importante</h2>
         <div class="concept"><b>Primeiro, o que É igual:</b> o <b>passo de física é 0,02 s (50 Hz) nas três</b> — a exigência do spec está cumprida. O que <b>não</b> é comparável 1-a-1 é o <b>FPS</b>, e a causa é o <b>acoplamento render↔física</b>, não o timestep. Na <b>Unreal</b> a física roda <b>acoplada</b> (1 passo por frame) → o FPS reflete o custo da física (teto ~50). Em <b>Unity/Godot</b> o render é <b>desacoplado e livre</b> → ali "FPS" é velocidade de render/GPU, não custo de física. Por isso o FPS é lido <b>por engine</b> (tendência) e o <b>Physics Step Time é a métrica primária</b> que compara entre engines.</div>
         <div class="chart-wrap" style="height:340px"><canvas id="fpsChart"></canvas></div>
-        <aside class="notes">Godot 1k = 1664 FPS (uncapped, render livre) → ~14 em 10k (BIMODAL: 6 runs ~10, 4 runs ~37 — a média não representa; ver Bastidores). Unity 230→124→49. Unreal 50→14→6,6 (capado em 50 Hz + física acoplada). Por isso o FPS é lido como tendência POR engine, não comparado 1-a-1.</aside>
+        <aside class="notes">Godot 1k = 1695 FPS (sem limite, render livre) → ~15 em 10k (BIMODAL: ~10 execuções perto de 10, alguns 40–98 — a média não representa; ver Bastidores). Unity 233→121→46. Unreal 50→14→6,7 (capado em 50 Hz + física acoplada). Por isso o FPS é lido como tendência POR engine, não comparado 1-a-1.</aside>
       </section>
 
       <section data-background-color="#0a0d1a">
@@ -358,18 +393,18 @@
         <div class="cards">
           <div class="card unity">
             <h4>Unity · PhysX 🥇</h4>
-            <p><b>Mais barato</b> em toda escala: 1,4 / 6,9 / 13,1 ms. 1k→10k = <b>9,2×</b>. Broadphase SAP eficiente; não precisou tunar nada.</p>
+            <p><b>Mais barato</b> em toda escala: 1,5 / 7,1 / 13,3 ms. 1k→10k = <b>8,7×</b> · <b>baseline (1×)</b>. Broadphase SAP eficiente; não precisou tunar nada.</p>
           </div>
           <div class="card godot">
             <h4>Godot · Jolt</h4>
-            <p>2,9 / 15,1 / 32,9 ms. 1k→10k = <b>11,4×</b>. Precisou <b>tunar buffers do Jolt</b> em 10k (senão crash).</p>
+            <p>3,0 / 15,2 / 32,8 ms. 1k→10k = <b>11,0×</b> · <b>≈2,5×</b> o PhysX em 10k. Precisou <b>tunar buffers do Jolt</b> em 10k (senão trava).</p>
           </div>
           <div class="card unreal">
             <h4>Unreal · Chaos</h4>
-            <p>10,1 / 65,6 / 149,8 ms — <b>o mais caro</b>. 1k→10k = <b>14,8×</b>. Custo alto (XPBD + LWC + acoplamento + editor).</p>
+            <p>10,4 / 67,1 / 146,6 ms — <b>o mais caro</b>. 1k→10k = <b>14,1×</b> · <b>≈11×</b> o PhysX em 10k. Custo alto (XPBD + LWC + acoplamento + editor).</p>
           </div>
         </div>
-        <div class="takeaway"><b>Ressalva:</b> o escalonamento 5k→10k é <b>sublinear nas três</b> (Unity 1,9× · Jolt 2,2× · Chaos 2,3×) — logo é efeito da <b>janela de medição</b> (captura a pilha assentada), <b>não</b> uma vantagem específica do Jolt.</div>
+        <div class="takeaway"><b>Ressalva:</b> o escalonamento 5k→10k é <b>sublinear nas três</b> (Unity 1,9× · Jolt 2,2× · Chaos 2,2×) — logo é efeito da <b>janela de medição</b> (captura a pilha assentada), <b>não</b> uma vantagem específica do Jolt.</div>
       </section>
 
       <section class="center" data-background-color="#070912">
@@ -392,15 +427,15 @@
         <h2 class="slide-title">Estabilidade — quem segurou a pilha?</h2>
         <div class="concept"><b>Q1 · Qual suportou mais corpos sem colapso?</b> Nenhum sustenta N=100. Pelo limiar de colapso, o <b>Chaos (Unreal)</b> aguenta um degrau a mais — parcial em N=15 (Shock Propagation) — enquanto Jolt e PGS colapsam já em N=15. Em N=20 todos colapsam.</div>
         <div class="concept"><b>Q2 · Qual entregou a pilha mais estável?</b> Pelo critério comparável (<b>colapso / kept%</b>), <b>Chaos</b> — único a segurar ~⅓ da pilha em N=15. <i>O tempo-até-sleep NÃO serve de critério: cada engine dorme a um limiar diferente (0,005 · 0,03 · 5 frames).</i></div>
-        <div class="takeaway"><b>Leitura:</b> a "pilha estável" não existe out-of-the-box em nenhuma — o design de jogos evita pilhas rígidas altas justamente por isso.</div>
+        <div class="takeaway"><b>Leitura:</b> a "pilha estável" não existe de fábrica em nenhuma — o design de jogos evita pilhas rígidas altas justamente por isso.</div>
       </section>
 
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">05</span> · Análise Crítica</div>
-        <h2 class="slide-title">Performance &amp; o veredito sobre o Grau A</h2>
-        <div class="concept"><b>Q3 · Chaos vs PhysX vs Jolt?</b> Na Chuva (Step Time), o ranking é <b>Unity/PhysX &lt; Godot/Jolt &lt; Unreal/Chaos</b>: PhysX é o mais barato (13,1 ms em 10k), ~<b>11×</b> mais rápido que o Chaos (149,8 ms). Chaos paga XPBD + LWC + acoplamento.</div>
-        <div class="concept"><b>Q4 · Os resultados confirmam o Grau A?</b> <span class="yes">Em parte</span> — o Chaos é mais caro (como o LWC previa) e tem o Shock Propagation que ajuda na Torre. <b>Duas correções medidas na prática:</b> (1) o solver padrão do Unity é <b>PGS</b>, não TGS; (2) o "gap 11×" é <b>custo bruto do nosso setup</b> (editor + física acoplada + sync de 10k atores), não só do solver.</div>
-        <div class="takeaway"><b>O benchmark tornou a teoria mensurável</b> — e corrigiu duas suposições do Grau A (PGS≠TGS; a leitura do gap do Chaos).</div>
+        <h2 class="slide-title">Desempenho &amp; o veredito sobre o Grau A</h2>
+        <div class="concept"><b>Q3 · Chaos vs PhysX vs Jolt?</b> Na Chuva (Step Time), a classificação é <b>Unity/PhysX &lt; Godot/Jolt &lt; Unreal/Chaos</b>: PhysX é o mais barato (13,3 ms em 10k), ~<b>11×</b> mais rápido que o Chaos (146,6 ms). Chaos paga XPBD + LWC + acoplamento.</div>
+        <div class="concept"><b>Q4 · Os resultados confirmam o Grau A?</b> <span class="yes">Em parte.</span> <b>Confirmou:</b> o Chaos é o mais caro (LWC + XPBD) e o <b>Shock Propagation</b> segura 1 degrau a mais na Torre (N=15). <b>Inverteu:</b> esperávamos o <b>Jolt</b> (Godot) como o mais escalável na Chuva — mas o mais barato em toda escala foi o <b>PhysX</b> (Unity); o Jolt ficou no meio (≈2,5× o PhysX em 10k). <b>Ressalva:</b> o FPS não é comparável 1-a-1 (acoplamento render↔física). <b>Ainda corrigimos 2 suposições de método:</b> (1) o solver padrão do Unity é <b>PGS</b>, não TGS; (2) a "diferença de 11×" é <b>custo bruto da configuração</b> (editor + física acoplada + sincronização de 10k atores), não só do solver.</div>
+        <div class="takeaway"><b>O benchmark tornou a teoria mensurável</b> — e corrigiu duas suposições do Grau A (PGS≠TGS; a leitura da diferença do Chaos).</div>
       </section>
 
       <!-- ===================== 6. BASTIDORES ===================== -->
@@ -415,10 +450,10 @@
         <table>
           <thead><tr><th>Problema encontrado</th><th>Correção</th><th>Impacto</th></tr></thead>
           <tbody>
-            <tr><td class="rowlabel">Janela em <b>wall-clock</b>: em 10k, 10 s reais = só ~2 s simulados (queda livre, zero colisão)</td><td>Janela por <b>tempo de simulação</b> (500 passos), idêntica nas 3</td><td>Chaos 10k saltou <b>~86 → 150 ms</b> (mede a pilha densa de fato)</td></tr>
-            <tr><td class="rowlabel">Unity: <code>ProfilerRecorder</code> retornava <b>0</b> no step time</td><td><code>Stopwatch</code> em volta de <code>Physics.Simulate()</code></td><td>1 run inicial descartada; métrica nunca mais veio 0</td></tr>
+            <tr><td class="rowlabel">Janela em <b>wall-clock</b>: em 10k, 10 s reais = só ~2 s simulados (queda livre, zero colisão)</td><td>Janela por <b>tempo de simulação</b> (500 passos), idêntica nas 3</td><td>Chaos 10k saltou <b>~86 → 147 ms</b> (mede a pilha densa de fato)</td></tr>
+            <tr><td class="rowlabel">Unity: <code>ProfilerRecorder</code> retornava <b>0</b> no step time</td><td><code>Stopwatch</code> em volta de <code>Physics.Simulate()</code></td><td>1 execução inicial descartada; métrica nunca mais veio 0</td></tr>
             <tr><td class="rowlabel">Assumimos <b>TGS</b> no Unity (herança do Grau A)</td><td>Config real = <b>PGS</b> (<code>m_SolverType:0</code>)</td><td>Grau A corrigido; previsão de jitter revista</td></tr>
-            <tr><td class="rowlabel">Jolt: buffer de contatos estourou em 10k (crash na 2ª run)</td><td>Tunar buffers do Jolt + <b>reset in-place</b> entre runs</td><td>10k passou a rodar sem crash</td></tr>
+            <tr><td class="rowlabel">Jolt: buffer de contatos estourou em 10k (travamento na 2ª execução)</td><td>Tunar buffers do Jolt + <b>reset in-place</b> entre execuções</td><td>10k passou a rodar sem travamento</td></tr>
           </tbody>
         </table>
         <div class="takeaway"><b>Rigor é isto:</b> cada número final só vale porque um erro de método foi pego antes de virar resultado.</div>
@@ -430,7 +465,7 @@
         <div class="cards">
           <div class="card unreal">
             <h4>🔬 "Otimizar" o Chaos</h4>
-            <p>Cortamos iterações 8→4 + CVars. Resultado: <b>+16% mais lento</b> em 10k. <b>Aprendizado:</b> o gargalo é o pipeline de <b>colisão</b>, não as iterações.</p>
+            <p>Cortamos iterações 8→4 + CVars. Resultado: <b>+19% mais lento</b> em 10k. <b>Aprendizado:</b> o gargalo é o pipeline de <b>colisão</b>, não as iterações.</p>
           </div>
           <div class="card unity">
             <h4>🔬 PGS vs TGS vs +iter</h4>
@@ -447,18 +482,34 @@
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">06</span> · Bastidores</div>
         <h2 class="slide-title">Quantas vezes rodamos — e o que descartamos</h2>
-        <div class="concept"><b>Método M±σ:</b> cada configuração roda <b>10×</b>; descartamos as execuções fora de <code>[M−σ, M+σ]</code> antes da Média Final. Total: <b>≈200 execuções cronometradas</b> (Chuva 90 + Torre sweep 90 + N=100 20 + exploratórios).</div>
+        <div class="concept"><b>Método M±σ:</b> cada configuração roda <b>15×</b>; descartamos as execuções fora de <code>[M−σ, M+σ]</code> antes da Média Final. Total: <b>≈315 execuções cronometradas</b> (Chuva 135 + Torre varredura 135 + N=100 45 + exploratórios).</div>
         <table>
-          <thead><tr><th>Configuração</th><th>Runs</th><th>Descartados (±σ) · Unity / Godot / Unreal</th></tr></thead>
+          <thead><tr><th>Configuração</th><th>Execuções</th><th>Descartados (±σ) · Unity / Godot / Unreal</th></tr></thead>
           <tbody>
-            <tr><td class="rowlabel">Chuva 1.000</td><td>10 ×3</td><td>3 / 5 / 2</td></tr>
-            <tr><td class="rowlabel">Chuva 5.000</td><td>10 ×3</td><td>1 / 5 / 6</td></tr>
-            <tr><td class="rowlabel">Chuva 10.000</td><td>10 ×3</td><td>3 / 4 / 4</td></tr>
-            <tr><td class="rowlabel">Torre N=100</td><td>10 ×2</td><td>3 / 3 / — (não coletado)</td></tr>
+            <tr><td class="rowlabel">Chuva 1.000</td><td>15 ×3</td><td>5 / 5 / 3</td></tr>
+            <tr><td class="rowlabel">Chuva 5.000</td><td>15 ×3</td><td>1 / 5 / 7</td></tr>
+            <tr><td class="rowlabel">Chuva 10.000</td><td>15 ×3</td><td>1 / 5 / 4</td></tr>
+            <tr><td class="rowlabel">Torre N=100</td><td>15 ×3</td><td>4 / 4 / 1</td></tr>
           </tbody>
         </table>
-        <div class="takeaway"><b>Descartes especiais:</b> Chuva 10k tem FPS <b>bimodal</b> (Godot: 6 runs ~10 FPS, 4 runs ~37) → usamos <b>mediana + clusters</b>, não a Média. <b>Datasets inteiros arquivados:</b> 3 do Godot (janela wall-clock antiga). O Chaos-"otimizado" fica à parte, como exercício.</div>
-        <aside class="notes">Contagem de descarte por configuração em results/RESULTS.md; datasets arquivados em results/_arquivo-obsoleto/.</aside>
+        <div class="takeaway"><b>Descartes especiais:</b> Chuva 10k tem FPS <b>bimodal</b> (Godot: ~10 execuções perto de 10 FPS, alguns 40–98) → usamos <b>mediana + grupos</b>, não a Média. <b>~⅓ de descarte é esperado</b> (a faixa ±1σ contém ~68% dos valores). <b>Arquivados:</b> wall-clock antigo + o piloto n=10 (para comparação). O Chaos-"otimizado" fica à parte, como exercício.</div>
+        <aside class="notes">Contagem de descarte por configuração em results/RESULTS.md; comparação n=10×n=15 em results/COMPARISON-n10-vs-n15.md; glossário de métricas em results/METRICS-e-exclusoes.md; datasets arquivados em results/_arquivo-obsoleto/ e _arquivo-2026-07-01-n10/.</aside>
+      </section>
+
+      <section data-background-color="#0a0d1a">
+        <div class="eyebrow"><span class="sec-num">06</span> · Bastidores · reprodutibilidade</div>
+        <h2 class="slide-title">Dois datasets — n=10 e n=15 (e por que batem)</h2>
+        <div class="concept">Rodamos <b>dois lotes independentes</b>: um piloto a <b>10 execuções</b> e o final a <b>15 execuções</b>. Ver cada um <b>em isolado</b> (cada lote, sozinho, dá a mesma classificação) e <b>lado a lado</b> é o teste de reprodutibilidade — se o número mal se move ao subir de 10→15, ele é confiável.</div>
+        <table>
+          <thead><tr><th>Step Time · 10k esferas (ms)</th><th class="th-unity">Unity</th><th class="th-godot">Godot</th><th class="th-unreal">Unreal</th></tr></thead>
+          <tbody>
+            <tr><td class="rowlabel">n=10 (piloto)</td><td>13,1</td><td>32,9</td><td>149,8</td></tr>
+            <tr><td class="rowlabel">n=15 (final, canônico)</td><td>13,3</td><td>32,8</td><td>146,6</td></tr>
+            <tr><td class="rowlabel">Δ (novo − antigo)</td><td>+1,7%</td><td>−0,1%</td><td>−2,2%</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><b>Somando os dois:</b> toda a Chuva se moveu <b>&lt; 7%</b> (pior caso Unity 1k = +6,4%; o 10k mostrado acima ficou ≤ 2,2%), e a classificação (Unity &lt; Godot &lt; Unreal), a diferença de ~11× e os vereditos da Torre (Unreal N=15 = 38% PARCIAL) <b>não mudaram</b>. → resultados <b>reprodutíveis</b>. <b>n=15 é o canônico;</b> o n=10 fica arquivado só para esta comparação.</div>
+        <aside class="notes">Tabela execução a execução completa em results/COMPARISON-n10-vs-n15.md. "Em isolado" = cada lote, sozinho, dá a mesma classificação e vereditos; "somados" = a tabela lado a lado com Δ. Nenhuma conclusão mudou de 10→15 — é o argumento de que o dataset é estável.</aside>
       </section>
 
       <!-- ===================== 7. CONSIDERAÇÕES FINAIS ===================== -->
@@ -471,18 +522,18 @@
         <h2 class="slide-title">Síntese, limites e próximos passos</h2>
         <ul>
           <li><b>Estabilidade:</b> nenhum motor sustenta pilhas rígidas altas com defaults — é arquitetura do solver, não iterações. O Chaos aguenta 1 degrau a mais (Shock Propagation).</li>
-          <li><b>Performance:</b> na Chuva, <b>Unity/PhysX &lt; Godot/Jolt &lt; Unreal/Chaos</b> (Step Time). PhysX é ~11× mais barato que o Chaos em 10k; o sublinear 5k→10k aparece nas três (efeito de janela).</li>
-          <li><b>Limitações honestas:</b> o "gap 11×" do Chaos inclui editor + acoplamento + sync de 10k atores (não é só o solver); FPS não comparável 1-a-1 (Unreal capado a 50 Hz); FPS 10k bimodal; Torre N=100 do Unreal <b>inferida</b>, não medida.</li>
-          <li><b>Trabalhos futuros:</b> coletar Unreal N=100; Chaos em <b>Shipping + Async Physics Tick</b> (esconde o custo); Godot Physics legado vs Jolt.</li>
+          <li><b>Desempenho:</b> na Chuva, <b>Unity/PhysX &lt; Godot/Jolt &lt; Unreal/Chaos</b> (Step Time). PhysX é ~11× mais barato que o Chaos em 10k; o sublinear 5k→10k aparece nas três (efeito de janela).</li>
+          <li><b>Limitações honestas:</b> a "diferença de 11×" do Chaos inclui editor + acoplamento + sincronização de 10k atores (não é só o solver); FPS não comparável 1-a-1 (Unreal capado a 50 Hz); FPS 10k bimodal (lido por mediana + grupos).</li>
+          <li><b>Trabalhos futuros:</b> Chaos em <b>Shipping + Async Physics Tick</b> (esconde o custo); Godot Physics legado vs Jolt; build empacotado (sem editor) p/ isolar o custo puro do solver.</li>
         </ul>
-        <div class="takeaway"><b>Fechamento:</b> a arquitetura do Grau A previu bem o comportamento — e o benchmark o tornou mensurável, <b>corrigindo pelo caminho</b> duas suposições (PGS≠TGS; a leitura do gap do Chaos).</div>
+        <div class="takeaway"><b>Fechamento:</b> a arquitetura do Grau A previu bem o comportamento — e o benchmark o tornou mensurável, <b>corrigindo pelo caminho</b> duas suposições (PGS≠TGS; a leitura da diferença do Chaos).</div>
       </section>
 
       <section data-background-color="#0a0d1a">
         <div class="eyebrow"><span class="sec-num">07</span> · Referências &amp; repositório</div>
         <h2 class="slide-title">Fontes &amp; código</h2>
         <ul class="refs">
-          <li><b>Repositório:</b> <span class="src">código das 3 engines + CSVs brutos + <code>results.md</code></span> <span class="chip warn">link GitHub — a inserir</span></li>
+          <li><b>Repositório:</b> <span class="src">código das 3 engines + CSVs brutos + <code>RESULTS.md</code>, <code>COMPARISON-n10-vs-n15.md</code>, <code>METRICS-e-exclusoes.md</code></span> <span class="chip warn">link GitHub — a inserir</span></li>
           <li><b>Metodologia:</b> spec do assignment-b · <code>howto-statistics.md</code> (método M±σ).</li>
           <li><b>Grau A:</b> levantamento arquitetural que fundamenta as hipóteses (PhysX / Chaos / Jolt).</li>
           <li>Rouwé, J. — <b>Architecting Jolt Physics for 'Horizon Forbidden West'</b>, GDC 2022.</li>
@@ -514,12 +565,12 @@
       pdfSeparateFragments: false,
     });
 
-    // --- Média Final (M±σ) dos datasets CANÔNICOS (sim-time, amostras=500, 10 runs) ---
+    // --- Média Final (M±σ) dos datasets CANÔNICOS (sim-time, amostras=500, 15 execuções) ---
     // Fonte: results/RESULTS.md · chuva-default de cada engine.
     const V = ['1.000', '5.000', '10.000'];
     const COL = { unity: '#cfd3dd', godot: '#35c4d6', unreal: '#b39cff' };
-    const stepData = { unity: [1.43, 6.92, 13.10], godot: [2.87, 15.13, 32.87], unreal: [10.10, 65.59, 149.83] };
-    const fpsData  = { unity: [230.3, 123.5, 49.0], godot: [1663.7, 435.4, 13.7], unreal: [50.0, 14.2, 6.6] };
+    const stepData = { unity: [1.53, 7.15, 13.32], godot: [2.98, 15.22, 32.83], unreal: [10.39, 67.08, 146.55] };
+    const fpsData  = { unity: [232.7, 121.2, 46.1], godot: [1695.4, 430.9, 15.3], unreal: [50.0, 13.9, 6.7] };
 
     // Draw value labels on top of every rendered bar.
     const valueLabel = (fmt) => ({
@@ -543,13 +594,20 @@
       backgroundColor: COL[k], borderRadius: 4, maxBarThickness: 46,
     }));
 
-    const baseOpts = (yTitle) => ({
+    const baseOpts = (yTitle, log = false) => ({
       responsive: true, maintainAspectRatio: false,
       animation: isPrint ? false : { duration: 800, easing: 'easeOutQuart' },
       layout: { padding: { top: 22 } },
       scales: {
-        y: { beginAtZero: true, title: { display: true, text: yTitle, color: '#9aa2b4' },
-             ticks: { color: '#cbd2dc' }, grid: { color: 'rgba(255,255,255,.08)' } },
+        y: log
+          ? { type: 'logarithmic', min: 1,
+              title: { display: true, text: yTitle, color: '#9aa2b4' },
+              // Log axis: label only the "round" decades/halves so the ratio story reads cleanly.
+              ticks: { color: '#cbd2dc',
+                       callback: (v) => ([1, 2, 5, 10, 20, 50, 100, 200].includes(v) ? v : null) },
+              grid: { color: 'rgba(255,255,255,.08)' } }
+          : { beginAtZero: true, title: { display: true, text: yTitle, color: '#9aa2b4' },
+              ticks: { color: '#cbd2dc' }, grid: { color: 'rgba(255,255,255,.08)' } },
         x: { title: { display: true, text: 'Número de esferas', color: '#9aa2b4' },
              ticks: { color: '#cbd2dc' }, grid: { display: false } }
       },
@@ -564,7 +622,7 @@
       stepChart = new Chart(document.getElementById('stepChart'), {
         type: 'bar',
         data: { labels: V.slice(), datasets: datasets(stepData) },
-        options: baseOpts('ms por step'),
+        options: baseOpts('ms por step (log)', true),
         plugins: [valueLabel(v => v.toFixed(1))]
       });
       applyStep(stepStart);

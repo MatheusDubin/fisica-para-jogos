@@ -1,5 +1,9 @@
 # PLANO DE CORREÇÕES — Grau A + Grau B
 
+> ⚠️ **DOCUMENTO HISTÓRICO / INTERNO — tracker de tarefas do piloto n=10.** As correções aqui
+> planejadas foram aplicadas no dataset canônico **n=15**. Onde se lê "dataset final = 10 runs",
+> a decisão foi **posteriormente revista para n=15**. Números canônicos: [`RESULTS.md`](RESULTS.md).
+
 > Arquivo de continuidade. Deriva de `AUDITORIA.md`. Ataca os achados **um de
 > cada vez**. Cada tarefa tem responsável (👤 Dono = precisa rodar engine / decidir;
 > 🤖 Claude = edição de doc/dado/script), dependências e critério de conclusão.

@@ -1,7 +1,13 @@
 # Análise Comparativa — 3 Engines (Grau B)
 
-> Dataset de **10 iterações** por config (coletado 2026-06-30/07-01). 10 é o
-> mínimo do enunciado — **este é o dataset final**, não preliminar.
+> ⚠️ **DOCUMENTO HISTÓRICO — piloto n=10.** O dataset **canônico é n=15** (ver
+> [`RESULTS.md`](RESULTS.md) e os slides). Os números abaixo são do **piloto de 10 runs**;
+> a **classificação e as conclusões se mantêm** no n=15, mas os **valores finais** — e os
+> `kept%` da Torre, e o Unreal N=100 (que aqui consta como "não coletado", mas foi medido no
+> n=15: `kept 2%`) — estão atualizados no `RESULTS.md`. Guia de leitura: [`README.md`](README.md).
+
+> Dataset de **10 iterações** por config (coletado 2026-06-30/07-01), à época tratado como
+> dataset final — **hoje superado pelo dataset canônico n=15** (ver banner acima).
 > Metodologia idêntica nas 3: timestep 0.02s, malhas primitivas, massa 1kg,
 > mesma cena. Chuva com janela **sim-time** (500 passos) nas três → comparável.
 > Tabelas puras + M±σ em `RESULTS.md` (gerado por `aggregate_stats.py`).

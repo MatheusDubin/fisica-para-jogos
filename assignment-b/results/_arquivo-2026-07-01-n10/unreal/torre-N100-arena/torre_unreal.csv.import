@@ -1,0 +1,16 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://fpngmb166glx"
+
+[deps]
+
+source_file="res://fisica-para-jogos/assignment-b/results/unreal/torre-N100-arena/torre_unreal.csv"
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true
