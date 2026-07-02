@@ -86,10 +86,16 @@ func _criar_ambiente(num_cubos: int) -> void:
 	# em qualquer numero de cubos (10, 50, 100...).
 	# IMPORTANTE: add_child ANTES de look_at - look_at depende de global_transform
 	# que so eh valido depois do node estar na arvore.
+	# Enquadramento calculado: FOV vertical 60 deg, vista 3/4 (azimute 45 deg).
+	# Distancia horizontal por eixo = 0.81*H enquadra a torre inteira ocupando
+	# ~80% da altura do frame (H = altura da torre). Mira em 0.42*H (um pouco
+	# abaixo do centro, para o colapso perto do chao ficar bem visivel).
 	var cam := Camera3D.new()
-	var dist: float = max(8.0, altura * 1.5)
-	var cam_y: float = max(2.0, altura * 0.45)
-	var look_y: float = max(0.5, altura * 0.20)
+	cam.fov = 60.0
+	cam.keep_aspect = Camera3D.KEEP_HEIGHT
+	var dist: float = maxf(15.0, altura * 0.81)
+	var cam_y: float = maxf(8.0, altura * 0.50)
+	var look_y: float = maxf(4.0, altura * 0.42)
 	cam.position = Vector3(dist, cam_y, dist)
 	cam.far = 4000.0
 	add_child(cam)

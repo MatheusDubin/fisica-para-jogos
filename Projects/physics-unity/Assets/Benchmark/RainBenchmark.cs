@@ -67,8 +67,10 @@ namespace Benchmark
             // Stepping manual para cronometrar o passo de fisica com precisao.
             Physics.simulationMode = SimulationMode.Script;
 
-            // Permite rodar uma unica variacao via env (ex: BENCH_RAIN_VARIATIONS=10000).
+            // Permite rodar variacoes especificas via env BENCH_RAIN_VARIATIONS
+            // (ex: "10000") ou via PlayerPref bench_rain_variations (setado pelo menu).
             string ov = Environment.GetEnvironmentVariable("BENCH_RAIN_VARIATIONS");
+            if (string.IsNullOrEmpty(ov)) ov = PlayerPrefs.GetString("bench_rain_variations", "");
             if (!string.IsNullOrEmpty(ov))
             {
                 var parts = ov.Split(',');
@@ -95,7 +97,10 @@ namespace Benchmark
             };
 
             CriarCaixa();
-            BenchmarkCommon.CreateViewer("ChuvaViewer", new Vector3(55, 35, 55), new Vector3(0, 18, 0), 1000f);
+            // Enquadramento calculado: FOV vertical 60 (default), vista 3/4. Distancia
+            // por eixo 37 (~52 m diagonal) enquadra do chao ate o topo do bloco de
+            // spawn de 10k (~50 m). Mira em y=22.
+            BenchmarkCommon.CreateViewer("ChuvaViewer", new Vector3(37, 26, 37), new Vector3(0, 22, 0), 1000f);
 
             Debug.Log($"[Chuva] Unity {Application.unityVersion}, solverIter={Physics.defaultSolverIterations}, " +
                       $"simulationMode={Physics.simulationMode}, runs={_totalRuns}, variacoes=[{string.Join(",", _variacoes)}]");

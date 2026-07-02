@@ -114,11 +114,16 @@ func _criar_ambiente() -> void:
 
 	# Camera: add_child ANTES de look_at para que look_at use o global_transform
 	# corretamente.
+	# Enquadramento calculado: FOV vertical 60 deg, vista 3/4 (azimute 45 deg).
+	# Distancia por eixo 37 (~52 m em diagonal) enquadra a queda inteira: do chao
+	# (y=0) ate o topo do bloco de spawn de 10k (~50 m). Mira em y=22.
 	var cam := Camera3D.new()
-	cam.position = Vector3(55, 35, 55)
+	cam.fov = 60.0
+	cam.keep_aspect = Camera3D.KEEP_HEIGHT
+	cam.position = Vector3(37, 26, 37)
 	cam.far = 1000.0
 	add_child(cam)
-	cam.look_at(Vector3(0, 20, 0), Vector3.UP)
+	cam.look_at(Vector3(0, 22, 0), Vector3.UP)
 
 # Caixa fechada (6 paredes estaticas). Criada UMA VEZ; persiste entre runs.
 func _criar_caixa() -> void:

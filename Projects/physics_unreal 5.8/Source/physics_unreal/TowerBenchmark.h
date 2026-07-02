@@ -38,9 +38,10 @@ private:
 	static constexpr float SPACING = 100.0f;     // faces tocando, sem gap
 	static constexpr float OFFSET_INICIAL = 50.0f; // centro do cubo base em z=50 (base toca o chao)
 	static constexpr float TIMEOUT_S = 60.0f;
-	// Distancia da camera = fator * altura da torre. MENOR = mais perto.
-	// (0.9 = tela cheia ~metade; use 0.5-0.6 para bem perto, 1.2 para longe.)
-	static constexpr float CAM_DIST_FACTOR = 0.7f;
+	// Distancia horizontal da camera POR EIXO (X e Y) = fator * altura da torre.
+	// Com azimute 45 deg a distancia diagonal fica ~1.15*H, enquadrando a torre
+	// inteira em ~80% da altura do frame (FOV vertical ~60). MENOR = mais perto.
+	static constexpr float CAM_DIST_FACTOR = 0.81f;
 
 	// Config (resolvida em BeginPlay a partir de UBenchmarkSettings).
 	TArray<int32> NValues;

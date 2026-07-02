@@ -171,12 +171,15 @@ namespace Benchmark
         void EnquadrarCamera()
         {
             if (_viewer != null) Destroy(_viewer);
+            // Enquadramento calculado: FOV vertical 60 (default do Unity), vista 3/4
+            // (azimute 45). Distancia horizontal por eixo = 0.81*H enquadra a torre
+            // inteira ocupando ~80% da altura do frame. Mira em 0.42*H.
             float altura = N * SPACING;
-            float dist = Mathf.Max(20f, altura * 1.2f);
+            float dist = Mathf.Max(15f, altura * 0.81f);
             _viewer = BenchmarkCommon.CreateViewer(
                 "TorreViewer",
-                new Vector3(dist, altura * 0.5f, dist),
-                new Vector3(0f, altura * 0.25f, 0f),
+                new Vector3(dist, altura * 0.50f, dist),
+                new Vector3(0f, altura * 0.42f, 0f),
                 4000f);
         }
 
