@@ -8,14 +8,14 @@
 
 ## 1. Gerar os arquivos de projeto do Visual Studio
 
-Feche o Unreal Editor. Na raiz do projeto (`Projects/physics_unreal/`):
+Feche o Unreal Editor. Na raiz do projeto (`Projects/physics_unreal 5.8/`):
 
 - **Opção A (mais fácil):** clique com o botão direito em `physics_unreal.uproject`
   no Explorer → **Generate Visual Studio project files**.
 - **Opção B (linha de comando):**
   ```powershell
   & "C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat" `
-    -projectfiles -project="C:\Users\mathe\Documents\physics\fisica-para-jogos\Projects\physics_unreal\physics_unreal.uproject" `
+    -projectfiles -project="$PWD\physics_unreal.uproject" `
     -game -engine
   ```
 
@@ -33,7 +33,7 @@ Isso cria `physics_unreal.sln` e as pastas `Binaries/`, `Intermediate/`.
   ```powershell
   & "C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat" `
     physics_unrealEditor Win64 Development `
-    -project="C:\Users\mathe\Documents\physics\fisica-para-jogos\Projects\physics_unreal\physics_unreal.uproject"
+    -project="$PWD\physics_unreal.uproject"
   ```
 
 > **Se o UBT reclamar do compilador VS 2026** ("unsupported compiler version"):

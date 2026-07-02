@@ -35,10 +35,11 @@
 | **N da Torre** | T-50 / T-100 / T-200 | **N=100** (canônico) + **sweep N=10/15/20** (limiar de colapso) | N=100 = "quantidade elevada"; sweep acha onde quebra. N=200 não testado (todas já colapsam bem antes) | baixo |
 | **Gravidade** | −9.81 m/s² | Unity −9.81 · Unreal −9.80 · Godot −9.8 (defaults) | defaults de engine | desprezível (<0.1%) |
 
-**Runs por configuração:** **10** (mínimo do enunciado) — é o dataset final,
-coletado 2026-06-30/07-01. *(Datasets exploratórios com n<10 — sweeps PGS/TGS do
-Unity — ficam rotulados como "análise crítica exploratória", não como resultado
-principal.)*
+**Runs por configuração:** **15** (dataset final canônico; acima do mínimo de 10 do
+enunciado). Um piloto de 10 runs ficou arquivado em `results/_arquivo-2026-07-01-n10/`
+apenas para a comparação de reprodutibilidade. *(Datasets exploratórios com n<10 —
+sweeps PGS/TGS do Unity — ficam rotulados como "análise crítica exploratória", não
+como resultado principal.)*
 
 ---
 
