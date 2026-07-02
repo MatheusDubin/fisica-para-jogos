@@ -47,6 +47,7 @@
 | `slides/grau-b.html` | ★ | **Apresentação do Grau B** (reveal.js — abrir no navegador). |
 | `slides/grau-a.html` | ★ | Apresentação do Grau A. |
 | `slides/GUIA-DE-ESTUDO-grau-b.md` | ★ | Glossário + conceitos + perguntas & respostas para a defesa. |
+| `slides/estudo-interativo-grau-b.html` | ★ | **Guia de estudo interativo** (abrir no navegador): conceitos + aprofundamentos (jitter, tempos, M±σ) + flashcards, quiz e colinha. |
 
 ### Resultados (evidência) — `assignment-b/results/`
 > **Comece pelo [`results/README.md`](assignment-b/results/README.md)** — índice + dicionário dos CSVs.
