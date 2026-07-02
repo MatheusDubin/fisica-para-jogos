@@ -283,8 +283,9 @@
     <p><b>Regra de ouro do experimento:</b> só o <b>motor de física</b> muda entre as engines. Todo o
     resto é travado igual — <code>fixed timestep 0,02 s (50 Hz)</code>, gravidade ≈ −9,81 m/s²,
     massa 1 kg, atrito 0,5, restituição 0 (Torre), formas primitivas, cena 100% gerada em código,
-    solver e sleep nos <b>defaults de fábrica</b> (exigência do spec: “não modificar — é parte do que
-    se compara”). É isso que torna a comparação <b>justa</b>.</p>
+    solver e sleep nos <b>defaults de fábrica</b> — regra travada no nosso protocolo (doc genérico,
+    §2.1: “não modificar — é parte do que se compara”; o enunciado em si obriga malha primitiva,
+    massa, atrito e timestep fixo). É isso que torna a comparação <b>justa</b>.</p>
   </div>
 
   <h3>As três trilhas de conceitos</h3>
@@ -357,7 +358,8 @@
       <p>Para cada par candidato, testa a colisão <b>exata</b> (geometria contra geometria) e gera os
       <b>pontos de contato</b>.</p>
       <p><span style="color:var(--orange)">No nosso trabalho:</span> o experimento “Chaos otimizado”
-      provou que o gargalo do Unreal está no pipeline de colisão (broad+narrow), não nas iterações.</p>
+      provou que o gargalo do Unreal <b>não</b> são as iterações (cortá-las piorou); o diagnóstico da
+      análise aponta o pipeline de colisão (broad+narrow) como custo dominante.</p>
     </div>
     <div class="card">
       <h4>3 · Solver</h4>
@@ -387,7 +389,7 @@
       <p><b>Continuous Collision Detection</b> evita <i>tunneling</i> (corpo rápido atravessar outro
       entre dois passos). Custa caro — por isso é opt-in.</p>
       <p><span style="color:var(--orange)">No nosso trabalho:</span> desligar CCD no bundle “Chaos
-      otimizado” não moveu o ponteiro — as esferas nem o usavam.</p>
+      otimizado” não fez diferença mensurável — as esferas nem o usavam.</p>
     </div>
   </div>
 
@@ -459,7 +461,7 @@
       Steps). Compete com “mais iterações” como remédio para pilhas — e ganha.</p>
       <p><span class="lbl o">No nosso trabalho</span> Experimento exploratório (n=3): TGS sobe
       <b>1 degrau</b> — sustenta N=15 (onde PGS colapsa), mas colapsa em N=20. Não entra na comparação
-      principal (spec exige defaults) e não apoiamos tese forte nele (n pequeno).</p>
+      principal (o protocolo exige defaults) e não apoiamos tese forte nele (n pequeno).</p>
     </div>
   </details>
 
@@ -482,7 +484,8 @@
       contatos <b>em camadas, de baixo para cima</b>, tratando os corpos de baixo como “mais pesados”
       / quase imóveis. Feito exatamente para pilhas. Detalhe concreto do mecanismo: o Chaos escala a
       massa inversa do corpo de baixo em cada contato
-      (<code>p.Chaos.PBDCollisionSolver.Position.MinInvMassScale = 0,77</code>).</p>
+      (<code>p.Chaos.PBDCollisionSolver.Position.MinInvMassScale = 0.77</code> — ponto mesmo, é um
+      CVar).</p>
       <p><span class="lbl">Conexões</span> Ataca a causa do pancaking (sub-resolução da força na
       base). É a explicação arquitetural do “degrau” do Chaos na Torre.</p>
       <p><span class="lbl o">No nosso trabalho</span> Previsão do Grau A <b>confirmada</b>: só o Chaos
@@ -499,8 +502,10 @@
       fraqueza) agrava a não-convergência.</p>
       <p><span class="lbl o">No nosso trabalho</span> Hipótese do Grau A para o Jolt: ele é descrito
       como “sem warm-start <b>de ilha</b>” (não reaproveita a solução por grupo de contato inteiro
-      entre passos) — pilhas grandes perfeitamente empilhadas não convergem, e o Godot colapsou a
-      torre N=100 10/10, consistente com isso.</p>
+      entre passos) — consistente com a convergência <i>errática</i> do Godot (N=10: tempos de 0,5 s a
+      11 s na mesma config). Atenção: o colapso N=100 em si <b>não</b> é evidência disso — o Unity,
+      que tem warm starting, colapsou exatamente igual; o colapso é do solver iterativo sem shock
+      propagation.</p>
     </div>
   </details>
 
@@ -550,8 +555,8 @@
       resolve. Mais corpos acordados e tremendo = mais contatos ativos = mais narrowphase.</p>
       <p><span class="lbl o">No nosso trabalho</span> No “Chaos otimizado”, cortar iterações deixou a
       pilha <i>menos</i> estável → mais corpos acordados → <b>mais</b> trabalho de colisão → em 10k
-      ficou <b>+19% mais lento</b> (146,6 → 173,8 ms; em 1k, empate técnico). A economia foi engolida
-      pelo contato extra.</p>
+      ficou <b>+16% mais lento</b> (149,8 → 173,8 ms no lote do experimento; em 1k, +2,2%). A economia
+      foi engolida pelo contato extra.</p>
     </div>
   </details>
 
@@ -711,7 +716,7 @@
     <thead><tr><th>Fator</th><th>Por quê</th><th>No nosso setup</th></tr></thead>
     <tbody>
       <tr><td>Poucas iterações do solver</td><td>menos varreduras = mais erro residual por passo</td>
-        <td>defaults travados pelo spec (Unity 6+1, Chaos 8+2)</td></tr>
+        <td>defaults travados pelo protocolo (Unity 6+1, Chaos 8+2)</td></tr>
       <tr><td>Timestep grande (&gt;0,02 s)</td><td>cada passo acumula mais erro para corrigir</td>
         <td>0,02 s fixo (o limite recomendado)</td></tr>
       <tr><td>Restituição &gt; 0</td><td>quica eternamente, nunca assenta</td>
@@ -733,10 +738,10 @@
     de N cubos, e o spec exige empilhamento perfeito, sem offset — todas as constraints da cadeia
     ficam ativas ao mesmo tempo, e o erro de cada contato se propaga <i>para cima</i> da pilha.
     Em uma cadeia de 15–100 contatos, com 6–8 iterações por passo, o solver simplesmente não tem
-    varreduras suficientes para convergir a força correta dentro de um único passo.</li>
-    <li><b>Defaults obrigatórios.</b> O spec proíbe subir iterações ou mexer no sleep (“é parte do
-    que se compara”). O remédio clássico contra jitter estava proibido — de propósito, porque o
-    objetivo era medir o comportamento <i>de fábrica</i>.</li>
+    varreduras suficientes para fazer a força convergir ao valor correto dentro de um único passo.</li>
+    <li><b>Defaults travados.</b> O nosso protocolo (doc genérico, §2.1) trava iterações e sleep nos
+    valores de fábrica (“é parte do que se compara”). O remédio clássico contra jitter ficou proibido —
+    de propósito, porque o objetivo era medir o comportamento <i>out-of-the-box</i>.</li>
     <li><b>Corpos rígidos ideais.</b> Cubos de 1 m, 1 kg, restituição 0, atrito 0,5: sem damping
     extra, sem “amortecedor” que escondesse a oscilação numérica.</li>
   </ol>
@@ -802,8 +807,9 @@
     <p><b>Bastidor que vale contar:</b> nas primeiras rodadas do Godot N=100 <i>sem paredes</i>,
     5 de 10 runs davam timeout — cubos ejetados a ~97 m/s escapavam do chão e caíam para sempre,
     então a cena <b>nunca dormia</b>. A correção foi decisão de método: <b>arena fechada</b> (paredes
-    + teto) para conter os cubos. Os mesmos runs passaram a assentar em ~8,8 s. Sem isso, o “tempo até
-    dormir” media cubos caindo no vazio, não física de pilha.</p>
+    + teto) para conter os cubos. As mesmas runs passaram a assentar em ~8,6 s (média canônica n=15;
+    ~8,8 s no lote da época). Sem isso, o “tempo até dormir” media cubos caindo no vazio, não física
+    de pilha.</p>
   </div>
 
   <h3>O experimento decisivo: iterações curam jitter, não colapso</h3>
@@ -888,7 +894,7 @@
     Se Step Time &lt; 20 ms, a física consegue rodar em tempo real (Unity 10k: 13,3 ms — folga).
     Se Step Time &gt; 20 ms, a simulação não acompanha o relógio: o Unreal em 10k gasta 146,6 ms
     para avançar 20 ms — rodando acoplado, o jogo fica ~7× mais lento que o tempo real
-    (FPS ≈ 1000/146,6 ≈ 6,7 — bate exatamente com o medido).</p>
+    (FPS ≈ 1000/146,6 ≈ 6,8 — praticamente igual ao medido, 6,7).</p>
   </div>
 
   <h3>O bug que quase invalidou a Chuva: janela wall-clock</h3>
@@ -996,7 +1002,7 @@
       <h4>Distribuição bimodal → mediana + grupos</h4>
       <p>Caso real: <b>Godot Chuva 10k FPS</b> = 98; 25,7; 13,9; 10,3; 9,5… — um cluster em ~10 FPS e
       outro em 42–98 FPS. A média não representa <i>nenhum</i> grupo, e a faixa ±σ chega a incluir
-      valor <b>negativo</b> ([−0,2, 46,8]). Sistema bistável (throttling? scheduling? pressão no frame
+      valor <b>negativo</b> ([−0,2; 46,8]). Sistema bistável (throttling? scheduling? pressão no frame
       budget?) → reportamos <b>mediana (~12 FPS)</b> + os clusters separadamente.</p>
     </div>
     <div class="card">
@@ -1010,9 +1016,10 @@
   <div class="box warn">
     <p><b>E nunca compare σ entre engines.</b> O σ mede coisas diferentes em cada uma: no Godot da
     Torre, ruído de relógio (o tempo era lido em wall-clock); no Unity, não-determinismo de threading
-    do PhysX; no Unreal, <b>σ=0</b> — as 15 runs são bit-idênticas (timestep fixo + spawn
-    determinístico), o que significa <i>n efetivo = 1</i>, não “engine mais estável”. O filtro ±σ até
-    fica vazio no Unreal. σ é ferramenta <i>interna</i> de cada dataset, não métrica comparativa.</p>
+    do PhysX; no <b>sweep da Torre</b> do Unreal, <b>σ=0</b> — as 15 runs saem bit-idênticas (timestep
+    fixo + spawn determinístico), o que significa <i>n efetivo = 1</i>, não “engine mais estável”, e o
+    filtro ±σ nem tem o que descartar ali. (Na Chuva o Unreal tem σ normal — ex.: 8 ms em 10k — e o
+    filtro age normalmente.) σ é ferramenta <i>interna</i> de cada dataset, não métrica comparativa.</p>
   </div>
 
   <h3>Reprodutibilidade: o teste n=10 × n=15</h3>
@@ -1044,7 +1051,7 @@
     <div class="tile"><div class="lb">Godot · Jolt (10k)</div><div class="v" style="color:var(--godot-t)">≈2,5×</div>
       <div class="d">o do meio — 32,8 ms vs 13,3 ms</div></div>
     <div class="tile"><div class="lb">Unreal · Chaos (10k)</div><div class="v" style="color:var(--unreal-t)">≈11×</div>
-      <div class="d">custo bruto do nosso setup (editor + acoplado + LWC)</div></div>
+      <div class="d">custo bruto do nosso setup (editor + acoplamento + sync de 10k atores)</div></div>
     <div class="tile"><div class="lb">Execuções cronometradas</div><div class="v">≈315</div>
       <div class="d">Chuva 135 · Torre sweep 135 · N=100 45 + exploratórios</div></div>
   </div>
@@ -1109,16 +1116,18 @@
       <tr><td>Shock Propagation ajuda a Torre</td><td>✅ Confirmou</td>
         <td>Chaos é o único a segurar 1 degrau a mais (N=15, kept 38%)</td></tr>
       <tr><td>Chaos é o mais caro</td><td>✅ Confirmou</td>
-        <td>146,6 ms em 10k ≈ 11× o PhysX (LWC + XPBD + setup)</td></tr>
+        <td>146,6 ms em 10k ≈ 11× o PhysX — custo bruto do setup (editor + acoplamento + sync de
+        atores; LWC/XPBD são fatores plausíveis do Grau A, não isolados na medição)</td></tr>
       <tr><td>Jolt escala melhor / é o mais rápido</td><td>❌ Inverteu</td>
         <td>o mais barato em <b>toda</b> escala foi o PhysX; Jolt ficou no meio (≈2,5×)</td></tr>
       <tr><td>Unity usa TGS por default</td><td>❌ Corrigido</td>
         <td>default real é PGS (<code>m_SolverType:0</code>) — Grau A ajustado</td></tr>
     </tbody>
   </table>
-  <p>E a leitura honesta do 11×: é <b>custo bruto da nossa configuração</b> (editor + física acoplada
-  + sincronização de 10k atores + LWC), não “o solver do Chaos é 11× pior”. Num build Shipping com
-  Async Physics, boa parte desse custo sai da frente do jogador.</p>
+  <p>E a leitura honesta do 11×: é <b>custo bruto da nossa configuração</b> — editor + física acoplada
+  + sincronização de 10k atores (tudo isso <i>entra</i> na janela medida), com LWC/precisão dupla como
+  fator <i>plausível</i> vindo do Grau A, não medido isoladamente —, e não “o solver do Chaos é 11×
+  pior”. Num build Shipping com Async Physics, boa parte desse custo sai da frente do jogador.</p>
 </section>
 
 <!-- ================================================================ 8 EXERCÍCIOS -->
@@ -1142,7 +1151,7 @@
     <button class="btn" id="fc-shuffle">🔀 embaralhar</button>
   </div>
 
-  <h3>8.2 · Quiz <small style="color:var(--muted);font-weight:400">(23 questões, feedback imediato — as três últimas são de cálculo)</small></h3>
+  <h3>8.2 · Quiz <small style="color:var(--muted);font-weight:400">(23 questões, feedback imediato — as três últimas aplicam os números na prática)</small></h3>
   <div id="quiz"></div>
   <div id="qz-score"></div>
   <button class="btn" id="qz-reset">↺ refazer o quiz</button>
@@ -1155,8 +1164,9 @@
 
   <details class="open-q"><summary>“Por que o Unreal ficou tão mais lento? O Chaos é ruim?”</summary>
     <div class="a"><p>Não necessariamente. A nossa medição do Unreal é <b>custo bruto da
-    configuração</b>: editor + física <b>acoplada</b> ao frame + sincronização de 10k atores +
-    <b>LWC</b> (alta precisão) + XPBD. Não isolamos o solver puro — a métrica
+    configuração</b>: editor + física <b>acoplada</b> ao frame + sincronização de 10k atores — mais
+    <b>LWC</b> (alta precisão) e XPBD como fatores plausíveis do Grau A, não isolados na medição.
+    Não isolamos o solver puro — a métrica
     <code>TG_Pre→PostPhysics</code> engloba mais coisa que o <code>Physics.Simulate()</code> do Unity.
     Num build Shipping com Async Physics, boa parte desse custo some da frente do jogador. A comparação
     é justa como “custo de rodar 10k corpos naquele editor”, não como “o solver é 11× pior”.</p></div>
@@ -1178,15 +1188,17 @@
   </details>
 
   <details class="open-q"><summary>“Por que não mexeram nas iterações / no solver para segurar a torre?”</summary>
-    <div class="a"><p>(1) O spec <b>proíbe</b> — o comportamento default é parte do que se compara.
-    (2) Testamos mesmo assim, como experimento: 6→20 iterações <b>não</b> movem o colapso (só o
-    jitter); PGS→TGS sobe apenas 1 degrau (N=15 ok, N=20 colapsa). É o <b>algoritmo</b> que importa —
-    e nenhum default segura pilha alta; por isso jogos evitam pilhas rígidas altas.</p></div>
+    <div class="a"><p>(1) O nosso protocolo <b>trava os defaults</b> (doc genérico, §2.1: “não
+    modificar — é parte do que se compara”) — decisão de método para comparar o out-of-the-box, não
+    exigência literal do enunciado. (2) Testamos mesmo assim, como experimento: 6→20 iterações
+    <b>não</b> movem o colapso (só o jitter); PGS→TGS sobe apenas 1 degrau (N=15 ok, N=20 colapsa). É
+    o <b>algoritmo</b> que importa — e nenhum default segura pilha alta; por isso jogos evitam pilhas
+    rígidas altas.</p></div>
   </details>
 
   <details class="open-q"><summary>“O Chaos ‘segurou’ a torre em N=15 mesmo?”</summary>
-    <div class="a"><p>Parcialmente. <code>kept=38%</code> é colapso <b>PARCIAL</b> — a metade de cima
-    cede (max_v ~19,5 m/s prova que houve queda), mas ~⅓ fica de pé, graças ao <b>Shock
+    <div class="a"><p>Parcialmente. <code>kept=38%</code> é colapso <b>PARCIAL</b> — os ~⅔ de cima
+    cedem (max_v ~19,5 m/s prova que houve queda), mas ~⅓ fica de pé, graças ao <b>Shock
     Propagation</b> (contatos processados de baixo para cima). Os outros dois achatam em N=15. Em
     N=20 todos colapsam — efeito real, porém limitado. E ressalva honesta: não desligamos o Shock
     Propagation para provar a causa; é consistência com o Grau A, não prova isolada.</p></div>
@@ -1210,7 +1222,7 @@
     <div class="a"><p>Jitter é o tremor residual de um corpo que deveria estar em repouso: o solver
     iterativo não converge e alterna entre dois estados próximos a cada passo. Nossa torre é o pior
     caso por construção: pilha alta e perfeitamente alinhada (o erro se propaga cubo a cubo), poucas
-    iterações (defaults travados pelo spec), corpos rígidos ideais. Vimos os três regimes: Unity-PGS
+    iterações (defaults travados pelo protocolo), corpos rígidos ideais. Vimos os três regimes: Unity-PGS
     tremendo dezenas de segundos (2 timeouts em N=10), Godot com jitter na fase de colapso (2–6 s), e
     Chaos com micro-jitter longo sem queda (21 s até dormir em N=10). E provamos com experimento:
     iterações 6→20 derrubam o jitter (max_v 0,5→0,12 m/s) mas não movem o colapso.</p></div>
@@ -1365,7 +1377,7 @@ const CARDS = [
  {f:'TGS (Temporal Gauss-Seidel)', b:'Variante opt-in do PhysX: substeps + reavaliação de posição no meio do passo.<br><br><b>Nosso teste (n=3):</b> sobe 1 degrau — segura N=15, colapsa em N=20.'},
  {f:'XPBD', b:'Solver do Chaos (Unreal). Trabalha por <b>posição</b>, com constraints compliantes. Ideia do “Small Steps” (Macklin 2019): passos pequenos estabilizam.<br><br>Parte do custo maior por passo do Chaos.'},
  {f:'Shock Propagation', b:'Mecanismo do Chaos (default), feito para pilhas: processa contatos <b>de baixo para cima</b>, tratando os de baixo como quase imóveis.<br><br>Explica o degrau: só o Chaos segura ~⅓ da pilha em N=15 (kept 38%).'},
- {f:'Warm starting', b:'O solver reaproveita os impulsos do passo anterior como chute inicial → converge mais rápido em cenas quase estáticas.<br><br>Hipótese do Grau A: fraqueza disso no Jolt contribui para o colapso de pilhas grandes.'},
+ {f:'Warm starting', b:'O solver reaproveita os impulsos do passo anterior como chute inicial → converge mais rápido em cenas quase estáticas.<br><br>Hipótese do Grau A: o Jolt “sem warm-start de ilha” converge de forma errática (Godot N=10: 0,5 s a 11 s). O colapso N=100 não discrimina — o Unity, com warm starting, colapsou igual.'},
  {f:'LWC (Large World Coordinates)', b:'Coordenadas de alta precisão (double) da Unreal, para mundos gigantes.<br><br>Eleva o custo base de cada operação de física — fator <i>plausível</i> (não isolado) do ≈11× do Chaos.'},
  {f:'Broadphase', b:'1ª etapa da colisão: acha <b>pares candidatos</b> de forma barata (PhysX: SAP — Sweep and Prune).<br><br>Com 10k corpos é onde o número de pares explode.'},
  {f:'Narrowphase', b:'2ª etapa: testa a colisão <b>exata</b> de cada par e gera os pontos de contato que o solver vai resolver.'},
@@ -1373,7 +1385,7 @@ const CARDS = [
  {f:'Sleep', b:'Corpo quase parado é posto para “dormir” (sai da simulação) para poupar CPU.<br><br>Limiar por engine: Unity 0,005 m/s · Jolt 0,03 m/s · Chaos 5 frames → “tempo até dormir” NÃO compara entre engines.'},
  {f:'Jitter', b:'<b>Tremor residual</b>: o corpo deveria estar parado mas vibra, porque o solver não convergiu e alterna entre dois estados próximos a cada passo.<br><br>Sintoma de pilha mal resolvida; adia o sleep; melhora com iterações.'},
  {f:'Pancaking', b:'A coluna <b>achata reta para baixo</b> (top_y cai monotônico 99,5→1,5 m; max_v ~36–40 m/s = queda por gravidade).<br><br>Diferente de explosão (ejeção em alta velocidade). Foi o nosso modo de colapso.'},
- {f:'Espiral da morte', b:'Passo de física demora mais que o timestep → o motor roda mais passos para compensar → afunda cada vez mais.<br><br>Unreal 10k: 146,6 ms por passo de 20 ms → acoplado, degrada para 6,7 FPS.'},
+ {f:'Espiral da morte', b:'Passo de física demora mais que o timestep → o motor roda passos EXTRAS para compensar → afunda cada vez mais.<br><br><b>Pegadinha:</b> o nosso Unreal 10k (146,6 ms por passo de 20 ms) NÃO espirala — com Fixed Frame Rate ele roda 1 passo por frame e ocorre <b>dilatação do tempo</b> (degrada para 6,7 FPS).'},
  {f:'Timestep fixo (0,02 s)', b:'A física avança em passos fixos de 20 ms <b>simulados</b>, independente do FPS. 50 Hz, determinístico, igual nas três — exigência do spec e base de toda a comparação.'},
  {f:'Physics Step Time', b:'Tempo de <b>CPU</b> (ms) para avançar UM passo de física com N corpos.<br><br><b>É a métrica que compara</b> — mesma grandeza nas três engines. 10k: Unity 13,3 · Godot 32,8 · Unreal 146,6 ms.'},
  {f:'FPS × acoplamento', b:'FPS é o ritmo do <b>render</b>. Unreal roda física acoplada (FPS ≈ 1000/step, teto 50); Unity/Godot desacoplam (FPS = velocidade de GPU).<br><br>Godot: 1695 FPS com física a 50 Hz → FPS NÃO compara entre engines.'},
@@ -1388,13 +1400,15 @@ let fcIdx = 0, fcOrder = CARDS.map((_,i)=>i);
 const fcEl = document.getElementById('fc');
 function fcRender(){
   const c = CARDS[fcOrder[fcIdx]];
+  const wasFlipped = fcEl.classList.contains('flip');
   fcEl.classList.remove('flip');
   setTimeout(()=>{
     document.getElementById('fc-front').textContent = c.f;
     document.getElementById('fc-back').innerHTML = c.b;
-  }, fcEl.classList.contains('flip') ? 220 : 0);
+  }, wasFlipped ? 220 : 0);
   document.getElementById('fc-count').textContent = (fcIdx+1)+' / '+CARDS.length;
 }
+// captura o estado ANTES de desvirar, para só trocar o conteúdo após a animação
 fcEl.addEventListener('click',()=>fcEl.classList.toggle('flip'));
 fcEl.addEventListener('keydown',e=>{
   if(e.key===' '){e.preventDefault();fcEl.classList.toggle('flip');}
@@ -1477,8 +1491,8 @@ const QUIZ = [
    '30% mais rápido, como esperado',
    'Mesma velocidade, menos determinismo',
    '10% mais rápido mas com a torre colapsando antes',
-   '+19% MAIS LENTO em 10k (146,6 → 173,8 ms) — o gargalo é o pipeline de colisão, não as iterações'],
-  e:'Menos iterações = pilha menos estável = mais corpos acordados = mais contatos = mais narrowphase. Otimização que falha, bem documentada, também é achado.'},
+   '+16% MAIS LENTO em 10k (149,8 → 173,8 ms no lote do experimento) — as iterações não são o gargalo'],
+  e:'Menos iterações = pilha menos estável = mais corpos acordados = mais contatos = mais colisão para resolver. Otimização que falha, bem documentada, também é achado. (Contra o default canônico n=15, 146,6 ms, a diferença chega a ~+19% — mas a comparação limpa é dentro do mesmo lote.)'},
  {q:'Descartar ~⅓ das execuções no filtro M±σ indica dado ruim?', a:1, opts:[
    'Sim — mais de 20% de descarte invalida a amostra',
    'Não — numa distribuição normal, ±1σ contém ~68% dos valores; ~32% caem fora por definição',
@@ -1519,7 +1533,7 @@ const QUIZ = [
    'Porque é pago na Asset Store',
    'Porque só existe no Unreal',
    'Porque deixa a simulação não-determinística',
-   'Porque o spec exige defaults de fábrica (TGS é opt-in) — e nosso sweep TGS foi exploratório (n=3), insuficiente para tese forte'],
+   'Porque o protocolo do benchmark exige defaults de fábrica (TGS é opt-in) — e nosso sweep TGS foi exploratório (n=3), insuficiente para tese forte'],
   e:'“Não modificar — é parte do que se compara.” Mesmo assim testamos: TGS sobe 1 degrau (N=15 ok, N=20 colapsa).'},
  {q:'Qual frase resume a conclusão da Torre?', a:1, opts:[
    'O Chaos resolve pilhas de qualquer altura graças ao XPBD',
@@ -1534,11 +1548,11 @@ const QUIZ = [
    'kept 90% → ESTÁVEL'],
   e:'kept% = topo final ÷ topo esperado = 1,95 ÷ 19,5 = 10%. Abaixo de 25% → COLAPSOU. (É a linha real do Godot N=20.)'},
  {q:'CÁLCULO — 10 runs com nove valores ~4,3 ms e um spike de 18,7 ms (M=5,74; σ=4,32). O que o filtro M±σ faz?', a:0, opts:[
-   'Descarta só o 18,7 (fora de [1,42, 10,06]) → Média Final ~4,3 ms, o comportamento típico',
+   'Descarta só o 18,7 (fora de [1,42; 10,06]) → Média Final ~4,3 ms, o comportamento típico',
    'Descarta os nove valores baixos, mantendo o spike',
    'Não descarta nada, porque 18,7 < M+2σ',
    'Descarta o maior e o menor valor, sempre'],
-  e:'É o exemplo do howto-statistics: a faixa é [5,74−4,32, 5,74+4,32] = [1,42, 10,06]; só o spike (GC/SO) cai fora. A média bruta (5,74) era enganosa; a final (~4,30) representa a engine.'},
+  e:'É o exemplo do howto-statistics: a faixa é [5,74−4,32; 5,74+4,32] = [1,42; 10,06]; só o spike (GC/SO) cai fora. A média bruta (5,74) era enganosa; a final (~4,30) representa a engine.'},
  {q:'O Unreal em 10k (146,6 ms por passo de 20 ms, acoplado, 1 passo por frame) entra em espiral da morte?', a:1, opts:[
    'Sim — todo step time > timestep gera espiral',
    'Não — com Fixed Frame Rate ele não acumula passos atrasados; ocorre dilatação do tempo (a simulação roda ~7× abaixo do tempo real)',
@@ -1598,7 +1612,7 @@ const REVEAL = [
  {q:'Limiares de sleep (Unity / Jolt / Chaos)', a:'0,005 m/s · 0,03 m/s · 5 frames'},
  {q:'Iterações default (Unity / Chaos)', a:'6 posição + 1 velocidade · 8 + 2'},
  {q:'Experimento iterações 6→20 (N=10)', a:'sleep 9–35 s → 2,7 s · max_v 0,5 → 0,12 m/s (jitter some, colapso fica)'},
- {q:'“Chaos otimizado” em 10k', a:'146,6 → 173,8 ms = +19% MAIS LENTO'},
+ {q:'“Chaos otimizado” em 10k', a:'149,8 → 173,8 ms = +16% MAIS LENTO (mesmo lote; ~+19% vs o default canônico n=15)'},
  {q:'Janela de medição da Chuva', a:'25 passos de warmup + 500 passos medidos = 10 s simulados (amostras=500)'},
  {q:'Método estatístico (passos)', a:'15 runs → M e σ (÷N) → descartar fora de [M−σ, M+σ] → Média Final'},
  {q:'Quanto de descarte é “normal” no filtro ±σ?', a:'~⅓ (±1σ contém ~68% numa normal)'},
