@@ -38,3 +38,6 @@ Projects/**/.vs/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ---- Claude Code (config/estado local — nao vai p/ o repo compartilhado) ----
+.claude/
