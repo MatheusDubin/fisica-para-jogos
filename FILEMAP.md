@@ -70,6 +70,7 @@
 | `howto/howto-{unity,unreal,godot}.md` | 📄 | Guias de implementação por engine. |
 | `howto/howto-statistics.md` | ★ | Metodologia estatística (os 4 passos, com exemplo). |
 | `study-{unity,unreal,godot}.md` | 📄 | Análises conceituais prévias (perguntas de estudo). |
+| `RECORDING.md` | 📄 | Guia para gravar os vídeos (config de vídeo + câmeras + passos por engine). |
 | `HANDOFF.md` · `FOLLOWUP-*.md` · `run-checklist.html` | 📄 | Continuidade/checklist internos. |
 
 ---

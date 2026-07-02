@@ -15,6 +15,7 @@ namespace Benchmark.EditorTools
     public static class BenchmarkMenu
     {
         const string RUNS = "15";       // ciclos do dataset final (n=15)
+        const string RUNS_VIDEO = "2";  // gravacao de video (2 runs por cenario)
         const int DEFAULT_ITER = 0;     // 0 = padrao da engine (6)
         const int TUNED_ITER = 20;      // variante exploratoria +iter
 
@@ -37,6 +38,7 @@ namespace Benchmark.EditorTools
         {
             PlayerPrefs.SetString("bench_scenario", "rain");
             PlayerPrefs.SetString("bench_rain_runs", RUNS);
+            PlayerPrefs.SetString("bench_rain_variations", "1000,5000,10000");
             PlayerPrefs.Save();
             EnterPlay();
         }
@@ -64,6 +66,35 @@ namespace Benchmark.EditorTools
         {
             PlayerPrefs.SetString("bench_scenario", "rain");
             PlayerPrefs.SetString("bench_rain_runs", "10");
+            PlayerPrefs.SetString("bench_rain_variations", "1000,5000,10000");
+            PlayerPrefs.Save();
+            EnterPlay();
+        }
+
+        // =================================================================
+        //  VIDEO (2 ciclos) - so para gravar os clipes, NAO e dataset
+        // =================================================================
+
+        [MenuItem("Benchmark/Video - Torre N=100 (2 runs)", priority = 30)]
+        public static void RunVideoTorre() =>
+            SetTower("100", RUNS_VIDEO, "torre-N100-arena", DEFAULT_ITER);
+
+        [MenuItem("Benchmark/Video - Chuva 10k (2 runs)", priority = 31)]
+        public static void RunVideoChuva10k()
+        {
+            PlayerPrefs.SetString("bench_scenario", "rain");
+            PlayerPrefs.SetString("bench_rain_runs", RUNS_VIDEO);
+            PlayerPrefs.SetString("bench_rain_variations", "10000");
+            PlayerPrefs.Save();
+            EnterPlay();
+        }
+
+        [MenuItem("Benchmark/Video - Chuva 1k 5k 10k (2 runs)", priority = 32)]
+        public static void RunVideoChuvaAll()
+        {
+            PlayerPrefs.SetString("bench_scenario", "rain");
+            PlayerPrefs.SetString("bench_rain_runs", RUNS_VIDEO);
+            PlayerPrefs.SetString("bench_rain_variations", "1000,5000,10000");
             PlayerPrefs.Save();
             EnterPlay();
         }

@@ -52,9 +52,12 @@ void ARainBenchmark::BeginPlay()
 	BenchmarkUtil::WriteHeader(CsvPath, RAIN_HEADER);
 
 	BuildBox();
+	// Enquadramento calculado: FOV ~60 deg vert (default), vista 3/4. Distancia por
+	// eixo 3700 cm (~52 m diagonal) enquadra do chao ate o topo do bloco de spawn de
+	// 10k (~50 m). Mira em z=2200 cm.
 	BenchmarkUtil::CreateViewer(GetWorld(),
-		FVector(5500, 5500, 3500),
-		FVector(0, 0, 1800));
+		FVector(3700, 3700, 2600),
+		FVector(0, 0, 2200));
 
 	UE_LOG(LogTemp, Warning, TEXT("[Chuva] Unreal/Chaos | variacoes=[%s] runs/var=%d | saida=%s"),
 		*FString::JoinBy(Variations, TEXT(","), [](int32 V){ return FString::FromInt(V); }),

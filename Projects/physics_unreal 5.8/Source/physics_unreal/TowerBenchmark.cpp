@@ -94,10 +94,14 @@ void ATowerBenchmark::FrameTowerCamera(int32 N)
 	{
 		return;
 	}
+	// Enquadramento calculado: FOV ~60 deg vertical (default 90 deg horizontal @16:9),
+	// vista 3/4 (azimute 45 deg -> X e Y iguais). Distancia horizontal por eixo =
+	// 0.81*H enquadra a torre inteira ocupando ~80% da altura do frame. Mira em
+	// 0.42*H (um pouco abaixo do centro, para o colapso perto do chao ficar visivel).
 	const float H = N * SPACING; // altura da torre em cm
-	const FVector Look(0.0f, 0.0f, H * 0.5f);
-	const float D = FMath::Max(500.0f, H * CAM_DIST_FACTOR);
-	const FVector Loc(D, D * 0.35f, H * 0.55f);
+	const FVector Look(0.0f, 0.0f, H * 0.42f);
+	const float D = FMath::Max(1500.0f, H * CAM_DIST_FACTOR);
+	const FVector Loc(D, D, H * 0.50f);
 	Cam->SetActorLocation(Loc);
 	Cam->SetActorRotation((Look - Loc).Rotation());
 }
