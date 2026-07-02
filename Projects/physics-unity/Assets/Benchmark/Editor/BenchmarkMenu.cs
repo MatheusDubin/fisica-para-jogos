@@ -75,6 +75,10 @@ namespace Benchmark.EditorTools
         //  VIDEO (2 ciclos) - so para gravar os clipes, NAO e dataset
         // =================================================================
 
+        [MenuItem("Benchmark/Video - Torre SWEEP 10,15,20 (2 runs)", priority = 29)]
+        public static void RunVideoTorreSweep() =>
+            SetTower("10,15,20", RUNS_VIDEO, "torre-sweep", DEFAULT_ITER);
+
         [MenuItem("Benchmark/Video - Torre N=100 (2 runs)", priority = 30)]
         public static void RunVideoTorre() =>
             SetTower("100", RUNS_VIDEO, "torre-N100-arena", DEFAULT_ITER);

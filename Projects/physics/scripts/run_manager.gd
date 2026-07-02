@@ -8,10 +8,11 @@ extends Node
 # Canonico: [100] (10 runs em N=100, com arena fechada).
 # Para stress-test, usar varios N (e.g. [5,10,15,20,25,30,35,40,45,50]).
 # ==== MODO VIDEO (gravacao de clipes) ====
-# Reduzido para 2 runs + N=100 (o colapso da torre que os slides mostram).
-# Para o dataset CANONICO, reverter: TORRE_TOTAL_RUNS=15 e TORRE_N_VALUES=[100]
-# (N=100) ou [10, 15, 20] (sweep).
-const TORRE_N_VALUES: Array[int] = [100]
+# 2 runs. Para gravar a Torre, escolha UM valor de TORRE_N_VALUES:
+#   - Torre N=100 (colapso):  [100]
+#   - Torre SWEEP (o degrau): [10, 15, 20]
+# Dataset CANONICO: TORRE_TOTAL_RUNS=15 (com o N desejado acima).
+const TORRE_N_VALUES: Array[int] = [10, 15, 20]
 const TORRE_TOTAL_RUNS: int = 2
 const TORRE_TIMEOUT_S: float = 60.0
 const TORRE_CSV: String = "user://torre_godot.csv"
