@@ -14,7 +14,7 @@ namespace Benchmark.EditorTools
     // Tudo e gerado em codigo - nenhuma ligacao de Inspector necessaria.
     public static class BenchmarkMenu
     {
-        const string RUNS = "30";       // ciclos do dataset final
+        const string RUNS = "15";       // ciclos do dataset final (n=15)
         const int DEFAULT_ITER = 0;     // 0 = padrao da engine (6)
         const int TUNED_ITER = 20;      // variante exploratoria +iter
 
@@ -24,15 +24,15 @@ namespace Benchmark.EditorTools
 
         // ---- Fase A: Solver Type = Projected Gauss Seidel (PGS, default) ----
 
-        [MenuItem("Benchmark/1. Torre N=100 PGS default (30 runs)", priority = 0)]
+        [MenuItem("Benchmark/1. Torre N=100 PGS default (15 runs)", priority = 0)]
         public static void Run1() =>
             SetTower("100", RUNS, "torre-N100-arena", DEFAULT_ITER);
 
-        [MenuItem("Benchmark/2. Torre SWEEP PGS 10..30 (+5, 30 runs)", priority = 1)]
+        [MenuItem("Benchmark/2. Torre SWEEP PGS 10,15,20 (15 runs)", priority = 1)]
         public static void Run2() =>
-            SetTower("10,15,20,25,30", RUNS, "torre-sweep-default", DEFAULT_ITER);
+            SetTower("10,15,20", RUNS, "torre-sweep", DEFAULT_ITER);
 
-        [MenuItem("Benchmark/3. Chuva 1k 5k 10k (30 runs)", priority = 2)]
+        [MenuItem("Benchmark/3. Chuva 1k 5k 10k (15 runs)", priority = 2)]
         public static void Run3()
         {
             PlayerPrefs.SetString("bench_scenario", "rain");

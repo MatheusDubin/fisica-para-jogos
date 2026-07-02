@@ -7,14 +7,14 @@ extends Node
 # Cenario 1 - Torre
 # Canonico: [100] (10 runs em N=100, com arena fechada).
 # Para stress-test, usar varios N (e.g. [5,10,15,20,25,30,35,40,45,50]).
-const TORRE_N_VALUES: Array[int] = [10, 15, 20]
-const TORRE_TOTAL_RUNS: int = 10
+const TORRE_N_VALUES: Array[int] = [10, 15, 20]  # sessao N=100 canonica. Para o SWEEP, trocar para [10, 15, 20].
+const TORRE_TOTAL_RUNS: int = 15
 const TORRE_TIMEOUT_S: float = 60.0
 const TORRE_CSV: String = "user://torre_godot.csv"
 const TORRE_DEBUG_CSV: String = "user://torre_godot_debug.csv"
 
 # Cenario 2 - Chuva
-const CHUVA_TOTAL_RUNS: int = 10
+const CHUVA_TOTAL_RUNS: int = 15
 const CHUVA_JANELA_S: float = 10.0
 const CHUVA_AQUECIMENTO_S: float = 0.5
 # Comparacao 10 iteracoes: todas as variacoes.
@@ -45,7 +45,7 @@ func _ready() -> void:
 
 func torre_num_cubos_atual() -> int:
 	if torre_n_idx >= TORRE_N_VALUES.size():
-		return 0
+			return 0
 	return TORRE_N_VALUES[torre_n_idx]
 
 func torre_registrar(

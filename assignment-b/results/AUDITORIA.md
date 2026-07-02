@@ -1,5 +1,12 @@
 # AUDITORIA — Raciocínio, Teoria e Integridade de Dados (Grau A + Grau B)
 
+> ⚠️ **DOCUMENTO HISTÓRICO — auditoria do piloto n=10, feita ANTES da coleta n=15.**
+> Serve como **registro de rigor**: lista as fraquezas do piloto que o dataset canônico
+> **n=15 depois corrigiu** — Unreal N=100 (antes ausente, hoje medido: `kept 2%`), PGS≠TGS
+> (corrigido), datasets wall-clock obsoletos (separados em `_arquivo-obsoleto/`), N final
+> (definido como 15). Os "ERROS COMPROVADOS" abaixo referem-se ao **estado antigo**; a maioria
+> **já não se aplica**. Números canônicos: [`RESULTS.md`](RESULTS.md) · leitura: [`README.md`](README.md).
+
 > Revisão técnico-científica cética, anterior à entrega ao professor. Objetivo:
 > encontrar falhas de raciocínio, erros teóricos, inconsistências estatísticas e
 > alegações não sustentadas pelos dados. **Nenhum arquivo analisado foi alterado**

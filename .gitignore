@@ -1,0 +1,40 @@
+# ============================================================
+#  fisica-para-jogos — .gitignore de raiz
+#  Ignora caches/builds REGENERÁVEIS das engines (não é código autoral).
+#  O código-fonte das cenas (Assets/, Source/, scripts/, scenes/, *.uproject,
+#  project.godot, Config/) continua versionado normalmente.
+# ============================================================
+
+# ---- Godot (Projects/physics) ----
+Projects/physics/.godot/
+Projects/physics/android/
+
+# ---- Unity (Projects/physics-unity) ----
+Projects/physics-unity/[Ll]ibrary/
+Projects/physics-unity/[Tt]emp/
+Projects/physics-unity/[Oo]bj/
+Projects/physics-unity/[Bb]uild/
+Projects/physics-unity/[Bb]uilds/
+Projects/physics-unity/[Ll]ogs/
+Projects/physics-unity/[Uu]ser[Ss]ettings/
+Projects/physics-unity/[Mm]emoryCaptures/
+Projects/physics-unity/ProfilerCaptures/
+Projects/physics-unity/.vs/
+Projects/physics-unity/*.csproj
+Projects/physics-unity/*.sln
+Projects/physics-unity/*.slnx
+
+# ---- Unreal (Projects/physics_unreal*) ----
+Projects/**/Binaries/
+Projects/**/Build/
+Projects/**/DerivedDataCache/
+Projects/**/Intermediate/
+Projects/**/Saved/
+Projects/**/.vs/
+*.VC.db
+*.opendb
+
+# ---- Sistema operacional / editores ----
+.DS_Store
+Thumbs.db
+desktop.ini

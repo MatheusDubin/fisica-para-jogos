@@ -1,38 +1,43 @@
-# Project F — Contexto Geral
+# Contexto do Projeto
 
 ## Disciplina
-Física para Jogos Digitais — Universidade do Vale do Rio dos Sinos (Unisinos), Escola Politécnica.
+**Física para Jogos Digitais** — Universidade do Vale do Rio dos Sinos (Unisinos), Escola Politécnica.
+Acadêmico: **Matheus Dubin da Silveira** · Docente: **Prof.ª Rossana Baptista Queiroz** · 2026.
 
-## Estrutura do Projeto
-Este repositório organiza os trabalhos do Grau A e Grau B da disciplina.
+## Tema central
+Comparar os **_physics engines_** embutidos nas três principais game engines, colocando a
+arquitetura interna de cada uma à prova em cenas idênticas:
 
-```
-Project-F/
-├── CONTEXT.md               ← este arquivo
-├── assignments/
-│   ├── assignment-a.md      ← spec + plano de execução (pesquisa teórica)
-│   └── assignment-b.md      ← spec + plano de execução (benchmark prático)
-├── assignment-a/            ← outputs da pesquisa do Grau A (slides, tabela, refs)
-└── assignment-b/            ← código, dados e slides do Grau B
-```
+- **Unity** — PhysX (solver PGS)
+- **Godot** — Jolt (impulse-based / Gauss-Seidel)
+- **Unreal** — Chaos (XPBD + Shock Propagation)
 
-## Trabalhos
+## Os dois trabalhos e como se conectam
 
-| # | Apelido       | Tipo             | Entregável principal          | Status     |
-|---|---------------|------------------|-------------------------------|------------|
-| A | Physics Survey | Pesquisa teórica | Apresentação PDF (slides)     | 🔜 Planejado |
-| B | Physics Bench  | Benchmark prático | Código + .md + slides        | 🔜 Planejado |
+| | Grau A — Physics Survey | Grau B — Benchmark Prático |
+|---|---|---|
+| **Pergunta** | O que a arquitetura de cada motor **prevê**? | O que os testes **medem** na prática? |
+| **Como** | Pesquisa das arquiteturas (solvers, threading, CCD, destruição, fluidos) | Implementação das mesmas cenas nas 3 engines + coleta estatística |
+| **Saída** | `assignment-a/` + `slides/grau-a.html` | `Projects/` + `assignment-b/results/` + `slides/grau-b.html` |
 
-## Tema Central
-Comparação dos **Physics Engines** embutidos nas três principais Game Engines:
-- **Unity** (PhysX / Havok)
-- **Unreal Engine** (Chaos Physics)
-- **Godot** (Godot Physics / Jolt)
+O Grau B fecha o ciclo: cada previsão do Grau A é **confrontada com o dado medido** (ex.: o Chaos é
+mesmo o mais caro? O Shock Propagation ajuda a torre? O Jolt escala melhor?). A reconciliação
+previsão × realidade está na seção "Análise Crítica" dos slides do Grau B.
 
-## Abordagem Multi-Agente
-Os trabalhos serão desenvolvidos com auxílio de agentes Claude:
-- **Agente de Pesquisa** — varre documentação oficial, artigos e fóruns para o Grau A.
-- **Agente de Planejamento Técnico** — detalha cenários e scripts para o Grau B.
-- **Agente de Síntese** — consolida dados, gera tabelas e rascunha slides.
+## Os dois cenários de teste
 
-Cada sessão de trabalho deve referenciar `assignment-a.md` ou `assignment-b.md` para manter contexto.
+- **Cenário 1 — A Torre:** uma pilha alta de cubos rígidos testa a **estabilidade** do solver
+  (converge? colapsa? treme?). Métrica primária: **colapso (`kept%`)**.
+- **Cenário 2 — A Chuva:** 1k / 5k / 10k esferas caindo numa caixa fechada testam o **desempenho**
+  sob estresse de colisão. Métrica primária: **Physics Step Time** (ms por passo).
+
+Regra de comparação justa: só o **motor de física** muda entre as engines — timestep (0,02 s / 50 Hz),
+gravidade, massa, atrito, formas e a cena (gerada em código) são **idênticos** nos três.
+
+## Método
+15 execuções por configuração → média (M) e desvio padrão populacional (σ) → descartar fora de
+`[M − σ, M + σ]` → **Média Final**. Detalhes e casos especiais (bimodal, timeout) em
+[`assignment-b/results/METRICS-e-exclusoes.md`](assignment-b/results/METRICS-e-exclusoes.md).
+
+> Para navegar o repositório, veja [`README.md`](README.md) (porta de entrada),
+> [`STATUS.md`](STATUS.md) (estado) e [`FILEMAP.md`](FILEMAP.md) (mapa de arquivos).

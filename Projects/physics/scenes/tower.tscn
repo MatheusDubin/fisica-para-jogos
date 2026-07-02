@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://1w0ox80fx6kt"]
 
-[ext_resource type="Script" path="res://scripts/tower_benchmark.gd" id="1_tower"]
+[ext_resource type="Script" uid="uid://d0nha4pcax7cl" path="res://scripts/tower_benchmark.gd" id="1_tower"]
 
-[node name="Tower" type="Node3D"]
+[node name="Tower" type="Node3D" unique_id=889279777]
 script = ExtResource("1_tower")

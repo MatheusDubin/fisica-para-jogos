@@ -203,11 +203,11 @@
             <tr><td class="rowlabel">Perfil</td>
               <td>Ecossistema maduro; forte em mobile/indie/AA e simulação determinística</td>
               <td>Referência AAA em fidelidade visual e efeitos de física</td>
-              <td>Open source, leve, adoção crescente</td></tr>
+              <td>Código aberto, leve, adoção crescente</td></tr>
             <tr><td class="rowlabel">Motor de física padrão</td>
               <td><b>NVIDIA PhysX 4.x</b></td>
               <td><b>Chaos Physics</b> (Epic)</td>
-              <td><b>Jolt Physics</b> (open source)</td></tr>
+              <td><b>Jolt Physics</b> (código aberto)</td></tr>
           </tbody>
         </table>
         <p class="kicker" style="margin-top:.8em">Versões de referência congeladas em 2026 para garantir comparação justa.</p>
@@ -231,7 +231,7 @@
             <tr><td class="rowlabel">Motor padrão</td>
               <td>NVIDIA <b>PhysX 4.x</b></td>
               <td><b>Chaos Physics</b> (proprietário)</td>
-              <td><b>Jolt Physics</b> (open source)</td></tr>
+              <td><b>Jolt Physics</b> (código aberto)</td></tr>
             <tr><td class="rowlabel">Alternativa oficial</td>
               <td>Unity Physics (DOTS/ECS)</td>
               <td>— (Chaos é único)</td>
@@ -388,7 +388,7 @@
       </section>
 
       <section data-background-color="#0a0d1a">
-        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Arquitetura &amp; performance</div>
+        <div class="eyebrow"><span class="sec-num">03</span> · Análise · Arquitetura &amp; desempenho</div>
         <h2 class="slide-title">Arquitetura: onde a física roda e como escala</h2>
         <div class="concept"><b>Ideias-chave:</b> <b>threads</b> (1 vs. várias); <b>ECS/DOTS</b> = dados orientados, <i>stateless</i> → <b>determinístico</b> (mesma entrada = mesma saída, essencial p/ rollback em rede); <b>islands</b> = grupos independentes resolvidos em paralelo; <b>Async Tick</b> = física num relógio próprio, desacoplada do FPS. <b>Nenhuma usa GPU para corpos rígidos.</b></div>
         <table>
@@ -422,7 +422,7 @@
           </div>
           <div class="card godot">
             <h4>Godot 4.6</h4>
-            <p><span class="plus">▲</span> Open source, multi-threading (Jolt), GDExtension, custo zero</p>
+            <p><span class="plus">▲</span> Código aberto, multi-threading (Jolt), GDExtension, custo zero</p>
             <p><span class="minus">▼</span> Destruição nativa, fluidos físicos, SoftBody limitado</p>
           </div>
         </div>
@@ -443,7 +443,7 @@
           <li><b>Convergência de solvers:</b> as três caminham para <b>XPBD/PBD</b>, maior <b>multi-threading</b> e GPU reservada a efeitos específicos (fluidos, partículas).</li>
           <li><b>Unity</b> — a única com ECS <b>stateless e determinístico</b>: vantagem para jogos online competitivos.</li>
           <li><b>Unreal</b> — a única com <b>destruição procedural AAA nativa</b> e acoplamento fluido-sólido em desenvolvimento.</li>
-          <li><b>Godot</b> — a única <b>open source</b>: pipeline de física customizável via GDExtension, sem custo de licença.</li>
+          <li><b>Godot</b> — a única <b>de código aberto</b>: pipeline de física customizável via GDExtension, sem custo de licença.</li>
         </ul>
         <aside class="notes">Não há vencedor absoluto; a escolha depende do gênero e das exigências físicas do projeto.</aside>
       </section>

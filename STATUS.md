@@ -1,126 +1,73 @@
-# STATUS — Project F
+# STATUS — Estado do Projeto
 
-> Última atualização: **2026-07-01** (corrigido)
-> Disciplina: Física para Jogos Digitais — Unisinos
+> Última atualização: **2026-07-01** · Disciplina: Física para Jogos Digitais — Unisinos
+> Índice de navegação em [`README.md`](README.md).
 
-> 🔴 **CORREÇÃO 2026-07-01:** o corpo deste STATUS abaixo está DESATUALIZADO
-> (dizia "Grau B 0% implementação"). **Realidade:** as 3 engines (Godot/Jolt,
-> Unity/PhysX, Unreal/Chaos) estão implementadas e os benchmarks foram rodados
-> (**10 iterações por config**, dataset final). Resultados em `RESULTS.md`,
-> `ANALYSIS-comparativo.md`. Estado real e plano de fechamento em
-> `assignment-b/results/PLANO-CORRECOES.md` e `AUDITORIA.md`.
+## Visão geral
 
----
-
-## Visão Geral
-
-| Trabalho | Fase atual | % documentação | % implementação |
-|---|---|---|---|
-| **Grau A** — Physics Survey | Pesquisa concluída, slides pendentes | ✅ 100% | ⏳ Slides ao final do B |
-| **Grau B** — Benchmark Prático | **Implementado + coletado** (10 runs/config); análise em revisão | ✅ 100% | ✅ ~90% (dados prontos; falta N=100 Unreal + slides) |
+| Trabalho | Estado | Entregáveis |
+|---|---|---|
+| **Grau A** — Physics Survey | ✅ **Concluído** | Pesquisa ([`assignment-a/`](assignment-a/)) + slides ([`slides/grau-a.html`](assignment-b/slides/grau-a.html)) |
+| **Grau B** — Benchmark Prático | ✅ **Concluído** | Código (3 engines) + dados (n=15) + análise + slides ([`slides/grau-b.html`](assignment-b/slides/grau-b.html)) |
 
 ---
 
-## Grau A — Estado Detalhado
+## Grau B — detalhamento
 
-### ✅ Concluído
-
-- **Pesquisa por engine** (`assignment-a/research-*.md`) — 3 relatórios completos com fontes primárias:
-  - Unity: PhysX 4.x como padrão, Havok descontinuado, Unity Physics DOTS como alternativa, sem destruição/fluidos nativos
-  - Unreal: Chaos Physics como padrão (UE5+), Chaos Destruction production-ready (5.4+), Chaos Flesh experimental, Niagara Fluids para fluidos GPU
-  - Godot: Jolt Physics como padrão (4.6+), multi-threaded nativo, sem destruição/fluidos nativos
-
-- **Tabela comparativa** (`assignment-a/comparative-table.md`) — todos os 6 tópicos preenchidos com nomes de sistemas/componentes para as 3 engines
-
-- **Referências por engine** (`assignment-a/references-*.md`) — fontes organizadas pelos 6 tópicos da tabela
-
-### ⏳ Pendente
-
-- **Slides (PDF)** — 5 seções obrigatórias (Introdução, Panorama Atual, Análise Comparativa, Considerações Finais, Referências)
-  - **Decisão:** produzir apenas após o Grau B, para incorporar considerações cruzadas com os resultados
-
----
-
-## Grau B — Estado Detalhado
-
-### ✅ Concluído (documentação e planejamento)
-
-- **Spec do assignment** (`assignments/assignment-b.md`) — enunciado + seção "O que o Grau A nos diz sobre o Grau B" com tabelas de contexto por cenário
-
-- **Cenários genéricos** (`assignment-b/scenarios/scenario-*-generic.md`):
-  - Cenário 1 (Torre): conceitos de jitter, sleep state, warm starting, shock propagation, setup, métricas, armadilhas
-  - Cenário 2 (Chuva): pipeline de física (broadphase/narrowphase/solver), spiral of death, variações 1k/5k/10k, metodologia de coleta
-
-- **Cenários por engine** (`assignment-b/scenarios/scenario-*-{unity,unreal,godot}.md`):
-  - Cada arquivo tem: contexto do Grau A aplicado ao cenário, API de sleep/métricas, esboço do script de benchmark, tabela de resultados vazia
-
-- **How-to guides** (`assignment-b/howto/`):
-  - `howto-unity.md` — criação de projeto, ProfilerRecorder, IsSleeping, CSV, automação de 10 runs
-  - `howto-unreal.md` — escala cm, Fixed Timestep, stat physics, Unreal Insights, FFileHelper, GameInstance
-  - `howto-godot.md` — Jolt setup, Performance monitors, sleep signal, FileAccess, AutoLoad singleton
-  - `howto-statistics.md` — metodologia dos 4 passos com exemplo numérico, script Python, fórmulas Excel
-
-- **Study files** (`assignment-b/study-*.md`):
-  - Análise conceitual prévia com perguntas abertas ainda não respondidas (ver seção "Pontos em Aberto" abaixo)
-
-### ❌ Não iniciado (implementação)
-
-- Projeto Unity (`unity/`) — cenas, scripts C#, prefabs
-- Projeto Unreal (`unreal/`) — projeto UE5, classes C++, configurações
-- Projeto Godot (`godot/`) — projeto 4.6, cenas .tscn, scripts GDScript
-- Dados brutos (`data/raw/`) — CSVs das 10 runs por engine/variação
-- Dados processados (`data/processed/`) — médias finais, desvios padrão
-- `results.md` — documento consolidado de todos os resultados
-- Slides/apresentação — após coleta dos dados
-
----
-
-## Pontos em Aberto (do study-*.md — requerem pesquisa ou decisão)
-
-### Unity
-- [ ] `ProfilerRecorder` com marcador `"Physics.Processing"` funciona em builds não-Development? (necessário para dados limpos)
-- [ ] Qual marcador exato usar: `"Physics.Processing"`, `"Physics.Simulate"` ou `"PhysicsManager.FixedUpdate"`? Confirmar no Profiler Window
-- [ ] Como rodar Unity em modo headless para benchmarks sem janela gráfica?
-- [ ] `Instantiate` de 10k objetos causa GC spike que distorce os dados da Chuva? Usar object pooling?
-
-### Unreal
-- [ ] `stat physics` PhysicsTime é acessível programaticamente ou apenas como texto no HUD?
-- [ ] `FPhysScene_Chaos` tem API pública para ler o tempo da última step em C++?
-- [ ] SpawnActor em loop para 10k objetos: causa hitch na primeira frame que invalida os dados?
-- [ ] Nanite/Lumen desativados no projeto de benchmark? (adicionam custo de render que polui FPS)
-- [ ] Instanced Static Mesh (ISM) com Chaos Physics funciona para física independente por instância?
-
-### Godot
-- [ ] `Performance.TIME_PHYSICS_PROCESS` é wall-clock total ou só parte do step? Verificar na documentação
-- [ ] `PhysicsServer3D.body_create()` é mais rápido que `add_child` para spawnar 10k objetos?
-- [ ] Flag `--headless` desativa completamente o render mantendo física ativa?
-- [ ] GDScript vs C# faz diferença no Step Time (a física é C++, mas o script pode gerar overhead)?
-- [ ] `FileAccess` funciona em builds exportadas? (importante para dados finais)
-
-### Metodologia
-- [ ] Definir tamanho da janela de coleta para Cenário 2 (sugestão: 10s) — padronizar nas 3 engines
-- [ ] Decidir se testaremos Godot Physics (legado) como variação comparativa ao Jolt
-
----
-
-## Próximas Etapas (em ordem)
-
-1. **Resolver pontos em aberto** acima — pesquisa rápida ou teste prático
-2. **Implementar Godot** — o mais automatizável (Claude Code pode gerar .tscn e project.godot)
-3. **Implementar Unity** — scripts C# via Claude Code, cena mínima manual
-4. **Implementar Unreal** — C++ + .ini via Claude Code, projeto criado manualmente
-5. **Rodar benchmarks** — 10 runs por variação por engine
-6. **Analisar dados** — script Python de estatísticas
-7. **Slides A+B** — apresentação única cobrindo os dois trabalhos (ou dois PDFs separados)
-
----
-
-## Decisões Tomadas
-
-| Decisão | Motivo |
+| Item | Estado |
 |---|---|
-| Unity usa path PhysX/GameObject, não DOTS | Comparação justa com o default de cada engine |
-| Godot usa Jolt Physics, não GodotPhysics | Jolt é o padrão no Godot 4.6 |
-| Slides apenas após o B | Para poder responder "resultados confirmam o Grau A?" |
-| Esferas para Cenário 2 (Chuva) | Shape mais simples para narrowphase; menos instabilidade que boxes |
-| Fixed Timestep 50Hz (0.02s) nas 3 engines | Definido pelo assignment |
+| Implementação nas 3 engines (Unity/PhysX, Godot/Jolt, Unreal/Chaos) | ✅ feito — [`Projects/`](Projects/) |
+| Cenário 1 — Torre (N=100 + varredura N=10/15/20), **nas 3 engines** | ✅ coletado |
+| Cenário 2 — Chuva (1k / 5k / 10k esferas), **nas 3 engines** | ✅ coletado |
+| Coleta estatística: **15 execuções por config** → M ± σ → Média Final | ✅ feito |
+| Resultados consolidados | ✅ [`results/RESULTS.md`](assignment-b/results/RESULTS.md) |
+| Slides (7 seções) + guia de estudo | ✅ feito |
+
+**Dataset canônico = n=15.** Um piloto anterior de **n=10** foi mantido arquivado
+(`results/_arquivo-2026-07-01-n10/`) e serve apenas à comparação de reprodutibilidade
+([`COMPARISON-n10-vs-n15.md`](assignment-b/results/COMPARISON-n10-vs-n15.md)) — subir de 10→15
+execuções moveu a Chuva em < 7% e **não mudou nenhuma conclusão**.
+
+---
+
+## O que é canônico × exploratório × arquivado (para não confundir)
+
+- ✅ **Canônico (n=15):** `results/{unity,godot,unreal}/{chuva-default,torre-N100-arena,torre-sweep}/`
+  + `RESULTS.md`, `COMPARISON-n10-vs-n15.md`, `METRICS-e-exclusoes.md`, os slides e o guia.
+- 🔬 **Exploratório (fora da comparação principal, rotulado):** `unreal/chuva-optimized/` (otimização
+  que piorou), `unity/torre-*-tgs/` e `unity/torre-*-tuned/` (solver/iterações alternativos).
+- 🗄️ **Arquivado (histórico, não usar):** `_arquivo-2026-07-01-n10/` (piloto) e `_arquivo-obsoleto/`
+  (janela wall-clock antiga, substituída pela janela por tempo de simulação).
+- 📄 **Docs de processo (histórico, não são o número final):** `results/ANALYSIS-comparativo.md`,
+  `AUDITORIA.md`, `PLANO-CORRECOES.md`, `{engine}/NOTES.md` — todos marcados com banner. Ver
+  [`results/README.md`](assignment-b/results/README.md) §6.
+
+---
+
+## Limitações honestas (declaradas no trabalho)
+
+- A "diferença de ~11×" do Chaos é **custo bruto da configuração** (editor + física acoplada +
+  sincronização de 10k atores + LWC), **não** uma medição isolada do solver.
+- **FPS não é comparável 1-a-1** entre engines (render acoplado na Unreal vs livre em Unity/Godot).
+- **Tempo-até-sleep não compara** entre engines (limiar de sleep difere: 0,005 · 0,03 · 5 frames)
+  → a Torre é lida por **colapso (`kept%`)**.
+- O **FPS 10k do Godot é bimodal** → reportado por mediana + grupos, não pela Média Final.
+
+---
+
+## Correções aplicadas ao longo do processo (prova de rigor)
+
+- Janela **wall-clock → tempo de simulação** (500 passos): o Chaos 10k saltou de ~86 para ~147 ms.
+- Unity: `ProfilerRecorder` retornava 0 → medição via `Stopwatch(Physics.Simulate)`.
+- Correção teórica: o solver default do Unity é **PGS**, não TGS.
+- Jolt: buffers ajustados + reset in-place → 10k roda sem travar.
+- Unreal Torre **N=100 coletado** (era a lacuna apontada na auto-auditoria).
+
+---
+
+## Possíveis próximos passos (não bloqueiam a entrega)
+
+- Publicar o repositório no GitHub (inserir o link nos slides) — atenção ao `.gitignore` das pastas
+  de build das engines (`Library/`, `Binaries/`, `Intermediate/`, `Saved/`, `DerivedDataCache/`).
+- Gravar os clipes de vídeo (Torre colapsando · Chuva 10k) referenciados nos slides.
+- Chaos em build **Shipping + Async Physics Tick** para isolar o custo puro do solver.
